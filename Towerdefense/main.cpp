@@ -30,7 +30,6 @@ public:
         shape.setFillColor(sf::Color::Red);
         shape.setPosition({ static_cast<float>(startX * TILE_SIZE - 10), static_cast<float>(startY * TILE_SIZE + 10) });
         shape.setOrigin(shape.getGeometricCenter());
-        // Initialize visited grid
         for (int y = 0; y < MAP_HEIGHT; ++y)
             for (int x = 0; x < MAP_WIDTH; ++x)
                 visited[y][x] = false;
@@ -64,7 +63,7 @@ private:
     sf::CircleShape shape;
     std::vector<sf::Vector2i> path;
     bool visited[MAP_HEIGHT][MAP_WIDTH];
-    int currentStep = 0;
+    size_t currentStep = 0;
 
     const std::vector<sf::Vector2i> directions = {
         {1, 0}, {0, 1}, {-1, 0}, {0, -1}
@@ -84,13 +83,12 @@ private:
         if (path.size() == 1 || x != path[0].x || y != path[0].y)
             return;
 
-        // Add one tile below the last point (off-screen)
         sf::Vector2i last = path.back();
         if (last.y + 1 >= MAP_HEIGHT) {
-            path.push_back({ last.x, last.y + 1 }); // Off bottom
+            path.push_back({ last.x, last.y + 1 });
         }
         else if (last.x + 1 >= MAP_WIDTH) {
-            path.push_back({ last.x + 1, last.y }); // Off right
+            path.push_back({ last.x + 1, last.y });
         }
     }
 
@@ -98,9 +96,11 @@ private:
 int main() {
     sf::RenderWindow window(sf::VideoMode({ MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
-    Enemy enemy(0, 3); // Start from (1,1)
+    Enemy enemy(0, 3);
 
-    const float speed = 0.5f;
+    const float speed = 25.0f;
+
+    sf::Clock deltaClock;
 
     sf::Texture tileTexture;
     if (!tileTexture.loadFromFile("Sprites/tile.png")) {
@@ -125,7 +125,9 @@ int main() {
                 }
             }
         }
-        enemy.update(speed);
+        float deltaTime = deltaClock.restart().asSeconds();
+
+        enemy.update(speed * deltaTime);
         window.clear();
 
         for (int row = 0; row < MAP_HEIGHT; ++row) {
