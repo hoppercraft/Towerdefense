@@ -64,7 +64,7 @@ private:
     sf::CircleShape shape;
     std::vector<sf::Vector2i> path;
     bool visited[MAP_HEIGHT][MAP_WIDTH];
-    size_t currentStep = 0;
+    int currentStep = 0;
 
     const std::vector<sf::Vector2i> directions = {
         {1, 0}, {0, 1}, {-1, 0}, {0, -1}
