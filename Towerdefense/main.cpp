@@ -68,7 +68,7 @@ private:
     const std::vector<sf::Vector2i> directions = {
         {1, 0}, {0, 1}, {-1, 0}, {0, -1}
     };
-
+        
     void findPath(int x, int y) {
         if (x < 0 || y < 0 || x >= MAP_WIDTH || y >= MAP_HEIGHT)
             return;
@@ -84,12 +84,7 @@ private:
             return;
 
         sf::Vector2i last = path.back();
-        if (last.y + 1 >= MAP_HEIGHT) {
-            path.push_back({ last.x, last.y + 1 });
-        }
-        else if (last.x + 1 >= MAP_WIDTH) {
-            path.push_back({ last.x + 1, last.y });
-        }
+        path.push_back({ last.x+1, last.y });
     }
 
 };
