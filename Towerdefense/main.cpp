@@ -8,7 +8,7 @@ enum TileType {
     Tree = 3
 };
 
-const int TILE_SIZE = 20;
+const int TILE_SIZE = 20;   
 const int MAP_WIDTH = 13;
 const int MAP_HEIGHT = 8;
 
@@ -25,7 +25,8 @@ int map[MAP_HEIGHT][MAP_WIDTH] = {
 
 class Enemy {
 public:
-    Enemy(int startX, int startY) {
+    Enemy() {
+        int startX = 0,startY = 3;
         shape.setRadius(7);
         shape.setFillColor(sf::Color::Red);
         shape.setPosition({ static_cast<float>(startX * TILE_SIZE - 10), static_cast<float>(startY * TILE_SIZE + 10) });
@@ -88,11 +89,50 @@ private:
     }
 
 };
+class Shop {
+    public:
+        Shop() {
+            bar.setPosition({ MAP_WIDTH * TILE_SIZE, 0 });
+            bar.setSize({ TILE_SIZE * 3, TILE_SIZE * MAP_HEIGHT });
+            bar.setFillColor(sf::Color(0x7C5123FF));
+            bar.setOutlineThickness({ 2.0f });
+            bar.setOutlineColor(sf::Color(0xa0acaaFF));
+            for (int i = 0; i < 3; ++i) {
+                sf::RectangleShape frame;
+                frame.setSize({ TILE_SIZE * 1.75, TILE_SIZE * 1.75 });
+                frame.setOrigin(frame.getGeometricCenter());
+                frame.setPosition({
+                    MAP_WIDTH * TILE_SIZE + bar.getGeometricCenter().x,
+                    TILE_SIZE * 1.25f + i * TILE_SIZE * 2.0f
+                    });
+                frame.setFillColor(sf::Color(0xC4B093FF));
+                frames.push_back(frame);
+                sf::CircleShape tower;
+                tower.setRadius(7);
+                tower.setFillColor(sf::Color::Red);
+                tower.setOrigin(tower.getGeometricCenter());
+                tower.setPosition(frame.getPosition());
+                towers.push_back(tower);
+            }
+        }
+        
+        void draw(sf::RenderWindow& window) {
+            window.draw(bar);
+            for(const auto& frame :frames)
+            window.draw(frame);
+            for (const auto& tower : towers)
+                window.draw(tower);
+        }
+    private:
+        std::vector<sf::RectangleShape> frames;
+        std::vector<sf::CircleShape> towers;
+        sf::RectangleShape bar;
+};
 int main() {
-    sf::RenderWindow window(sf::VideoMode({ MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE }), "Tower Defense Map");
+    sf::RenderWindow window(sf::VideoMode({ (MAP_WIDTH+3) * TILE_SIZE, MAP_HEIGHT * TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
-    Enemy enemy(0, 3);
-
+    Enemy enemy;
+    Shop shop;
     const float speed = 25.0f;
 
     sf::Clock deltaClock;
@@ -109,7 +149,7 @@ int main() {
     }
 
     sf::Sprite tile(tileTexture);
-
+    
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>())
@@ -133,8 +173,9 @@ int main() {
                 window.draw(tile);
             }
         }
-
+       
         enemy.draw(window);
+        shop.draw(window);
         window.display();
     }
 
