@@ -109,7 +109,7 @@ class Shop {
                 frames.push_back(frame);
                 sf::CircleShape tower;
                 tower.setRadius(7);
-                tower.setFillColor(sf::Color::Red);
+                tower.setFillColor(sf::Color(0x0000FFFF));
                 tower.setOrigin(tower.getGeometricCenter());
                 tower.setPosition(frame.getPosition());
                 towers.push_back(tower);
@@ -122,17 +122,88 @@ class Shop {
             window.draw(frame);
             for (const auto& tower : towers)
                 window.draw(tower);
+            if (dragging)
+                window.draw(draggedTower);
+            for (const auto& tower : deployedtowers)
+                window.draw(tower);
+        }
+
+        void handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
+            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            if (const auto* mousepressed = event.getIf<sf::Event::MouseButtonPressed>()) {
+                if (mousepressed->button == sf::Mouse::Button::Left) {
+                    for (size_t i = 0; i < towers.size(); ++i) {
+                        if (towers[i].getGlobalBounds().contains(mousePos)) {
+                            dragging = true;
+                            draggedTower = towers[i];
+                            draggedTower.setFillColor(sf::Color(0x0000FF55));
+                            draggedTower.setPosition(mousePos);
+                            break;
+                        }
+                    }
+                }
+
+            }
+            else if (const auto* mouseReleased = event.getIf<sf::Event::MouseButtonReleased>()) {
+                if (mouseReleased->button == sf::Mouse::Button::Left && dragging) {
+                    dragging = false;
+                    sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                    int tileX = static_cast<int>(worldPos.x) / TILE_SIZE;
+                    int tileY = static_cast<int>(worldPos.y) / TILE_SIZE;
+                    
+                    if (tileX >= 0 && tileX < MAP_WIDTH && tileY >= 0 && tileY < MAP_HEIGHT) {
+                        if (map[tileY][tileX] == TileType::Grass){
+                            draggedTower.setFillColor(sf::Color(0x0000FFFF));
+                            deployedtowers.push_back(draggedTower);
+                        }
+
+                    }
+                }
+            }
+        }
+        void update(const sf::RenderWindow& window) {
+            if (dragging) {
+                sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                draggedTower.setPosition(mousePos);
+            }
         }
     private:
         std::vector<sf::RectangleShape> frames;
         std::vector<sf::CircleShape> towers;
+        std::vector<sf::CircleShape> deployedtowers;
         sf::RectangleShape bar;
+        bool dragging = false;
+        sf::CircleShape draggedTower;
+};
+class Tower {
+public:
+    Tower(sf::Vector2f position) {
+        body.setSize({ 10.f, 15.f });
+        body.setFillColor(sf::Color(100, 100, 200));
+        body.setOrigin({ body.getGeometricCenter().x,head.getRadius() });
+        body.setPosition(position);
+        head.setRadius(7.f);
+        head.setFillColor(sf::Color(0x0000FFFF));
+        head.setOrigin(head.getGeometricCenter());
+        head.setPosition(position);
+        
+    }
+
+    void draw(sf::RenderWindow& window) const {
+        window.draw(body);
+        window.draw(head);
+    }
+
+private:
+    sf::RectangleShape body;
+    sf::CircleShape head;
 };
 int main() {
     sf::RenderWindow window(sf::VideoMode({ (MAP_WIDTH+3) * TILE_SIZE, MAP_HEIGHT * TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
     Enemy enemy;
     Shop shop;
+    Tower tower({ 30.0f, 40.0f });
     const float speed = 25.0f;
 
     sf::Clock deltaClock;
@@ -159,9 +230,11 @@ int main() {
                     window.close();
                 }
             }
+            shop.handleEvent(event.value(), window);
         }
         float deltaTime = deltaClock.restart().asSeconds();
 
+        shop.update(window);
         enemy.update(speed * deltaTime);
         window.clear();
 
@@ -171,11 +244,13 @@ int main() {
                 tile.setTextureRect(tileRects[tileType]);
                 tile.setPosition({ static_cast<float>(col * TILE_SIZE), static_cast<float>(row * TILE_SIZE) });
                 window.draw(tile);
+                window.draw(tile);
             }
         }
        
         enemy.draw(window);
         shop.draw(window);
+        tower.draw(window);
         window.display();
     }
 
