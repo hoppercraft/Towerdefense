@@ -11,5 +11,5 @@ namespace Game {
     enum TileType { Grass = 0, Water = 1, Path = 2, Tree = 3 };
 
     // Game map declaration
-    extern int gameMap[MAP_HEIGHT][MAP_WIDTH];
+    extern int Map1[MAP_HEIGHT][MAP_WIDTH];
 }

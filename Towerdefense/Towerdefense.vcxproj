@@ -147,15 +147,15 @@
     <ClCompile Include="GameConstants.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Shop.cpp" />
-    <ClCompile Include="Tower.cpp" />
+    <ClCompile Include="Renders.cpp" />
+    <ClCompile Include="Towers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameConstants.h" />
-    <ClInclude Include="Shop.h" />
-    <ClInclude Include="Tower.h" />
+    <ClInclude Include="Renders.h" />
+    <ClInclude Include="Towers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

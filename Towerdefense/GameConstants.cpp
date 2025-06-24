@@ -1,7 +1,7 @@
 #include "GameConstants.h"
 
 namespace Game {
-    int gameMap[MAP_HEIGHT][MAP_WIDTH] = {
+    int Map1[MAP_HEIGHT][MAP_WIDTH] = {
         {0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0},
         {0, 0, 3, 3, 0, 0, 0, 0, 1, 1, 0, 0, 0},
