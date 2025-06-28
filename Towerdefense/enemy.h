@@ -9,7 +9,7 @@ public:
     Enemy();
     void update(float speed);
     void draw(sf::RenderWindow& window);
-
+    sf::Vector2f getPosition() const;
 private:
     sf::CircleShape shape;
     std::vector<sf::Vector2i> path;

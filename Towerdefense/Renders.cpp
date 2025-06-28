@@ -33,16 +33,31 @@ void Shop::draw(sf::RenderWindow& window) {
         draggedTower.draw(window);
     for (const auto& tower : deployedtowers)
         tower.draw(window);
+    if (clicked) {
+        operatedtower->draw(window);
+    }
 }
+
 
 void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
     sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     sf::Vector2f worldPos = mousePos;
     int tileX = static_cast<int>(worldPos.x) / Game::TILE_SIZE;
     int tileY = static_cast<int>(worldPos.y) / Game::TILE_SIZE;
-
     if (const auto* mousepressed = event.getIf<sf::Event::MouseButtonPressed>()) {
         if (mousepressed->button == sf::Mouse::Button::Left) {
+            if (clicked == true) {
+                operatedtower->setfillcolordefault();
+                clicked = false;
+            }
+            for (size_t i = 0; i < deployedtowers.size(); ++i) {
+                if (deployedtowers[i].contain(mousePos)) {
+                    operatedtower = &deployedtowers[i];
+                    operatedtower->showrange();
+                    clicked = true;
+                    break;
+                }
+            }
             for (size_t i = 0; i < towers.size(); ++i) {
                 if (towers[i].contain(mousePos)) {
                     dragging = true;
@@ -59,15 +74,19 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
             dragging = false;
             if (tileX >= 0 && tileX < Game::MAP_WIDTH && tileY >= 0 && tileY < Game::MAP_HEIGHT) {
                 if (Game::Map1[tileY][tileX] == Game::TileType::Grass) {
-                    draggedTower.setfillcolordefault();
-                    deployedtowers.push_back(draggedTower);
+                    if (Shop::bounded() == false) {
+                        draggedTower.setfillcolordefault();
+                        deployedtowers.push_back(draggedTower);
+                    }
                 }
             }
         }
     }
 
+
+
     if (tileX >= 0 && tileX < Game::MAP_WIDTH && tileY >= 0 && tileY < Game::MAP_HEIGHT) {
-        if (Game::Map1[tileY][tileX] == Game::TileType::Grass) {
+        if (Game::Map1[tileY][tileX] == Game::TileType::Grass && Shop::bounded()==false) {
             draggedTower.setfillcolorlight();
         }
         else {
@@ -75,7 +94,14 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
         }
     }
 }
-
+bool Shop::bounded() {
+    for (size_t i = 0; i < deployedtowers.size(); ++i) {
+        if (draggedTower.getGlobalBounds().findIntersection(deployedtowers[i].getGlobalBounds())){
+            return true;
+        }
+    }
+    return false;
+}
 void Shop::update(const sf::RenderWindow& window) {
     if (dragging) {
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));

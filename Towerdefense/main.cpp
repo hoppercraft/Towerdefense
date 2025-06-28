@@ -8,7 +8,13 @@
 int main() {
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
-    Enemy enemy;
+
+    std::vector<Enemy> enemies;
+    sf::Clock spawnClock;
+    float spawnInterval = 1.0f;
+    int maxEnemies = 20;
+    int spawnedEnemies = 0;
+
     Shop shop;
     const float speed = 25.0f;
 
@@ -41,7 +47,15 @@ int main() {
         float deltaTime = deltaClock.restart().asSeconds();
 
         shop.update(window);
-        enemy.update(speed * deltaTime);
+        if (spawnedEnemies < maxEnemies && spawnClock.getElapsedTime().asSeconds() >= spawnInterval) {
+            enemies.emplace_back();  
+            spawnClock.restart();    
+            spawnedEnemies++;
+        }
+
+        for (auto& enemy : enemies)
+            enemy.update(speed * deltaTime);
+
         window.clear();
 
         for (int row = 0; row < Game::MAP_HEIGHT; ++row) {
@@ -53,7 +67,9 @@ int main() {
             }
         }
 
-        enemy.draw(window);
+        for (auto& enemy : enemies)
+            enemy.draw(window);
+   
         shop.draw(window);
         window.display();
     }
