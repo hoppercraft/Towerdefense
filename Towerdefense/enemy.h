@@ -6,7 +6,6 @@
 class Enemy {
 public:
     Enemy();
-
     void update(float speed);
     void draw(sf::RenderWindow& window) const;
     sf::Vector2f getPosition() const;
@@ -16,7 +15,19 @@ public:
     float getMaxHealth() const;
 
 private:
-    sf::CircleShape shape;
+    // Soldier sprite components
+    sf::CircleShape helmet;          // Soldier helmet
+    sf::CircleShape leftGoggle;      // Left goggle
+    sf::CircleShape rightGoggle;     // Right goggle
+    sf::RectangleShape body;         // Main torso
+    sf::RectangleShape chestArmor;   // Chest armor/vest
+    sf::RectangleShape leftArm;      // Left arm
+    sf::RectangleShape rightArm;     // Right arm
+    sf::RectangleShape leftLeg;      // Left leg
+    sf::RectangleShape rightLeg;     // Right leg
+    sf::RectangleShape weapon;       // Rifle/weapon
+
+    // Pathfinding and movement
     std::vector<sf::Vector2i> path;
     std::vector<std::vector<bool>> visited;
     size_t currentStep;
@@ -29,9 +40,13 @@ private:
     sf::RectangleShape healthBarBackground;
     sf::RectangleShape healthBarForeground;
 
+    // Helper methods
+    void initializeSoldierSprite();
+    void setSoldierPosition(sf::Vector2f position);
+    sf::Vector2f getSoldierPosition() const;
     void updateHealthBar();
     void findPath(int x, int y);
 
-    // Static directions - this is the key fix
+    // Static directions for pathfinding
     static const std::vector<sf::Vector2i> directions;
 };

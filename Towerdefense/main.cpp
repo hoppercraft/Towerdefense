@@ -1,4 +1,4 @@
-#include <SFML/Graphics.hpp>
+﻿#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <algorithm>
 #include "GameConstants.h"
@@ -135,6 +135,7 @@ int main() {
             enemy.draw(window);
 
         shop.draw(window);
+        
         window.display();
     }
 
