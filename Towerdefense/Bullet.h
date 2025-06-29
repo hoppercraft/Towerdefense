@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <cmath>
 
 class Bullet {
 public:
@@ -12,6 +13,6 @@ public:
 private:
     sf::CircleShape shape;
     sf::Vector2f position;
-    sf::Vector2f target;
+    sf::Vector2f targetPosition;
     sf::Vector2f velocity;
 };

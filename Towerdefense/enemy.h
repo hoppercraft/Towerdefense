@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "GameConstants.h" 
@@ -7,18 +6,32 @@
 class Enemy {
 public:
     Enemy();
+
     void update(float speed);
-    void draw(sf::RenderWindow& window);
+    void draw(sf::RenderWindow& window) const;
     sf::Vector2f getPosition() const;
+    void takeDamage(float damage);
+    bool isAlive() const;
+    float getHealth() const;
+    float getMaxHealth() const;
+
 private:
     sf::CircleShape shape;
     std::vector<sf::Vector2i> path;
-    bool visited[Game::MAP_HEIGHT][Game::MAP_WIDTH];
-    size_t currentStep = 0;
+    std::vector<std::vector<bool>> visited;
+    size_t currentStep;
 
-    const std::vector<sf::Vector2i> directions = {
-        {1, 0}, {0, 1}, {-1, 0}, {0, -1}
-    };
+    // Health system
+    float maxHealth;
+    float currentHealth;
 
+    // Health bar components
+    sf::RectangleShape healthBarBackground;
+    sf::RectangleShape healthBarForeground;
+
+    void updateHealthBar();
     void findPath(int x, int y);
+
+    // Static directions - this is the key fix
+    static const std::vector<sf::Vector2i> directions;
 };

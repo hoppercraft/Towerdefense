@@ -7,12 +7,12 @@ Bullet::Bullet(sf::Vector2f startPos, sf::Vector2f targetPos) {
     shape.setPosition(startPos);
 
     position = startPos;
-    target = targetPos;
+    targetPosition = targetPos;
 
-    sf::Vector2f direction = target - position;
+    sf::Vector2f direction = targetPosition - position;
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     if (length != 0) {
-        velocity = direction / length * 300.f;
+        velocity = direction / length * 300.f; // 300 pixels per second
     }
 }
 
@@ -27,10 +27,12 @@ void Bullet::draw(sf::RenderWindow& window) const {
 
 bool Bullet::reachedTarget() const {
     float distance = std::sqrt(
-        (target.x - position.x) * (target.x - position.x) +
-        (target.y - position.y) * (target.y - position.y)
+        (targetPosition.x - position.x) * (targetPosition.x - position.x) +
+        (targetPosition.y - position.y) * (targetPosition.y - position.y)
     );
     return distance < 5.f;
 }
 
-sf::Vector2f Bullet::getPosition() const { return position; }
+sf::Vector2f Bullet::getPosition() const {
+    return position;
+}
