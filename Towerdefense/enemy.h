@@ -8,8 +8,9 @@ class Enemy {
 public:
     Enemy();
     void update(float speed);
-    void draw(sf::RenderWindow& window);
-    sf::Vector2f getPosition() const;
+    void draw(sf::RenderWindow& window); 
+    sf::FloatRect getGlobalBounds();
+    sf::Vector2f getposition();
 private:
     sf::CircleShape shape;
     std::vector<sf::Vector2i> path;

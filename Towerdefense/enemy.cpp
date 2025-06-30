@@ -55,7 +55,9 @@ void Enemy::findPath(int x, int y) {
     sf::Vector2i last = path.back();
     path.push_back({ last.x + 1, last.y });
 }
-
-sf::Vector2f Enemy::getPosition() const{
+sf::FloatRect Enemy::getGlobalBounds() {
+    return shape.getGlobalBounds();
+}
+sf::Vector2f Enemy::getposition() {
     return shape.getPosition();
 }

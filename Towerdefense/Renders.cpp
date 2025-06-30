@@ -1,5 +1,7 @@
 #include "Renders.h"
-
+#include"Bullet.h"
+#include <iostream>
+#include <cmath>
 Shop::Shop() {
     bar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });
     bar.setSize({ Game::TILE_SIZE * 3, Game::TILE_SIZE * Game::MAP_HEIGHT });
@@ -94,9 +96,15 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
         }
     }
 }
+
 bool Shop::bounded() {
     for (size_t i = 0; i < deployedtowers.size(); ++i) {
-        if (draggedTower.getGlobalBounds().findIntersection(deployedtowers[i].getGlobalBounds())){
+        sf::Vector2f center = deployedtowers[i].gettowerposition();
+        sf::Vector2f target = draggedTower.gettowerposition();
+        float dx = center.x - target.x;
+        float dy = target.y - center.y;
+        float distance = std::sqrt(dx * dx + dy * dy);
+        if (distance<= 14.0f){
             return true;
         }
     }
@@ -108,3 +116,25 @@ void Shop::update(const sf::RenderWindow& window) {
         draggedTower.setposition(mousePos);
     }
 }
+
+void Shop::Towertarget(std::vector<Enemy>& enemies,float dt){
+    for (size_t i = 0; i < deployedtowers.size(); ++i) {
+        for (size_t j = 0; j < enemies.size(); ++j) {
+            sf::Vector2f center = deployedtowers[i].gettowerposition();
+            sf::Vector2f target = enemies[j].getposition();
+            float dx = center.x - target.x;
+            float dy = target.y - center.y;
+            float distance = std::sqrt(dx * dx + dy * dy);
+            if (deployedtowers[i].isInRange(enemies[j].getposition(),50.f)){
+                float a = atan2(dx,dy);
+                deployedtowers[i].setangle(a);
+                deployedtowers[i].tryShoot(enemies);        
+                deployedtowers[i].updateBullets(dt);
+                break;
+            }
+
+        }
+    }
+
+}
+

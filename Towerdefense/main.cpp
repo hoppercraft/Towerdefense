@@ -4,6 +4,7 @@
 #include "Towers.h"
 #include "Renders.h"
 #include "Enemy.h"
+#include "Bullet.h"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
@@ -45,13 +46,14 @@ int main() {
             shop.handleEvent(event.value(), window);
         }
         float deltaTime = deltaClock.restart().asSeconds();
-
+        shop.Towertarget(enemies, deltaTime);
         shop.update(window);
         if (spawnedEnemies < maxEnemies && spawnClock.getElapsedTime().asSeconds() >= spawnInterval) {
             enemies.emplace_back();  
             spawnClock.restart();    
             spawnedEnemies++;
         }
+
 
         for (auto& enemy : enemies)
             enemy.update(speed * deltaTime);
