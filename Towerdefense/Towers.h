@@ -14,13 +14,13 @@ public:
     void draw(sf::RenderWindow& window) const;
     bool contain(sf::Vector2f mousepos);
     void showrange();
-    sf::FloatRect getGlobalBounds();
-    sf::FloatRect getRange();
     void setangle(float x);
     sf::Angle gettowerangle();
     void tryShoot(std::vector<Enemy>& enemies);
     void updateBullets(float dt);
     bool isInRange(sf::Vector2f other,float range);
+    float getrange();
+    float getradius();
 protected:
     sf::CircleShape Towerrange;
     std::vector<Bullet> bullets;

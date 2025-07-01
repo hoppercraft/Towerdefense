@@ -104,12 +104,13 @@ bool Shop::bounded() {
         float dx = center.x - target.x;
         float dy = target.y - center.y;
         float distance = std::sqrt(dx * dx + dy * dy);
-        if (distance<= 14.0f){
+        if (distance<= deployedtowers[i].getradius()*2) {
             return true;
         }
     }
     return false;
 }
+
 void Shop::update(const sf::RenderWindow& window) {
     if (dragging) {
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -125,7 +126,7 @@ void Shop::Towertarget(std::vector<Enemy>& enemies,float dt){
             float dx = center.x - target.x;
             float dy = target.y - center.y;
             float distance = std::sqrt(dx * dx + dy * dy);
-            if (deployedtowers[i].isInRange(enemies[j].getposition(),50.f)){
+            if (deployedtowers[i].isInRange(enemies[j].getposition(),deployedtowers[i].getrange())) {
                 float a = atan2(dx,dy);
                 deployedtowers[i].setangle(a);
                 deployedtowers[i].tryShoot(enemies);        

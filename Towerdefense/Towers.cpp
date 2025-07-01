@@ -84,13 +84,7 @@ void Tower::setfillcolorlight() {
     Towerrange.setFillColor(sf::Color(0x00000022));
     Towerrange.setOutlineColor(sf::Color(0x80808088));
 }
-sf::FloatRect Tower::getGlobalBounds(){
-    return head.getGlobalBounds();
-}
 
-sf::FloatRect Tower::getRange() {
-    return Towerrange.getGlobalBounds();
-}
 void Tower::setfillcolorred() {
     body.setFillColor(sf::Color(0xFF64C855));
     head.setFillColor(sf::Color(0xFF00FF55));
@@ -103,6 +97,9 @@ sf::Vector2f Tower::gettowerposition() {
     return body.getPosition();
 }
 
+float Tower::getradius() {
+    return head.getRadius();
+}
 
 void Tower::setposition(sf::Vector2f position) {
     body.setPosition(position);
@@ -116,14 +113,19 @@ void Tower::draw(sf::RenderWindow& window) const {
     window.draw(base);
     window.draw(body);
     window.draw(head);
-    window.draw(sight);
     window.draw(Towerrange);
+    for (const auto& barrel : barrels)
+        window.draw(barrel);
+    window.draw(sight);
 }
 
 bool Tower::contain(sf::Vector2f mousepos) {
     return head.getGlobalBounds().contains(mousepos) || body.getGlobalBounds().contains(mousepos);
 }
 
+float Tower::getrange() {
+    return Towerrange.getRadius();
+}
 bool Tower::isInRange(sf::Vector2f other,float range) {
     sf::Vector2f center = body.getPosition();
     float dx = center.x - other.x;
