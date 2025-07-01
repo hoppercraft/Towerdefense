@@ -22,12 +22,15 @@ public:
     void updateBullets(float dt);
     bool isInRange(sf::Vector2f other,float range);
 protected:
-    sf::RectangleShape body;
-    sf::CircleShape head;
     sf::CircleShape Towerrange;
     std::vector<Bullet> bullets;
     sf::Clock fireCooldown;
     float fireRate = 0.5f;
-    
+    sf::CircleShape base;              // Hexagonal base platform
+    sf::RectangleShape body;           // Main turret body
+    sf::CircleShape head;              // Turret head/cabin
+    sf::RectangleShape sight;          // Targeting sight
+    std::vector<sf::RectangleShape> barrels;    // Multiple cannon barrels
+
 };
 
