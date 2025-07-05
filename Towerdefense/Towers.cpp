@@ -4,31 +4,28 @@
 
 Tower::Tower(float a, float b) {
     base.setRadius(12.f);
-    base.setPointCount(8); // Octagonal base
-    base.setFillColor(sf::Color(85, 107, 47)); // Dark olive green
+    base.setPointCount(8);
+    base.setFillColor(sf::Color(85, 107, 47));
     base.setOutlineThickness(1.f);
-    base.setOutlineColor(sf::Color(60, 75, 35)); // Darker green outline
+    base.setOutlineColor(sf::Color(60, 75, 35));
     base.setOrigin({ base.getRadius(), base.getRadius() });
     base.setPosition({ a, b });
 
-    // Main turret body (larger rectangular body)
     body.setSize({ 16.f, 20.f });
-    body.setFillColor(sf::Color(107, 142, 35)); // Olive drab
+    body.setFillColor(sf::Color(107, 142, 35));
     body.setOutlineThickness(1.f);
-    body.setOutlineColor(sf::Color(85, 107, 47)); // Darker outline
-    body.setOrigin({ 8.f, 10.f }); // Center of rectangle
+    body.setOutlineColor(sf::Color(85, 107, 47));
+    body.setOrigin({ 8.f, 10.f });
     body.setPosition({ a, b });
 
-    // Turret head/cabin (rounded top section) - This will be the rotation center
     head.setRadius(8.f);
-    head.setFillColor(sf::Color(124, 152, 70)); // Lighter olive
+    head.setFillColor(sf::Color(124, 152, 70)); 
     head.setOutlineThickness(1.f);
     head.setOutlineColor(sf::Color(85, 107, 47));
     head.setOrigin({ head.getRadius(), head.getRadius() });
     head.setPosition({ a, b - 2.f }); // Slightly above center
 
     // FIXED: Single cannon barrel with proper setup for rotation
-    sf::RectangleShape barrel;
     barrel.setSize({ 4.f, 18.f }); // Width, Height
     barrel.setFillColor(sf::Color(64, 64, 64, 255)); // Fully opaque dark gray
     barrel.setOutlineThickness(0.5f);
@@ -39,10 +36,7 @@ Tower::Tower(float a, float b) {
     barrel.setOrigin({ 2.f, 2.f }); // Center horizontally, at the back vertically
     barrel.setPosition({ a, b - 2.f }); // Same as head position
 
-    barrels.push_back(barrel);
-
     // Single muzzle flash indicator
-    sf::CircleShape muzzle;
     muzzle.setRadius(2.f);
     muzzle.setFillColor(sf::Color(255, 140, 0, 180)); // Orange with some transparency
     muzzle.setOrigin({ muzzle.getRadius(), muzzle.getRadius() });
@@ -71,8 +65,12 @@ sf::Angle Tower::gettowerangle() {
 void Tower::setfillcolordefault() {
     body.setFillColor(sf::Color(0x6464C8FF));
     head.setFillColor(sf::Color(0x0000FFFF));
+    base.setFillColor(sf::Color(0x556b2fFF));
     Towerrange.setFillColor(sf::Color(0x00000000));
     Towerrange.setOutlineColor(sf::Color(0x80808000));
+    barrel.setFillColor(sf::Color(64, 64, 64, 255));
+    barrel.setOutlineColor(sf::Color(32, 32, 32, 255));
+    muzzle.setFillColor(sf::Color(255, 140, 0, 180));
 }
 void Tower::showrange() {
     Towerrange.setFillColor(sf::Color(0x00000022));
@@ -81,15 +79,23 @@ void Tower::showrange() {
 void Tower::setfillcolorlight() {
     body.setFillColor(sf::Color(0x6464C855));
     head.setFillColor(sf::Color(0x0000FF55));
+    base.setFillColor(sf::Color(0x556b2f55));
     Towerrange.setFillColor(sf::Color(0x00000022));
     Towerrange.setOutlineColor(sf::Color(0x80808088));
+    barrel.setFillColor(sf::Color(64, 64, 64, 100));
+    barrel.setOutlineColor(sf::Color(32, 32, 32,100));
+    muzzle.setFillColor(sf::Color(255, 140, 0, 100));
 }
 
 void Tower::setfillcolorred() {
     body.setFillColor(sf::Color(0xFF64C855));
     head.setFillColor(sf::Color(0xFF00FF55));
+    base.setFillColor(sf::Color(0xFF6b2f55));
     Towerrange.setFillColor(sf::Color(0xFF000022));
     Towerrange.setOutlineColor(sf::Color(0x80808088));
+    barrel.setFillColor(sf::Color(255, 64, 64, 100));
+    barrel.setOutlineColor(sf::Color(255, 32, 32,100));
+    muzzle.setFillColor(sf::Color(255, 140, 0, 100));
 }
 
 
@@ -105,6 +111,9 @@ void Tower::setposition(sf::Vector2f position) {
     body.setPosition(position);
     head.setPosition(body.getPosition());
     Towerrange.setPosition(body.getPosition());
+    base.setPosition(body.getPosition());
+    barrel.setPosition(body.getPosition());
+    muzzle.setPosition(body.getPosition());
 }
 
 void Tower::draw(sf::RenderWindow& window) const {
@@ -114,9 +123,9 @@ void Tower::draw(sf::RenderWindow& window) const {
     window.draw(body);
     window.draw(head);
     window.draw(Towerrange);
-    for (const auto& barrel : barrels)
-        window.draw(barrel);
+    window.draw(barrel);
     window.draw(sight);
+    window.draw(muzzle);
 }
 
 bool Tower::contain(sf::Vector2f mousepos) {
