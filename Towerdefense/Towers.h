@@ -32,6 +32,5 @@ protected:
     sf::RectangleShape sight;          // Targeting sight
     std::vector<sf::RectangleShape> barrels;    // Multiple cannon barrels
     sf::RectangleShape barrel;
-    sf::CircleShape muzzle;
 };
 

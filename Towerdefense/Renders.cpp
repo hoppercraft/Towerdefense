@@ -104,7 +104,7 @@ bool Shop::bounded() {
         float dx = center.x - target.x;
         float dy = target.y - center.y;
         float distance = std::sqrt(dx * dx + dy * dy);
-        if (distance<= deployedtowers[i].getradius()*2) {
+        if (distance<= deployedtowers[i].getradius()*3) {
             return true;
         }
     }
