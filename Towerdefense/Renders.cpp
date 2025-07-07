@@ -118,15 +118,15 @@ void Shop::update(const sf::RenderWindow& window) {
     }
 }
 
-void Shop::Towertarget(std::vector<Enemy>& enemies,float dt){
+void Shop::Towertarget(std::vector<Enemy*>& enemies,float dt){
     for (size_t i = 0; i < deployedtowers.size(); ++i) {
         for (size_t j = 0; j < enemies.size(); ++j) {
             sf::Vector2f center = deployedtowers[i].gettowerposition();
-            sf::Vector2f target = enemies[j].getposition();
+            sf::Vector2f target = enemies[j]->getposition();
             float dx = center.x - target.x;
             float dy = target.y - center.y;
             float distance = std::sqrt(dx * dx + dy * dy);
-            if (deployedtowers[i].isInRange(enemies[j].getposition(),deployedtowers[i].getrange())) {
+            if (deployedtowers[i].isInRange(enemies[j]->getposition(),deployedtowers[i].getrange())) {
                 float a = atan2(dx,dy);
                 deployedtowers[i].setangle(a);
                 deployedtowers[i].tryShoot(enemies);        

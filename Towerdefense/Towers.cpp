@@ -147,11 +147,11 @@ bool Tower::isInRange(sf::Vector2f other,float range) {
         return false;
 }
 
-void Tower::tryShoot(std::vector<Enemy>& enemies) {
+void Tower::tryShoot(std::vector<Enemy*>& enemies) {
     if (Tower::fireCooldown.getElapsedTime().asSeconds() >= fireRate) {
         for (auto& enemy : enemies) {
-            if (isInRange(enemy.getposition(),50.f)) {
-                bullets.emplace_back(body.getPosition(), enemy.getposition());
+            if (isInRange(enemy->getposition(),50.f)) {
+                bullets.emplace_back(body.getPosition(), enemy->getposition());
                 fireCooldown.restart();
                 break;
             }

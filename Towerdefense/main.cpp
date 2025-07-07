@@ -5,12 +5,12 @@
 #include "Renders.h"
 #include "Enemy.h"
 #include "Bullet.h"
-
+#include <cstdlib>
 int main() {
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
 
-    std::vector<Enemy> enemies;
+    std::vector<Enemy*> enemies;
     sf::Clock spawnClock;
     float spawnInterval = 1.0f;
     int maxEnemies = 20;
@@ -49,14 +49,20 @@ int main() {
         shop.Towertarget(enemies, deltaTime);
         shop.update(window);
         if (spawnedEnemies < maxEnemies && spawnClock.getElapsedTime().asSeconds() >= spawnInterval) {
-            enemies.emplace_back();  
-            spawnClock.restart();    
+            int type = rand() % 2;
+            if (type == 0) {
+                enemies.push_back(new Enemy());
+            }
+            else if (type == 1) {
+                enemies.push_back(new FastEnemy());
+            }
+                spawnClock.restart();    
             spawnedEnemies++;
         }
 
 
         for (auto& enemy : enemies)
-            enemy.update(speed * deltaTime);
+            enemy->update(speed * deltaTime);
 
         window.clear();
 
@@ -70,7 +76,7 @@ int main() {
         }
 
         for (auto& enemy : enemies)
-            enemy.draw(window);
+            enemy->draw(window);
    
         shop.draw(window);
         window.display();

@@ -10,7 +10,7 @@ public:
     void handleEvent(const sf::Event& event, const sf::RenderWindow& window);
     void update(const sf::RenderWindow& window);
     bool bounded();
-    void Towertarget(std::vector<Enemy>& enemies,float dt);
+    void Towertarget(std::vector<Enemy*>& enemies,float dt);
 
 private:
     std::vector<sf::RectangleShape> frames;

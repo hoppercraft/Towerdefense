@@ -16,7 +16,7 @@ public:
     void showrange();
     void setangle(float x);
     sf::Angle gettowerangle();
-    void tryShoot(std::vector<Enemy>& enemies);
+    void tryShoot(std::vector<Enemy*>& enemies);
     void updateBullets(float dt);
     bool isInRange(sf::Vector2f other,float range);
     float getrange();
