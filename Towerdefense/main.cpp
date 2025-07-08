@@ -74,10 +74,22 @@ int main() {
                 window.draw(tile);
             }
         }
-
-        for (auto& enemy : enemies)
+        for (auto it = enemies.begin(); it != enemies.end(); ) {
+            if (!(*it)->isAlive) {
+                delete* it;
+                it = enemies.erase(it);   
+            }
+            else {
+                (*it)->draw(window);       
+                ++it;
+            }
+        }
+        for (auto& enemy : enemies) {
             enemy->draw(window);
-   
+            if (!enemy->isMoving) {
+                enemy->isAlive = false;
+            }
+        }
         shop.draw(window);
         window.display();
     }

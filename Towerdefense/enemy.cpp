@@ -109,7 +109,7 @@ Enemy::Enemy() {
 
 
     movementTimer = 1.f;
-    isMoving = false;
+    isMoving = true;
 
 
     for (int y = 0; y < Game::MAP_HEIGHT; ++y)
@@ -134,13 +134,16 @@ void Enemy::update(float deltaTime, float speed) {
         if (dist < speed * deltaTime) {
             position = target;
             currentStep++;
-            isMoving = false;
+            if (currentStep >= path.size()) {
+                isMoving = false;
+            }
         }
         else {
             delta /= dist;
             position += delta * speed * deltaTime;
             isMoving = true;
         }
+
 
         updateNinjaPosition(position);
     }
@@ -149,7 +152,6 @@ void Enemy::update(float deltaTime, float speed) {
 void Enemy::updateNinjaPosition(sf::Vector2f newPos) {
     position = newPos;
 
-    // Add slight bobbing animation when moving
     float bobOffset = 1.f;
     if (isMoving) {
         bobOffset = std::sin(movementTimer * 0.1f) * 0.5f;
@@ -212,8 +214,6 @@ void Enemy::updateNinjaPosition(sf::Vector2f newPos) {
 }
 
 void Enemy::draw(sf::RenderWindow& window) {
-
-
 
     window.draw(leftEyeGlow);
     window.draw(rightEyeGlow);
@@ -292,3 +292,4 @@ FastEnemy::FastEnemy() {
 void FastEnemy::update(float deltaTime) {
     Enemy::update(deltaTime, 5.5f);
 }
+

@@ -55,6 +55,8 @@ public:
 
     void findPath(int x, int y);
     void updateNinjaPosition(sf::Vector2f newPos);
+    void update();
+    bool isAlive=true;
 };
 
 
