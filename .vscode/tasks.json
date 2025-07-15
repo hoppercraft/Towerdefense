@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build game",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "-IC:/SFML/SFML-2.6.2-windows-gcc-13.1.0-mingw-64-bit/SFML-2.6.2/include",
+        "-LC:/SFML/SFML-2.6.2-windows-gcc-13.1.0-mingw-64-bit/SFML-2.6.2/lib",
+        "main.cpp",
+        "login.cpp",
+        "loading.cpp",
+        "-o",
+        "main.exe",
+        "-lsfml-graphics",
+        "-lsfml-window",
+        "-lsfml-system"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
+    }
+  ]
+}
