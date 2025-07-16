@@ -111,10 +111,13 @@ bool Shop::bounded() {
     return false;
 }
 
-void Shop::update(const sf::RenderWindow& window) {
+void Shop::update(const sf::RenderWindow& window,float dt) {
     if (dragging) {
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
         draggedTower.setposition(mousePos);
+    }
+    for (size_t i = 0; i < deployedtowers.size(); ++i) {
+        deployedtowers[i].updateBullets(dt);
     }
 }
 
@@ -129,12 +132,12 @@ void Shop::Towertarget(std::vector<Enemy*>& enemies,float dt){
             if (deployedtowers[i].isInRange(enemies[j]->getposition(),deployedtowers[i].getrange())) {
                 float a = atan2(dx,dy);
                 deployedtowers[i].setangle(a);
-                deployedtowers[i].tryShoot(enemies);        
-                deployedtowers[i].updateBullets(dt);
+                deployedtowers[i].tryShoot(enemies);
                 break;
             }
 
         }
+
     }
 
 }

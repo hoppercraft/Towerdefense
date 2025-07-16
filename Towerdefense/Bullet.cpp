@@ -36,6 +36,10 @@ bool Bullet::reachedTarget() const {
     return distance < 5.f;
 }
 
+bool Bullet::isMoving() const {
+    return std::abs(velocity.x) > 0.01f || std::abs(velocity.y) > 0.01f;
+}
+
 void Bullet::hitenemy() {
     targetEnemy->Health -= 10;
     targetEnemy->updateHealthbarnev();

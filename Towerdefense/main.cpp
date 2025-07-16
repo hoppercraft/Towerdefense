@@ -6,6 +6,7 @@
 #include "Enemy.h"
 #include "Bullet.h"
 #include <cstdlib>
+#include"gamesession.h"
 int main() {
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
@@ -19,6 +20,7 @@ int main() {
     Shop shop;
     const float speed = 25.0f;
 
+    PlayerInfo playerinfo;
     sf::Clock deltaClock;
 
     sf::Texture tileTexture;
@@ -47,7 +49,7 @@ int main() {
         }
         float deltaTime = deltaClock.restart().asSeconds();
         shop.Towertarget(enemies, deltaTime);
-        shop.update(window);
+        shop.update(window,deltaTime);
         if (spawnedEnemies < maxEnemies && spawnClock.getElapsedTime().asSeconds() >= spawnInterval) {
             int type = rand() % 2;
             if (type == 0) {
@@ -89,6 +91,7 @@ int main() {
             }
         }
         shop.draw(window);
+        playerinfo.draw(window);
         window.display();
     }
 

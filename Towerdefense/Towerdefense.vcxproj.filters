@@ -21,16 +21,19 @@
     <ClCompile Include="Enemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tower.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Bullet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shop.cpp">
+    <ClCompile Include="GameConstants.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameConstants.cpp">
+    <ClCompile Include="Renders.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Towers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gamesession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,16 +41,19 @@
     <ClInclude Include="Enemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tower.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Bullet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shop.h">
+    <ClInclude Include="GameConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameConstants.h">
+    <ClInclude Include="Renders.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Towers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gamesession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

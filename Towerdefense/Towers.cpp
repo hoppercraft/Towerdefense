@@ -166,6 +166,6 @@ void Tower::updateBullets(float dt) {
     }
 
     bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
-        [](const Bullet& b) { return b.reachedTarget(); }), bullets.end());
+        [](const Bullet& b) { return b.reachedTarget() || !b.isMoving(); }), bullets.end());
 }
 
