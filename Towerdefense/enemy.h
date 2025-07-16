@@ -8,7 +8,8 @@
 class Enemy {
 public:
     Enemy();
-    void update(float deltaTime, float speed=1);
+    float speed = 0.8f;
+    void update(float deltaTime);
     void draw(sf::RenderWindow& window);
     sf::FloatRect getGlobalBounds();
     sf::Vector2f getposition();
@@ -37,7 +38,7 @@ public:
     sf::RectangleShape swordGuard;
     sf::RectangleShape swordHandle;
     sf::CircleShape swordPommel;
-
+    sf::RectangleShape healthbar;
 
     std::vector<sf::Vector2i> path;
     bool visited[Game::MAP_HEIGHT][Game::MAP_WIDTH];
@@ -55,8 +56,10 @@ public:
 
     void findPath(int x, int y);
     void updateNinjaPosition(sf::Vector2f newPos);
-    void update();
     bool isAlive=true;
+    float Health = 100.0f;
+    float maxHealth = 100.f;
+    void updateHealthbarnev();
 };
 
 

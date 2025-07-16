@@ -5,7 +5,7 @@ Enemy::Enemy() {
     position = sf::Vector2f(static_cast<float>(startX * Game::TILE_SIZE + Game::TILE_SIZE / 2),
         static_cast<float>(startY * Game::TILE_SIZE + Game::TILE_SIZE / 2));
 
-
+    
     sf::Color darkNinja(25, 25, 35);
     sf::Color shadowBlack(12, 12, 18);
     sf::Color maskGray(35, 35, 45);
@@ -18,6 +18,9 @@ Enemy::Enemy() {
     body.setFillColor(darkNinja);
     body.setOrigin({ 5.f, 5.f });
 
+    healthbar.setSize({ 12.f,2.f });
+    healthbar.setOrigin(healthbar.getGeometricCenter());
+    healthbar.setFillColor(sf::Color(255, 0, 0, 250));
 
     hood.setRadius(6.5f);
     hood.setFillColor(maskGray);
@@ -121,7 +124,7 @@ Enemy::Enemy() {
     updateNinjaPosition(position);
 }
 
-void Enemy::update(float deltaTime, float speed) {
+void Enemy::update(float deltaTime) {
     movementTimer += deltaTime;
 
     if (currentStep < path.size()) {
@@ -147,6 +150,10 @@ void Enemy::update(float deltaTime, float speed) {
 
         updateNinjaPosition(position);
     }
+    updateHealthbarnev();
+    if (Health <= 0) {
+        isAlive = false;
+    }
 }
 
 void Enemy::updateNinjaPosition(sf::Vector2f newPos) {
@@ -160,13 +167,14 @@ void Enemy::updateNinjaPosition(sf::Vector2f newPos) {
 
     body.setPosition({ newPos.x, newPos.y + bobOffset });
 
+    healthbar.setPosition({ newPos.x,newPos.y - 17.f });
 
     hood.setPosition({ newPos.x, newPos.y - 8 + bobOffset });
 
     faceMask.setPosition({ newPos.x, newPos.y - 8 + bobOffset });
 
 
-    float armSway = isMoving ? std::sin(movementTimer) * 1.f : 0.f;
+    float armSway = isMoving ? std::sin(movementTimer*0.25f) * 2.f : 0.f;
     leftArm.setPosition({ newPos.x - 6, newPos.y - 1 + bobOffset });
     rightArm.setPosition({ newPos.x + 6, newPos.y - 1 + bobOffset + armSway });
 
@@ -174,7 +182,7 @@ void Enemy::updateNinjaPosition(sf::Vector2f newPos) {
     rightHand.setPosition({ newPos.x + 6, newPos.y + 3 + bobOffset + armSway });
 
 
-    float legOffset = isMoving ? std::sin(movementTimer) * 0.7f : 0.f;
+    float legOffset = isMoving ? std::sin(movementTimer*0.25) *1.5f : 0.f;
     leftLeg.setPosition({ newPos.x - 2, newPos.y + 7 + bobOffset - legOffset });
     rightLeg.setPosition({ newPos.x + 2, newPos.y + 7 + bobOffset + legOffset });
 
@@ -213,8 +221,13 @@ void Enemy::updateNinjaPosition(sf::Vector2f newPos) {
     }
 }
 
+void Enemy::updateHealthbarnev() {
+    healthbar.setSize({ (Health/maxHealth)*12.f,healthbar.getSize().y });
+}
 void Enemy::draw(sf::RenderWindow& window) {
-
+    if (Health < maxHealth) {
+        window.draw(healthbar);
+    }
     window.draw(leftEyeGlow);
     window.draw(rightEyeGlow);
 
@@ -242,6 +255,7 @@ void Enemy::draw(sf::RenderWindow& window) {
 
     window.draw(hood);
     window.draw(faceMask);
+
 
     // Eyes on top for glow effect
     window.draw(leftEye);
@@ -288,8 +302,9 @@ FastEnemy::FastEnemy() {
     faceMask.setFillColor(sf::Color(80, 80, 200));
     body.setFillColor(sf::Color(60, 60, 255));
     hood.setFillColor(sf::Color(100, 120, 255));
+    speed = 1.f;
 }
 void FastEnemy::update(float deltaTime) {
-    Enemy::update(deltaTime, 5.5f);
+    Enemy::update(deltaTime);
 }
 

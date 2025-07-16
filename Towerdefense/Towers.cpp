@@ -151,8 +151,9 @@ void Tower::tryShoot(std::vector<Enemy*>& enemies) {
     if (Tower::fireCooldown.getElapsedTime().asSeconds() >= fireRate) {
         for (auto& enemy : enemies) {
             if (isInRange(enemy->getposition(),50.f)) {
-                bullets.emplace_back(body.getPosition(), enemy->getposition());
+                bullets.emplace_back(body.getPosition(), enemy);
                 fireCooldown.restart();
+
                 break;
             }
         }
