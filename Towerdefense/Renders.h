@@ -3,11 +3,12 @@
 #include "Towers.h"
 #include "GameConstants.h"
 #include "enemy.h"
+#include"gamesession.h"
 class Shop {
 public:
     Shop();
     void draw(sf::RenderWindow& window);
-    void handleEvent(const sf::Event& event, const sf::RenderWindow& window);
+    void handleEvent(const sf::Event& event, const sf::RenderWindow& window, PlayerInfo* info);
     void update(const sf::RenderWindow& window,float dt);
     bool bounded();
     void Towertarget(std::vector<Enemy*>& enemies,float dt);

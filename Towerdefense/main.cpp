@@ -13,13 +13,12 @@ int main() {
 
     std::vector<Enemy*> enemies;
     sf::Clock spawnClock;
-    float spawnInterval = 1.0f;
+    float spawnInterval = 2.f;
     int maxEnemies = 20;
     int spawnedEnemies = 0;
 
     Shop shop;
-    const float speed = 25.0f;
-
+    const float speed = 7.0f;
     PlayerInfo playerinfo;
     sf::Clock deltaClock;
 
@@ -36,6 +35,14 @@ int main() {
 
     sf::Sprite tile(tileTexture);
 
+    sf::Font font;
+    font.openFromFile("ARIAL.ttf");
+    sf::Text gameovertext(font,"GAME OVER", 170);
+    gameovertext.setScale({ 0.105f, 0.105f });
+    gameovertext.setStyle(sf::Text::Bold);
+    gameovertext.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE / 2-50, Game::MAP_HEIGHT * Game::TILE_SIZE / 2 -50});
+    gameovertext.setFillColor(sf::Color(255, 0, 0));
+
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>())
@@ -45,55 +52,83 @@ int main() {
                     window.close();
                 }
             }
-            shop.handleEvent(event.value(), window);
+            shop.handleEvent(event.value(), window, &playerinfo);
         }
-        float deltaTime = deltaClock.restart().asSeconds();
-        shop.Towertarget(enemies, deltaTime);
-        shop.update(window,deltaTime);
-        if (spawnedEnemies < maxEnemies && spawnClock.getElapsedTime().asSeconds() >= spawnInterval) {
-            int type = rand() % 2;
-            if (type == 0) {
-                enemies.push_back(new Enemy());
-            }
-            else if (type == 1) {
-                enemies.push_back(new FastEnemy());
-            }
-                spawnClock.restart();    
-            spawnedEnemies++;
-        }
-
-
-        for (auto& enemy : enemies)
-            enemy->update(speed * deltaTime);
-
-        window.clear();
-
-        for (int row = 0; row < Game::MAP_HEIGHT; ++row) {
-            for (int col = 0; col < Game::MAP_WIDTH; ++col) {
-                int tileType = Game::Map1[row][col];
-                tile.setTextureRect(tileRects[tileType]);
-                tile.setPosition({ static_cast<float>(col * Game::TILE_SIZE), static_cast<float>(row * Game::TILE_SIZE) });
-                window.draw(tile);
-            }
-        }
-        for (auto it = enemies.begin(); it != enemies.end(); ) {
-            if (!(*it)->isAlive) {
-                delete* it;
-                it = enemies.erase(it);
-            }
-            else {
-                (*it)->update(speed * deltaTime);
-                if (!(*it)->isMoving) {
-                    (*it)->isAlive = false;
+        if (!playerinfo.gameover()) {
+            float deltaTime = deltaClock.restart().asSeconds();
+            shop.Towertarget(enemies, deltaTime);
+            shop.update(window, deltaTime);
+            if (spawnedEnemies < maxEnemies && spawnClock.getElapsedTime().asSeconds() >= spawnInterval) {
+                int type = rand() % 2;
+                if (type == 0) {
+                    enemies.push_back(new Enemy());
                 }
-                (*it)->draw(window);
-                ++it;
+                else if (type == 1) {
+                    enemies.push_back(new FastEnemy());
+                }
+                spawnClock.restart();
+                spawnedEnemies++;
             }
+
+
+            for (auto& enemy : enemies)
+                enemy->update(speed * deltaTime);
+
+            window.clear();
+
+            for (int row = 0; row < Game::MAP_HEIGHT; ++row) {
+                for (int col = 0; col < Game::MAP_WIDTH; ++col) {
+                    int tileType = Game::Map1[row][col];
+                    tile.setTextureRect(tileRects[tileType]);
+                    tile.setPosition({ static_cast<float>(col * Game::TILE_SIZE), static_cast<float>(row * Game::TILE_SIZE) });
+                    window.draw(tile);
+                }
+            }
+            for (auto it = enemies.begin(); it != enemies.end(); ) {
+                if (!(*it)->isAlive) {
+                    delete* it;
+                    it = enemies.erase(it);
+                    playerinfo.coinsearned(50);
+                }
+                else {
+                    (*it)->update(speed * deltaTime);
+                    if (!(*it)->isMoving) {
+                        playerinfo.enemypassed(1);
+                        (*it)->isAlive = false;
+                        delete* it;
+                        it = enemies.erase(it);
+                        continue;
+                    }
+                    (*it)->draw(window);
+                    ++it;
+                }
+            }
+            for (auto it = enemies.begin(); it != enemies.end(); ) {
+                if (!(*it)->isAlive) {
+                    delete* it;
+                    it = enemies.erase(it);
+                    playerinfo.coinsearned(50);
+                }
+                else {
+                    (*it)->update(speed * deltaTime);
+                    if (!(*it)->isMoving) {
+                        playerinfo.enemypassed(1);
+                        (*it)->isAlive = false;
+                        delete* it;
+                        it = enemies.erase(it);
+                        continue;
+                    }
+                    (*it)->draw(window);
+                    ++it;
+                }
+            }
+        }
+        if (playerinfo.gameover()) {
+            window.draw(gameovertext);
         }
         shop.draw(window);
         playerinfo.draw(window);
         window.display();
     }
-
     return 0;
 }

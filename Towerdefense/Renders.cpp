@@ -2,6 +2,7 @@
 #include"Bullet.h"
 #include <iostream>
 #include <cmath>
+#include"gamesession.h"
 Shop::Shop() {
     bar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });
     bar.setSize({ Game::TILE_SIZE * 3, Game::TILE_SIZE * Game::MAP_HEIGHT });
@@ -41,7 +42,7 @@ void Shop::draw(sf::RenderWindow& window) {
 }
 
 
-void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
+void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window,PlayerInfo* pinfo) {
     sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     sf::Vector2f worldPos = mousePos;
     int tileX = static_cast<int>(worldPos.x) / Game::TILE_SIZE;
@@ -77,8 +78,14 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
             if (tileX >= 0 && tileX < Game::MAP_WIDTH && tileY >= 0 && tileY < Game::MAP_HEIGHT) {
                 if (Game::Map1[tileY][tileX] == Game::TileType::Grass) {
                     if (Shop::bounded() == false) {
-                        draggedTower.setfillcolordefault();
-                        deployedtowers.push_back(draggedTower);
+                        if (pinfo->enoughmoney(100)) {
+                            draggedTower.setfillcolordefault();
+                            deployedtowers.push_back(draggedTower);
+                            pinfo->turrentplaced(100);
+                        }
+                        else {
+                            pinfo->notEnoughMoneywarning();
+                        }
                     }
                 }
             }
