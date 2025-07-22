@@ -1,52 +1,70 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 #include <vector>
+#include <cmath>
 #include "GameConstants.h" 
 
 class Enemy {
 public:
     Enemy();
-    void update(float speed);
-    void draw(sf::RenderWindow& window) const;
-    sf::Vector2f getPosition() const;
-    void takeDamage(float damage);
-    bool isAlive() const;
-    float getHealth() const;
-    float getMaxHealth() const;
+    float speed = 0.8f;
+    void update(float deltaTime);
+    void draw(sf::RenderWindow& window);
+    sf::FloatRect getGlobalBounds();
+    sf::Vector2f getposition();
+    // for the body parts of the black troop
+    sf::CircleShape hood;
+    sf::CircleShape faceMask;
+    sf::CircleShape body;
+    sf::RectangleShape leftArm;
+    sf::RectangleShape rightArm;
+    sf::CircleShape leftHand;
+    sf::CircleShape rightHand;
+    sf::RectangleShape leftLeg;
+    sf::RectangleShape rightLeg;
+    sf::RectangleShape leftFoot;
+    sf::RectangleShape rightFoot;
+    sf::RectangleShape belt;
 
-private:
-    // Soldier sprite components
-    sf::CircleShape helmet;          // Soldier helmet
-    sf::CircleShape leftGoggle;      // Left goggle
-    sf::CircleShape rightGoggle;     // Right goggle
-    sf::RectangleShape body;         // Main torso
-    sf::RectangleShape chestArmor;   // Chest armor/vest
-    sf::RectangleShape leftArm;      // Left arm
-    sf::RectangleShape rightArm;     // Right arm
-    sf::RectangleShape leftLeg;      // Left leg
-    sf::RectangleShape rightLeg;     // Right leg
-    sf::RectangleShape weapon;       // Rifle/weapon
 
-    // Pathfinding and movement
+    sf::CircleShape leftEye;
+    sf::CircleShape rightEye;
+    sf::CircleShape leftEyeGlow;
+    sf::CircleShape rightEyeGlow;
+
+
+    sf::RectangleShape swordBlade;
+    sf::RectangleShape swordGuard;
+    sf::RectangleShape swordHandle;
+    sf::CircleShape swordPommel;
+    sf::RectangleShape healthbar;
+
     std::vector<sf::Vector2i> path;
-    std::vector<std::vector<bool>> visited;
-    size_t currentStep;
+    bool visited[Game::MAP_HEIGHT][Game::MAP_WIDTH];
+    size_t currentStep = 0;
+    sf::Vector2f position;
 
-    // Health system
-    float maxHealth;
-    float currentHealth;
 
-    // Health bar components
-    sf::RectangleShape healthBarBackground;
-    sf::RectangleShape healthBarForeground;
+    float movementTimer;
+    bool isMoving;
 
-    // Helper methods
-    void initializeSoldierSprite();
-    void setSoldierPosition(sf::Vector2f position);
-    sf::Vector2f getSoldierPosition() const;
-    void updateHealthBar();
+    const std::vector<sf::Vector2i> directions = {
+        {1, 0}, {0, 1}, {-1, 0}, {0, -1}
+    };
+
+
     void findPath(int x, int y);
+    void updateNinjaPosition(sf::Vector2f newPos);
+    bool isAlive = true;
+    float Health = 100.0f;
+    float maxHealth = 100.f;
+    void updateHealthbarnev();
+};
 
-    // Static directions for pathfinding
-    static const std::vector<sf::Vector2i> directions;
+
+class FastEnemy : public Enemy {
+public:
+    FastEnemy();
+    void update(float deltaTime);
 };

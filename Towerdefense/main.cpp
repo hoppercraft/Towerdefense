@@ -1,31 +1,27 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <iostream>
-#include <algorithm>
 #include "GameConstants.h"
 #include "Towers.h"
 #include "Renders.h"
 #include "Enemy.h"
+#include "Bullet.h"
+#include "WaveManager.h"  // Add this include
+#include <cstdlib>
+#include "gamesession.h"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
+    sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map - Multi Tower Edition");
     window.setFramerateLimit(60);
 
-    std::vector<Enemy> enemies;
-    std::vector<Tower> towers; // Tower vector for placed towers
-
-    sf::Clock spawnClock;
-    float spawnInterval = 1.0f;
-    int maxEnemies = 20;
-    int spawnedEnemies = 0;
+    std::vector<Enemy*> enemies;
+    WaveManager waveManager;  // Create wave manager
 
     Shop shop;
     const float speed = 25.0f;
+    PlayerInfo playerinfo;
     sf::Clock deltaClock;
 
-    // Variables for tower selection and range display
-    int selectedTowerIndex = -1;
-    bool showSelectedTowerRange = false;
-
+    // Load tile texture
     sf::Texture tileTexture;
     if (!tileTexture.loadFromFile("Sprites/tile.png")) {
         std::cerr << "Failed to load tile texture.\n";
@@ -38,7 +34,9 @@ int main() {
     }
     sf::Sprite tile(tileTexture);
 
+    // Main game loop
     while (window.isOpen()) {
+        // Handle events
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>())
                 window.close();
@@ -46,71 +44,40 @@ int main() {
                 if (keypressed->scancode == sf::Keyboard::Scancode::Escape) {
                     window.close();
                 }
-                // Example: Press Space to damage first enemy (for testing)
+                // Optional: Allow player to start next wave early with spacebar
                 else if (keypressed->scancode == sf::Keyboard::Scancode::Space) {
-                    if (!enemies.empty()) {
-                        enemies[0].takeDamage(25.0f);
-                        std::cout << "Enemy health: " << enemies[0].getHealth() << "/" << enemies[0].getMaxHealth() << std::endl;
-                    }
+                    waveManager.startNextWave();
                 }
-                // Add tower placement with T key (for testing)
-                else if (keypressed->scancode == sf::Keyboard::Scancode::T) {
-                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                    towers.emplace_back(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-                    std::cout << "Tower placed at: " << mousePos.x << ", " << mousePos.y << std::endl;
+                // Optional: Reset game with R key
+                else if (keypressed->scancode == sf::Keyboard::Scancode::R) {
+                    // Clear all enemies
+                    for (auto* enemy : enemies) {
+                        delete enemy;
+                    }
+                    enemies.clear();
+                    waveManager.reset();
                 }
             }
-            else if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
-                if (mousePressed->button == sf::Mouse::Button::Left) {  // Fixed here
-                    sf::Vector2f mousePos(static_cast<float>(mousePressed->position.x),
-                        static_cast<float>(mousePressed->position.y));
-
-                    // Check if clicking on a tower
-                    selectedTowerIndex = -1;
-                    showSelectedTowerRange = false;
-
-                    for (size_t i = 0; i < towers.size(); ++i) {
-                        if (towers[i].contain(mousePos)) {
-                            selectedTowerIndex = static_cast<int>(i);
-                            showSelectedTowerRange = true;
-                            std::cout << "Selected tower " << i << std::endl;
-                            break;
-                        }
-                    }
-                }
-            }
-
+            // Handle shop events (tower selection, dragging, deployment)
             shop.handleEvent(event.value(), window);
         }
 
+        // Update game state
         float deltaTime = deltaClock.restart().asSeconds();
-        shop.update(window);
 
-        // Spawn enemies
-        if (spawnedEnemies < maxEnemies && spawnClock.getElapsedTime().asSeconds() >= spawnInterval) {
-            enemies.emplace_back();
-            spawnClock.restart();
-            spawnedEnemies++;
-        }
+        // Update wave manager (handles enemy spawning)
+        waveManager.update(deltaTime, enemies);
+
+        // Update shop (tower targeting, bullet updates)
+        shop.Towertarget(enemies, deltaTime);
+        shop.update(window, deltaTime);
 
         // Update enemies
-        for (auto& enemy : enemies)
-            enemy.update(speed * deltaTime);
-
-        // Update towers (automatic targeting and firing)
-        for (auto& tower : towers) {
-            tower.update(deltaTime, enemies);
-            tower.updateBullets(deltaTime, enemies);
+        for (auto& enemy : enemies) {
+            enemy->update(speed * deltaTime);
         }
 
-        // Remove dead enemies
-        enemies.erase(
-            std::remove_if(enemies.begin(), enemies.end(),
-                [](const Enemy& enemy) { return !enemy.isAlive(); }),
-            enemies.end()
-        );
-
-        // Rendering
+        // Render everything
         window.clear();
 
         // Draw map tiles
@@ -123,20 +90,48 @@ int main() {
             }
         }
 
-        // Draw towers with conditional range display
-        for (size_t i = 0; i < towers.size(); ++i) {
-            bool showRange = (showSelectedTowerRange && selectedTowerIndex == static_cast<int>(i));
-            towers[i].draw(window, showRange);
-            towers[i].drawBullets(window);
+        // Update and draw enemies
+        for (auto it = enemies.begin(); it != enemies.end(); ) {
+            if (!(*it)->isAlive) {
+                delete* it;
+                it = enemies.erase(it);
+            }
+            else {
+                (*it)->update(speed * deltaTime);
+                if (!(*it)->isMoving) {
+                    (*it)->isAlive = false;
+                }
+                (*it)->draw(window);
+                ++it;
+            }
         }
 
-        // Draw enemies with health bars
-        for (auto& enemy : enemies)
-            enemy.draw(window);
-
+        // Draw shop UI and towers
         shop.draw(window);
-        
+
+        // Draw player info
+        playerinfo.draw(window);
+
+        // Draw wave manager UI
+        waveManager.draw(window);
+
+        // Check for game over conditions
+        if (waveManager.allWavesComplete()) {
+            // You could add victory screen logic here
+            // For now, just display victory message in console
+            static bool victoryShown = false;
+            if (!victoryShown) {
+                std::cout << "Victory! All waves completed!\n";
+                victoryShown = true;
+            }
+        }
+
         window.display();
+    }
+
+    // Clean up enemies
+    for (auto* enemy : enemies) {
+        delete enemy;
     }
 
     return 0;
