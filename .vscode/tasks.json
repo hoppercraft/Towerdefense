@@ -1,29 +1,80 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "build game",
-      "type": "shell",
-      "command": "g++",
-      "args": [
-        "-IC:/SFML/SFML-2.6.2-windows-gcc-13.1.0-mingw-64-bit/SFML-2.6.2/include",
-        "-LC:/SFML/SFML-2.6.2-windows-gcc-13.1.0-mingw-64-bit/SFML-2.6.2/lib",
-        "main.cpp",
-        "login.cpp",
-        "loading.cpp",
-        "-o",
-        "main.exe",
-        "-lsfml-graphics",
-        "-lsfml-window",
-        "-lsfml-system"
-      ],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "problemMatcher": [
-        "$gcc"
-      ]
-    }
-  ]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Tower Defense",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                // IMPORTANT: You MUST list ALL your .cpp source files here.
+                // The "undefined reference" error means the linker cannot find the
+                // actual code for functions like `CS::runLoginWindow` and `CS::showLoadingScreen`.
+                // This happens because the .cpp file(s) where these functions are defined
+                // are NOT being compiled.
+                //k
+                // You need to add the .cpp file(s) that contain the implementation
+                // (the function bodies) of your 'CS' class and any other custom classes.
+                //
+                // For example, if your 'CS' class implementation is in a file named 'CS_Logic.cpp'
+                // and you also have a 'Game.cpp' file for game logic:
+                "${workspaceFolder}/main.cpp",
+                "${workspaceFolder}/loading.cpp", // <--- REPLACE THIS WITH THE ACTUAL NAME(S) OF YOUR CS CLASS .CPP FILE(S)
+                "${workspaceFolder}/login.cpp",
+                // Add any other .cpp files your project uses, e.g.:
+                // "${workspaceFolder}/Game.cpp",
+                // "${workspaceFolder}/Tower.cpp",
+                // "${workspaceFolder}/Enemy.cpp",
+                // "${workspaceFolder}/UI_Elements.cpp",
+                "-g",
+                "-o",
+                "${workspaceFolder}/main.exe", // Output executable name for your game
+                "-mconsole",
+                "-std=c++17",
+                "-Wall",
+                "-DSFML_STATIC", // Macro for static linking
+                "-I",
+                "C:/SFML/SFML-2.6.2-windows-gcc-13.1.0-mingw-64-bit/SFML-2.6.2/include",
+                "-L",
+                "C:/SFML/SFML-2.6.2-windows-gcc-13.1.0-mingw-64-bit/SFML-2.6.2/lib",
+                "-lsfml-graphics-s", // Static graphics library
+                "-lsfml-window-s",   // Static window library
+                "-lsfml-audio-s",    // Static audio library (likely needed for game sounds)
+                "-lsfml-system-s",   // Static system library
+                // Required system libraries for static SFML linking on Windows:
+                "-lOpenAL32",
+                "-lFLAC",
+                "-lvorbisenc",
+                "-lvorbisfile",
+                "-lvorbis",
+                "-logg",
+                "-lfreetype",
+                "-lopengl32",
+                "-lwinmm",
+                "-lgdi32",
+                "-luser32",
+                "-lshell32",
+                "-ladvapi32",
+                "-lws2_32"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Run Tower Defense",
+            "type": "shell",
+            "command": "${workspaceFolder}/tower_defense.exe", // Execute your game
+            "dependsOn": "Build Tower Defense",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared"
+            }
+        }
+    ]
 }

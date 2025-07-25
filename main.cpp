@@ -2,7 +2,7 @@
 #include <iostream>
 #include "login.hpp"
 #include "loading.hpp"
-
+ 
 bool loadFont(sf::Font& font) {
     if (!font.loadFromFile("font/arial.ttf")) {
         std::cerr << "Failed to load font from font/arial.ttf\n";
@@ -28,7 +28,10 @@ int main() {
 
     CS::showLoadingScreen(font);
 
-    std::cout << "Welcome, " << loggedInUser << "! Starting game...\n";
+    std::cout << "Welcome, " << loggedInUser <<std::endl;
 
-    return 0;
+     
+return 0;
 }
+    
+
