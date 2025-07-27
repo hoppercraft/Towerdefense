@@ -1,142 +1,260 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <algorithm>
-#include "GameConstants.h"
-#include "Towers.h"
-#include "Renders.h"
-#include "Enemy.h"
+#include <string>
+#include <mysql.h>
+#include <Windows.h>
 
-int main() {
-    sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
-    window.setFramerateLimit(60);
+const char* HOST = "serverless-eastus.sysp0000.db3.skysql.com";
+const char* USER = "dbpbf26371036";
+const char* PASS = "kI8Y02vu6ZJyr4?82NZMeR";
+const char* DB = "game_db";
 
-    std::vector<Enemy> enemies;
-    std::vector<Tower> towers; // Tower vector for placed towers
+enum class AppState {
+    Login,
+    PlayerUI
+};
 
-    sf::Clock spawnClock;
-    float spawnInterval = 1.0f;
-    int maxEnemies = 20;
-    int spawnedEnemies = 0;
+int main()
+{
+    MYSQL* conn;
+    conn = mysql_init(NULL);
+    if (!mysql_real_connect(conn, HOST, USER, PASS, DB, 4134, NULL, 0)) {
+        std::cout << "MySQL Connection Error: " << mysql_error(conn) << std::endl;
+        return 1;
+    }
 
-    Shop shop;
-    const float speed = 25.0f;
-    sf::Clock deltaClock;
+    unsigned int width = 800;
+    unsigned int height = 600;
+    sf::RenderWindow window(sf::VideoMode({ width, height }), "TOWER DEFENCE");
 
-    // Variables for tower selection and range display
-    int selectedTowerIndex = -1;
-    bool showSelectedTowerRange = false;
-
-    sf::Texture tileTexture;
-    if (!tileTexture.loadFromFile("Sprites/tile.png")) {
-        std::cerr << "Failed to load tile texture.\n";
+    sf::Font font;
+    if (!font.openFromFile("C:\\Aayush\\source\\repos\\Towerdefence\\Towerdefense\\arial.ttf")) {
+        std::cout << "Failed to load font\n";
         return -1;
     }
 
-    sf::IntRect tileRects[4];
-    for (int i = 0; i < 4; ++i) {
-        tileRects[i] = sf::IntRect({ 20 * i + 1, 0 }, { 20, 20 });
-    }
-    sf::Sprite tile(tileTexture);
+    AppState state = AppState::Login;
+    std::string username = "";
+    std::string password = "";
+    unsigned int Highest_score = 0;
+    bool typingUsername = true;
+
+    // Background
+    sf::RectangleShape background(sf::Vector2f((float)width, (float)height));
+    background.setFillColor(sf::Color(10, 25, 50));
+
+    // Welcome Text
+    sf::Text welcomeText(font, "WELCOME", 36);
+    welcomeText.setFillColor(sf::Color::Red);
+    welcomeText.setStyle(sf::Text::Bold);
+    welcomeText.setPosition(sf::Vector2f(300.f, 100.f));
+
+    // Login Panel
+    sf::RectangleShape panel(sf::Vector2f(400.f, 300.f));
+    panel.setPosition(sf::Vector2f(200.f, 150.f));
+    panel.setFillColor(sf::Color(240, 240, 240));
+    panel.setOutlineColor(sf::Color(255, 150, 0));
+    panel.setOutlineThickness(5.f);
+
+    // Username UI
+    sf::RectangleShape usernameBox(sf::Vector2f(255.f, 45.f));
+    usernameBox.setPosition(sf::Vector2f(270.f, 180.f));
+    usernameBox.setFillColor(sf::Color(220, 220, 220));
+    usernameBox.setOutlineColor(sf::Color(180, 180, 180));
+    usernameBox.setOutlineThickness(2.f);
+
+    sf::Text usernameLabel(font, "Username", 18);
+    usernameLabel.setFillColor(sf::Color::Black);
+    usernameLabel.setPosition(sf::Vector2f(280.f, 185.f));
+
+    sf::Text usernameText(font, "", 18);
+    usernameText.setFillColor(sf::Color::Black);
+    usernameText.setPosition(sf::Vector2f(280.f, 205.f));
+
+    // Password UI
+    sf::RectangleShape passwordBox(sf::Vector2f(255.f, 45.f));
+    passwordBox.setPosition(sf::Vector2f(270.f, 240.f));
+    passwordBox.setFillColor(sf::Color(220, 220, 220));
+    passwordBox.setOutlineColor(sf::Color(180, 180, 180));
+    passwordBox.setOutlineThickness(2.f);
+
+    sf::Text passwordLabel(font, "Password", 18);
+    passwordLabel.setFillColor(sf::Color::Black);
+    passwordLabel.setPosition(sf::Vector2f(280.f, 245.f));
+
+    sf::Text passwordText(font, "", 18);
+    passwordText.setFillColor(sf::Color::Black);
+    passwordText.setPosition(sf::Vector2f(280.f, 265.f));
+
+    // Login & Signup Buttons
+    sf::RectangleShape loginButton(sf::Vector2f(100.f, 40.f));
+    loginButton.setPosition(sf::Vector2f(400.f, 340.f));
+    loginButton.setFillColor(sf::Color(70, 200, 70));
+
+    sf::Text loginText(font, "LOGIN", 18);
+    loginText.setFillColor(sf::Color::White);
+    loginText.setPosition(sf::Vector2f(425.f, 350.f));
+
+    sf::RectangleShape signupButton(sf::Vector2f(100.f, 40.f));
+    signupButton.setPosition(sf::Vector2f(275.f, 340.f));
+    signupButton.setFillColor(sf::Color(70, 150, 250));
+
+    sf::Text signupText(font, "SIGN UP", 18);
+    signupText.setFillColor(sf::Color::White);
+    signupText.setPosition(sf::Vector2f(295.f, 350.f));
+
+    sf::Text errorText(font, "", 16);
+    errorText.setFillColor(sf::Color::Red);
+    errorText.setPosition(sf::Vector2f(280.f, 390.f));
+
+    // Player UI Elements
+    sf::Text playerNameText(font, "", 24);
+    playerNameText.setFillColor(sf::Color::White);
+    playerNameText.setStyle(sf::Text::Bold);
+    playerNameText.setPosition(sf::Vector2f(20.f, 20.f));
+
+    sf::Text highScoreText(font, "", 24);
+    highScoreText.setFillColor(sf::Color::Yellow);
+    highScoreText.setStyle(sf::Text::Bold | sf::Text::Italic);
+    highScoreText.setPosition(sf::Vector2f(600.f, 20.f));
+
+    sf::RectangleShape playButton(sf::Vector2f(160.f, 50.f));
+    playButton.setPosition(sf::Vector2f(320.f, 300.f));
+    playButton.setFillColor(sf::Color(255, 100, 0));
+
+    sf::Text playLabel(font, "PLAY GAME", 20);
+    playLabel.setFillColor(sf::Color::White);
+    playLabel.setPosition(sf::Vector2f(340.f, 310.f));
 
     while (window.isOpen()) {
-        while (const std::optional event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>())
-                window.close();
-            else if (const auto* keypressed = event->getIf<sf::Event::KeyPressed>()) {
-                if (keypressed->scancode == sf::Keyboard::Scancode::Escape) {
-                    window.close();
-                }
-                // Example: Press Space to damage first enemy (for testing)
-                else if (keypressed->scancode == sf::Keyboard::Scancode::Space) {
-                    if (!enemies.empty()) {
-                        enemies[0].takeDamage(25.0f);
-                        std::cout << "Enemy health: " << enemies[0].getHealth() << "/" << enemies[0].getMaxHealth() << std::endl;
+        while (const std::optional<sf::Event> event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) window.close();
+
+            if (state == AppState::Login) {
+                if (auto textEvent = event->getIf<sf::Event::TextEntered>()) {
+                    char c = static_cast<char>(textEvent->unicode);
+                    if (std::isprint(c)) {
+                        if (typingUsername && username.size() < 50)
+                            username += c;
+                        else if (!typingUsername && password.size() < 50)
+                            password += c;
+                    }
+                    if (textEvent->unicode == 8) {
+                        if (typingUsername && !username.empty())
+                            username.pop_back();
+                        else if (!typingUsername && !password.empty())
+                            password.pop_back();
                     }
                 }
-                // Add tower placement with T key (for testing)
-                else if (keypressed->scancode == sf::Keyboard::Scancode::T) {
-                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                    towers.emplace_back(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-                    std::cout << "Tower placed at: " << mousePos.x << ", " << mousePos.y << std::endl;
+
+                if (auto key = event->getIf<sf::Event::KeyPressed>()) {
+                    if (key->code == sf::Keyboard::Key::Enter)
+                        typingUsername = !typingUsername;
                 }
-            }
-            else if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
-                if (mousePressed->button == sf::Mouse::Button::Left) {  // Fixed here
-                    sf::Vector2f mousePos(static_cast<float>(mousePressed->position.x),
-                        static_cast<float>(mousePressed->position.y));
 
-                    // Check if clicking on a tower
-                    selectedTowerIndex = -1;
-                    showSelectedTowerRange = false;
+                if (event->getIf<sf::Event::MouseButtonPressed>()) {
+                    auto mousePos = sf::Mouse::getPosition(window);
+                    auto mouseVec = static_cast<sf::Vector2f>(mousePos);
 
-                    for (size_t i = 0; i < towers.size(); ++i) {
-                        if (towers[i].contain(mousePos)) {
-                            selectedTowerIndex = static_cast<int>(i);
-                            showSelectedTowerRange = true;
-                            std::cout << "Selected tower " << i << std::endl;
-                            break;
+                    if (loginButton.getGlobalBounds().contains(mouseVec)) {
+                        std::string query = "SELECT user_id FROM players WHERE username='" + username + "' AND password_hash='" + password + "'";
+                        if (mysql_query(conn, query.c_str()) == 0) {
+                            MYSQL_RES* res = mysql_store_result(conn);
+                            if (MYSQL_ROW row = mysql_fetch_row(res)) {
+                                int user_id = std::stoi(row[0]);
+                                mysql_free_result(res);
+
+                                std::string scoreQuery = "SELECT MAX(score) FROM scores WHERE user_id=" + std::to_string(user_id);
+                                if (mysql_query(conn, scoreQuery.c_str()) == 0) {
+                                    MYSQL_RES* scoreRes = mysql_store_result(conn);
+                                    MYSQL_ROW scoreRow = mysql_fetch_row(scoreRes);
+                                    Highest_score = scoreRow[0] ? std::stoi(scoreRow[0]) : 0;
+                                    mysql_free_result(scoreRes);
+
+                                    state = AppState::PlayerUI;
+                                    playerNameText.setString("Player: " + username);
+                                    highScoreText.setString("High Score: " + std::to_string(Highest_score));
+                                    errorText.setString("");
+                                }
+                                else errorText.setString("Error retrieving score.");
+                            }
+                            else {
+                                errorText.setString("Invalid username or password.");
+                                mysql_free_result(res);
+                            }
                         }
+                        else errorText.setString("Database error!");
+                    }
+
+                    if (signupButton.getGlobalBounds().contains(mouseVec)) {
+                        std::string checkQuery = "SELECT * FROM players WHERE username='" + username + "'";
+                        if (mysql_query(conn, checkQuery.c_str()) == 0) {
+                            MYSQL_RES* res = mysql_store_result(conn);
+                            if (mysql_num_rows(res) > 0) {
+                                errorText.setString("Username already exists.");
+                            }
+                            else {
+                                std::string insertQuery = "INSERT INTO players (username, password_hash) VALUES('" +
+                                    username + "', '" + password + "')";
+                                if (mysql_query(conn, insertQuery.c_str()) == 0) {
+                                    state = AppState::PlayerUI;
+                                    playerNameText.setString("Player: " + username);
+                                    highScoreText.setString("High Score: 0");
+                                    errorText.setString("");
+                                }
+                                else errorText.setString("Insert error.");
+                            }
+                            mysql_free_result(res);
+                        }
+                        else errorText.setString("Database error.");
                     }
                 }
             }
-
-            shop.handleEvent(event.value(), window);
-        }
-
-        float deltaTime = deltaClock.restart().asSeconds();
-        shop.update(window);
-
-        // Spawn enemies
-        if (spawnedEnemies < maxEnemies && spawnClock.getElapsedTime().asSeconds() >= spawnInterval) {
-            enemies.emplace_back();
-            spawnClock.restart();
-            spawnedEnemies++;
-        }
-
-        // Update enemies
-        for (auto& enemy : enemies)
-            enemy.update(speed * deltaTime);
-
-        // Update towers (automatic targeting and firing)
-        for (auto& tower : towers) {
-            tower.update(deltaTime, enemies);
-            tower.updateBullets(deltaTime, enemies);
-        }
-
-        // Remove dead enemies
-        enemies.erase(
-            std::remove_if(enemies.begin(), enemies.end(),
-                [](const Enemy& enemy) { return !enemy.isAlive(); }),
-            enemies.end()
-        );
-
-        // Rendering
-        window.clear();
-
-        // Draw map tiles
-        for (int row = 0; row < Game::MAP_HEIGHT; ++row) {
-            for (int col = 0; col < Game::MAP_WIDTH; ++col) {
-                int tileType = Game::Map1[row][col];
-                tile.setTextureRect(tileRects[tileType]);
-                tile.setPosition({ static_cast<float>(col * Game::TILE_SIZE), static_cast<float>(row * Game::TILE_SIZE) });
-                window.draw(tile);
+            else if (state == AppState::PlayerUI) {
+                if (event->getIf<sf::Event::MouseButtonPressed>()) {
+                    auto mousePos = sf::Mouse::getPosition(window);
+                    if (playButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
+                        std::cout << "Game Started!\n";
+                        window.close(); // Launch your game scene here
+                    }
+                }
             }
         }
 
-        // Draw towers with conditional range display
-        for (size_t i = 0; i < towers.size(); ++i) {
-            bool showRange = (showSelectedTowerRange && selectedTowerIndex == static_cast<int>(i));
-            towers[i].draw(window, showRange);
-            towers[i].drawBullets(window);
+        window.clear();
+        window.draw(background);
+
+        if (state == AppState::Login) {
+            window.draw(welcomeText); // <-- NEW LINE
+            window.draw(panel);
+            window.draw(usernameBox);
+            window.draw(usernameLabel);
+            usernameText.setString(username);
+            window.draw(usernameText);
+
+            window.draw(passwordBox);
+            window.draw(passwordLabel);
+            passwordText.setString(std::string(password.length(), '*'));
+            window.draw(passwordText);
+
+            window.draw(signupButton);
+            window.draw(signupText);
+
+            window.draw(loginButton);
+            window.draw(loginText);
+
+            window.draw(errorText);
+        }
+        else if (state == AppState::PlayerUI) {
+            window.draw(playerNameText);
+            window.draw(highScoreText);
+            window.draw(playButton);
+            window.draw(playLabel);
         }
 
-        // Draw enemies with health bars
-        for (auto& enemy : enemies)
-            enemy.draw(window);
-
-        shop.draw(window);
         window.display();
     }
 
+    mysql_close(conn);
     return 0;
 }
