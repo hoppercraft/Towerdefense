@@ -159,15 +159,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="EnvLoader.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Login.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Envloader.h" />
     <ClInclude Include="GameConstants.h" />
     <ClInclude Include="Renders.h" />
     <ClInclude Include="Towers.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Ignore.gitignore" />
+    <None Include="Security.env" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

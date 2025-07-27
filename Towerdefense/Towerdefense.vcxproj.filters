@@ -18,7 +18,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Login.cpp">
+    <ClCompile Include="EnvLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,5 +38,12 @@
     <ClInclude Include="Towers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Envloader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Security.env" />
+    <None Include="Ignore.gitignore" />
   </ItemGroup>
 </Project>

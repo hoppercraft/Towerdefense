@@ -3,11 +3,15 @@
 #include <string>
 #include <mysql.h>
 #include <Windows.h>
+#include "EnvLoader.h"
 
-const char* HOST = "serverless-eastus.sysp0000.db3.skysql.com";
-const char* USER = "dbpbf26371036";
-const char* PASS = "kI8Y02vu6ZJyr4?82NZMeR";
-const char* DB = "game_db";
+
+auto env = loadEnv("Security.env");
+
+const char* HOST = env["HOST"].c_str();
+const char* USER = env["USER"].c_str();
+const char* PASS = env["PASS"].c_str();
+const char* DB = env["DB"].c_str();
 
 enum class AppState {
     Login,
