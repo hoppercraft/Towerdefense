@@ -19,7 +19,7 @@ WaveManager::WaveManager() :
     initializeWaves();
 
     // Try to initialize UI elements - make it optional
-    if (font.openFromFile("arial.ttv")) {
+    if (font.openFromFile("arial.ttf")) {
         fontLoaded = true;
     }
     else if (font.openFromFile("C:/Windows/Fonts/arial.ttf")) {
@@ -33,18 +33,40 @@ WaveManager::WaveManager() :
     }
 
     if (fontLoaded) {
-        // SFML 3.0 compatible initialization - small text to fit on 2 grass tiles
+        // SFML 3.0 compatible initialization - smaller, clearer text
         waveText.emplace(font);
-        waveText->setCharacterSize(12);  // Small size to fit in 2 tile space (typically 64x64 pixels)
+        waveText->setCharacterSize(120);
+        //  waveText->setCharacterSize(16);  // Smaller size for clarity
         waveText->setFillColor(sf::Color::White);
-        waveText->setPosition(sf::Vector2f(8.f, 8.f));  // Positioned within top-left tiles
+        waveText->setScale({ 0.1f,0.1f });
+
+
+        waveText->setPosition(sf::Vector2f(0.f, 0.f));  // Better positioning
         waveText->setStyle(sf::Text::Bold);
+
+        cooldownText.emplace(font);
+        cooldownText->setCharacterSize(120);
+        //  cooldownText->setCharacterSize(14);  // Smaller size for secondary info
+        cooldownText->setFillColor(sf::Color::Yellow);
+        cooldownText->setScale({ 0.1f,0.1f });
+        cooldownText->setPosition(sf::Vector2f(0.f, 10.f));  // Adjusted spacing
+        cooldownText->setStyle(sf::Text::Regular);  // Less bold for secondary text
     }
     else {
         std::cerr << "Warning: Could not load any font file. Text will not be displayed.\n";
     }
 
-    // Remove progress bar setup - no longer needed
+    // Progress bar setup - adjusted position to account for text changes
+    waveProgressBackground.setSize(sf::Vector2f(40.f, 4.f));  // Slightly wider, thinner
+    waveProgressBackground.setPosition(sf::Vector2f(0.f, 30.f));  // Moved down
+    waveProgressBackground.setFillColor(sf::Color(40, 40, 40));
+    waveProgressBackground.setOutlineThickness(1.f);
+    waveProgressBackground.setOutlineColor(sf::Color::White);
+
+
+    waveProgressBar.setSize(sf::Vector2f(40.f, 4.f));  // Match background size
+    waveProgressBar.setPosition(sf::Vector2f(0.f, 30.f));  // Match background position
+    waveProgressBar.setFillColor(sf::Color::Green);
 }
 
 void WaveManager::initializeWaves() {
@@ -161,23 +183,60 @@ void WaveManager::spawnEnemy(std::vector<Enemy*>& enemies, bool isFast, float he
 
 void WaveManager::updateUI() {
     if (allWavesComplete()) {
-        if (fontLoaded && waveText.has_value()) {
+        if (fontLoaded && waveText.has_value() && cooldownText.has_value()) {
             waveText->setString("All Waves Complete!");
+            cooldownText->setString("");
         }
+        waveProgressBar.setSize(sf::Vector2f(120.f, 4.f));  // Match updated size
         return;
     }
 
-    // Update UI only if font is loaded and text object exists
-    if (fontLoaded && waveText.has_value()) {
-        // Update wave text - only show wave number
-        waveText->setString("Wave: " + std::to_string(currentWaveNumber));
+    // Update UI only if font is loaded and text objects exist
+    if (fontLoaded && waveText.has_value() && cooldownText.has_value()) {
+        // Update wave text
+        waveText->setString("Wave: " + std::to_string(currentWaveNumber) + "/" + std::to_string(maxWaves));
+
+        // Update cooldown text
+        if (inCooldown) {
+            float remaining = cooldownDuration - waveCooldownTime;
+            cooldownText->setString("Next wave in: " + std::to_string(static_cast<int>(remaining + 1)) + "s");
+        }
+        else if (currentWaveActive) {
+            cooldownText->setString("Wave Active - Enemies: " +
+                std::to_string(enemiesSpawnedInWave) + "/" +
+                std::to_string(totalEnemiesInWave));
+        }
+    }
+
+    // Update progress bar
+    float progress = 0.0f;
+    if (inCooldown) {
+        progress = waveCooldownTime / cooldownDuration;
+    }
+    else if (currentWaveActive && totalEnemiesInWave > 0) {
+        progress = static_cast<float>(enemiesSpawnedInWave) / static_cast<float>(totalEnemiesInWave);
+    }
+
+    waveProgressBar.setSize(sf::Vector2f(progress * 40.f, 4.f));  // Match updated size
+
+    // Change progress bar color based on state
+    if (inCooldown) {
+        waveProgressBar.setFillColor(sf::Color::Blue);
+    }
+    else {
+        waveProgressBar.setFillColor(sf::Color::Green);
     }
 }
 
 void WaveManager::draw(sf::RenderWindow& window) {
-    // Only draw text if font is loaded and text object exists
-    if (fontLoaded && waveText.has_value()) {
+    // Always draw progress bars
+    window.draw(waveProgressBackground);
+    window.draw(waveProgressBar);
+
+    // Only draw text if font is loaded and text objects exist
+    if (fontLoaded && waveText.has_value() && cooldownText.has_value()) {
         window.draw(*waveText);
+        window.draw(*cooldownText);
     }
 }
 
