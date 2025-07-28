@@ -1,103 +1,265 @@
-#include "Enemy.h"
-#include <cmath>
+#include "enemy.h"
 
-Enemy::Enemy() : maxHealth(100.0f), currentHealth(100.0f), currentStep(0) {
+Enemy::Enemy() {
     int startX = 0, startY = 3;
-    shape.setRadius(7);
-    shape.setFillColor(sf::Color::Red);
-    shape.setPosition(sf::Vector2f(static_cast<float>(startX * Game::TILE_SIZE - 10),
-        static_cast<float>(startY * Game::TILE_SIZE + 10)));
-    shape.setOrigin(sf::Vector2f(shape.getRadius(), shape.getRadius()));
+    position = sf::Vector2f(static_cast<float>(startX * Game::TILE_SIZE + Game::TILE_SIZE / 2),
+        static_cast<float>(startY * Game::TILE_SIZE + Game::TILE_SIZE / 2));
 
-    // Initialize health bar
-    healthBarBackground.setSize(sf::Vector2f(20.0f, 4.0f));
-    healthBarBackground.setFillColor(sf::Color::Black);
-    healthBarBackground.setOutlineThickness(1.0f);
-    healthBarBackground.setOutlineColor(sf::Color::White);
 
-    healthBarForeground.setSize(sf::Vector2f(18.0f, 2.0f));
-    healthBarForeground.setFillColor(sf::Color::Green);
+    sf::Color darkNinja(25, 25, 35);
+    sf::Color shadowBlack(12, 12, 18);
+    sf::Color maskGray(35, 35, 45);
+    sf::Color eyeGlow(0, 255, 255, 200);
+    sf::Color steelBlade(180, 185, 190);
+    sf::Color goldAccent(200, 165, 32);
+    sf::Color leatherBrown(80, 50, 35);
 
-    // Initialize visited vector
-    visited.resize(Game::MAP_HEIGHT, std::vector<bool>(Game::MAP_WIDTH, false));
+    body.setRadius(5);
+    body.setFillColor(darkNinja);
+    body.setOrigin({ 5.f, 5.f });
+
+    healthbar.setSize({ 12.f,2.f });
+    healthbar.setOrigin(healthbar.getGeometricCenter());
+    healthbar.setFillColor(sf::Color(255, 0, 0, 250));
+
+    hood.setRadius(6.5f);
+    hood.setFillColor(maskGray);
+    hood.setOrigin({ 6.5f, 6.5f });
+
+
+    faceMask.setRadius(4.5f);
+    faceMask.setFillColor(shadowBlack);
+    faceMask.setOrigin({ 4.5f, 4.5f });
+
+
+    leftArm.setSize({ 2.f, 8.f });
+    leftArm.setFillColor(darkNinja);
+    leftArm.setOrigin({ 1.f, 4.f });
+
+    rightArm.setSize({ 2.f, 8.f });
+    rightArm.setFillColor(darkNinja);
+    rightArm.setOrigin({ 1.f, 4.f });
+
+
+    leftHand.setRadius(1.5f);
+    leftHand.setFillColor(maskGray);
+    leftHand.setOrigin({ 1.5f, 1.5f });
+
+    rightHand.setRadius(1.5f);
+    rightHand.setFillColor(maskGray);
+    rightHand.setOrigin({ 1.5f, 1.5f });
+
+
+    leftLeg.setSize({ 2.f, 7.f });
+    leftLeg.setFillColor(darkNinja);
+    leftLeg.setOrigin({ 1.f, 3.5f });
+
+    rightLeg.setSize({ 2.f, 7.f });
+    rightLeg.setFillColor(darkNinja);
+    rightLeg.setOrigin({ 1.f, 3.5f });
+
+
+    leftFoot.setSize({ 3.f, 1.5f });
+    leftFoot.setFillColor(shadowBlack);
+    leftFoot.setOrigin({ 1.5f, 0.75f });
+
+    rightFoot.setSize({ 3.f, 1.5f });
+    rightFoot.setFillColor(shadowBlack);
+    rightFoot.setOrigin({ 1.5f, 0.75f });
+
+
+    leftEye.setRadius(1.2f);
+    leftEye.setFillColor(eyeGlow);
+    leftEye.setOrigin({ 1.2f, 1.2f });
+
+    rightEye.setRadius(1.2f);
+    rightEye.setFillColor(eyeGlow);
+    rightEye.setOrigin({ 1.2f, 1.2f });
+
+
+    leftEyeGlow.setRadius(2.f);
+    leftEyeGlow.setFillColor(sf::Color(0, 255, 255, 50));
+    leftEyeGlow.setOrigin({ 2.f, 2.f });
+
+    rightEyeGlow.setRadius(2.f);
+    rightEyeGlow.setFillColor(sf::Color(0, 255, 255, 50));
+    rightEyeGlow.setOrigin({ 2.f, 2.f });
+
+
+    swordBlade.setSize({ 1.5f, 10.f });
+    swordBlade.setFillColor(steelBlade);
+    swordBlade.setOrigin({ 0.75f, 5.f });
+
+
+    swordGuard.setSize({ 4.f, 1.f });
+    swordGuard.setFillColor(goldAccent);
+    swordGuard.setOrigin({ 2.f, 0.5f });
+
+
+    swordHandle.setSize({ 1.2f, 3.f });
+    swordHandle.setFillColor(leatherBrown);
+    swordHandle.setOrigin({ 0.6f, 1.5f });
+
+
+    swordPommel.setRadius(0.8f);
+    swordPommel.setFillColor(goldAccent);
+    swordPommel.setOrigin({ 0.8f, 0.8f });
+
+
+    belt.setSize({ 12.f, 1.5f });
+    belt.setFillColor(leatherBrown);
+    belt.setOrigin({ 6.f, 0.75f });
+
+
+    movementTimer = 1.f;
+    isMoving = true;
+
+
+    for (int y = 0; y < Game::MAP_HEIGHT; ++y)
+        for (int x = 0; x < Game::MAP_WIDTH; ++x)
+            visited[y][x] = false;
+
+    // Find path and update initial position
     findPath(startX, startY);
-    updateHealthBar();
+    updateNinjaPosition(position);
 }
 
-// Define the static member
-const std::vector<sf::Vector2i> Enemy::directions = {
-    sf::Vector2i(1, 0), sf::Vector2i(0, 1), sf::Vector2i(-1, 0), sf::Vector2i(0, -1)
-};
+void Enemy::update(float deltaTime) {
+    movementTimer += deltaTime;
 
-void Enemy::update(float speed) {
     if (currentStep < path.size()) {
-        sf::Vector2f target(static_cast<float>(path[currentStep].x * Game::TILE_SIZE + 10),
-            static_cast<float>(path[currentStep].y * Game::TILE_SIZE + 10));
-        sf::Vector2f current = shape.getPosition();
+        sf::Vector2f target(static_cast<float>(path[currentStep].x * Game::TILE_SIZE + Game::TILE_SIZE / 2),
+            static_cast<float>(path[currentStep].y * Game::TILE_SIZE + Game::TILE_SIZE / 2));
+        sf::Vector2f current = position;
         sf::Vector2f delta = target - current;
         float dist = std::sqrt(delta.x * delta.x + delta.y * delta.y);
 
-        if (dist < speed) {
-            shape.setPosition(target);
+        if (dist < speed * deltaTime) {
+            position = target;
             currentStep++;
+            if (currentStep >= path.size()) {
+                isMoving = false;
+            }
         }
         else {
             delta /= dist;
-            shape.move(delta * speed);
+            position += delta * speed * deltaTime;
+            isMoving = true;
         }
+
+
+        updateNinjaPosition(position);
+    }
+    updateHealthbarnev();
+    if (Health <= 0) {
+        isAlive = false;
     }
 }
 
-void Enemy::draw(sf::RenderWindow& window) const {
-    window.draw(shape);
-    if (currentHealth < maxHealth) { // Only draw health bar if damaged
-        // Update health bar position and appearance before drawing
-        const_cast<Enemy*>(this)->updateHealthBar();
-        window.draw(healthBarBackground);
-        window.draw(healthBarForeground);
+void Enemy::updateNinjaPosition(sf::Vector2f newPos) {
+    position = newPos;
+
+    float bobOffset = 1.f;
+    if (isMoving) {
+        bobOffset = std::sin(movementTimer * 0.1f) * 0.5f;
     }
-}
 
-void Enemy::updateHealthBar() {
-    sf::Vector2f enemyPos = shape.getPosition();
 
-    // Position health bar above enemy
-    healthBarBackground.setPosition(sf::Vector2f(enemyPos.x - 10.0f, enemyPos.y - 15.0f));
-    healthBarForeground.setPosition(sf::Vector2f(enemyPos.x - 9.0f, enemyPos.y - 14.0f));
+    body.setPosition({ newPos.x, newPos.y + bobOffset });
 
-    // Update health bar size based on current health
-    float healthPercentage = currentHealth / maxHealth;
-    healthBarForeground.setSize(sf::Vector2f(18.0f * healthPercentage, 2.0f));
+    healthbar.setPosition({ newPos.x,newPos.y - 17.f });
 
-    // Change color based on health percentage
-    if (healthPercentage > 0.6f) {
-        healthBarForeground.setFillColor(sf::Color::Green);
-    }
-    else if (healthPercentage > 0.3f) {
-        healthBarForeground.setFillColor(sf::Color::Yellow);
+    hood.setPosition({ newPos.x, newPos.y - 8 + bobOffset });
+
+    faceMask.setPosition({ newPos.x, newPos.y - 8 + bobOffset });
+
+
+    float armSway = isMoving ? std::sin(movementTimer * 0.25f) * 2.f : 0.f;
+    leftArm.setPosition({ newPos.x - 6, newPos.y - 1 + bobOffset });
+    rightArm.setPosition({ newPos.x + 6, newPos.y - 1 + bobOffset + armSway });
+
+    leftHand.setPosition({ newPos.x - 6, newPos.y + 3 + bobOffset });
+    rightHand.setPosition({ newPos.x + 6, newPos.y + 3 + bobOffset + armSway });
+
+
+    float legOffset = isMoving ? std::sin(movementTimer * 0.25) * 1.5f : 0.f;
+    leftLeg.setPosition({ newPos.x - 2, newPos.y + 7 + bobOffset - legOffset });
+    rightLeg.setPosition({ newPos.x + 2, newPos.y + 7 + bobOffset + legOffset });
+
+
+    leftFoot.setPosition({ newPos.x - 2, newPos.y + 12 + bobOffset - legOffset });
+    rightFoot.setPosition({ newPos.x + 2, newPos.y + 12 + bobOffset + legOffset });
+
+
+    leftEye.setPosition({ newPos.x - 2, newPos.y - 9 + bobOffset });
+    rightEye.setPosition({ newPos.x + 2, newPos.y - 9 + bobOffset });
+
+
+    leftEyeGlow.setPosition({ newPos.x - 2, newPos.y - 9 + bobOffset });
+    rightEyeGlow.setPosition({ newPos.x + 2, newPos.y - 9 + bobOffset });
+
+
+    float swordSway = isMoving ? std::sin(movementTimer) : 0.f;
+    swordBlade.setPosition({ newPos.x + 7, newPos.y - 3 + bobOffset + armSway });
+    swordGuard.setPosition({ newPos.x + 7, newPos.y + 2 + bobOffset + armSway });
+    swordHandle.setPosition({ newPos.x + 7, newPos.y + 4 + bobOffset + armSway });
+    swordPommel.setPosition({ newPos.x + 7, newPos.y + 5 + bobOffset + armSway });
+
+
+    belt.setPosition({ newPos.x, newPos.y + 2 + bobOffset });
+
+
+    if (isMoving) {
+        float swordAngle = std::sin(movementTimer);
+        swordGuard.setRotation(sf::degrees(swordAngle));
+        swordHandle.setRotation(sf::degrees(swordAngle));
     }
     else {
-        healthBarForeground.setFillColor(sf::Color::Red);
+        swordBlade.setRotation(sf::degrees(0));
+        swordGuard.setRotation(sf::degrees(0));
+        swordHandle.setRotation(sf::degrees(0));
     }
 }
 
-void Enemy::takeDamage(float damage) {
-    currentHealth -= damage;
-    if (currentHealth < 0.0f) {
-        currentHealth = 0.0f;
+void Enemy::updateHealthbarnev() {
+    healthbar.setSize({ (Health / maxHealth) * 12.f,healthbar.getSize().y });
+}
+void Enemy::draw(sf::RenderWindow& window) {
+    if (Health < maxHealth) {
+        window.draw(healthbar);
     }
-}
+    window.draw(leftEyeGlow);
+    window.draw(rightEyeGlow);
 
-bool Enemy::isAlive() const {
-    return currentHealth > 0.0f;
-}
 
-float Enemy::getHealth() const {
-    return currentHealth;
-}
+    window.draw(swordBlade);
+    window.draw(swordGuard);
+    window.draw(swordHandle);
+    window.draw(swordPommel);
 
-float Enemy::getMaxHealth() const {
-    return maxHealth;
+
+    window.draw(leftLeg);
+    window.draw(rightLeg);
+    window.draw(leftFoot);
+    window.draw(rightFoot);
+
+
+    window.draw(body);
+    window.draw(belt);
+
+
+    window.draw(leftArm);
+    window.draw(rightArm);
+    window.draw(leftHand);
+    window.draw(rightHand);
+
+    window.draw(hood);
+    window.draw(faceMask);
+
+
+    // Eyes on top for glow effect
+    window.draw(leftEye);
+    window.draw(rightEye);
 }
 
 void Enemy::findPath(int x, int y) {
@@ -107,19 +269,41 @@ void Enemy::findPath(int x, int y) {
         return;
 
     visited[y][x] = true;
-    path.push_back(sf::Vector2i(x, y));
+    path.push_back({ x, y });
 
-    // Use the static directions member
-    for (const auto& dir : directions)
+    // Try all four directions
+    for (auto dir : directions)
         findPath(x + dir.x, y + dir.y);
+
 
     if (path.size() == 1 || x != path[0].x || y != path[0].y)
         return;
 
     sf::Vector2i last = path.back();
-    path.push_back(sf::Vector2i(last.x + 1, last.y));
+    path.push_back({ last.x + 1, last.y });
 }
 
-sf::Vector2f Enemy::getPosition() const {
-    return shape.getPosition();
+sf::FloatRect Enemy::getGlobalBounds() {
+
+    sf::FloatRect bounds = body.getGlobalBounds();
+    bounds.size.x += 8;
+    bounds.size.y += 20;
+    bounds.position.x -= 4;
+    bounds.position.y -= 12;
+    return bounds;
+}
+
+sf::Vector2f Enemy::getposition() {
+    return position;
+}
+
+FastEnemy::FastEnemy() {
+    // Blue color
+    faceMask.setFillColor(sf::Color(80, 80, 200));
+    body.setFillColor(sf::Color(60, 60, 255));
+    hood.setFillColor(sf::Color(100, 120, 255));
+    speed = 1.5f;
+}
+void FastEnemy::update(float deltaTime) {
+    Enemy::update(deltaTime);
 }

@@ -1,39 +1,49 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <vector>
-#include "Bullet.h"  // Make sure this matches your actual filename
-#include "Enemy.h"
-
+#include "enemy.h"
+#include"Bullet.h"
 class Tower {
 public:
     Tower(float a = 0, float b = 0);
     void setfillcolordefault();
     void setfillcolorlight();
     void setfillcolorred();
-    sf::Vector2f towerpos();
     void setposition(sf::Vector2f position);
-    void draw(sf::RenderWindow& window, bool showRange = false) const;  // Added showRange parameter
+    void draw(sf::RenderWindow& window) const;
     bool contain(sf::Vector2f mousepos);
     void showrange();
-    sf::FloatRect getGlobalBounds();
-
-    // New methods for automatic firing
-    void update(float deltaTime, const std::vector<Enemy>& enemies);
-    void updateBullets(float deltaTime, std::vector<Enemy>& enemies);
-    void drawBullets(sf::RenderWindow& window) const;
-    Enemy* findNearestEnemy(const std::vector<Enemy>& enemies);
-    bool isEnemyInRange(const Enemy& enemy) const;
-    float getRange() const { return range; }
-
+    void setangle(float x);
+    sf::Angle gettowerangle();
+    void tryShoot(std::vector<Enemy*>& enemies);
+    void updateBullets(float dt);
+    bool isInRange(sf::Vector2f other, float range);
+    float getrange();
+    float getradius();
+    sf::Vector2f gettowerposition();
 protected:
+    sf::CircleShape Towerrange;
+    std::vector<Bullet> bullets;
+    sf::Clock fireCooldown;
+    float fireRate = 1.f;
+    sf::CircleShape base;
     sf::RectangleShape body;
     sf::CircleShape head;
-    sf::CircleShape Towerrange;
+    sf::RectangleShape sight;
+    std::vector<sf::RectangleShape> barrels;
+    sf::RectangleShape barrel;
+};
 
-    // New members for automatic firing
-    std::vector<Bullet> bullets;
-    float range;
-    float fireRate;        // Bullets per second
-    float timeSinceLastShot;
-    float bulletDamage;
+class Boat : public Tower {
+public:
+    Boat(float x = 100, float y = 100);
+    void draw(sf::RenderWindow& window);
+private:
+    sf::ConvexShape boat;
+    sf::RectangleShape flag;
+    sf::RectangleShape cannonL;
+    sf::RectangleShape cannonR;
+    sf::CircleShape skull;
+    sf::RectangleShape crossbone1;
+    sf::RectangleShape crossbone2;
+    sf::Vector2f gettowerposition();
 };

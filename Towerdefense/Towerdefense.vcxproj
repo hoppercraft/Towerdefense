@@ -159,23 +159,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\1\Towerdefense\main.cpp" />
-    <ClCompile Include="..\..\siddhartha\Towerdefense\Bullet.cpp" />
-    <ClCompile Include="..\..\siddhartha\Towerdefense\enemy.cpp" />
-    <ClCompile Include="..\..\siddhartha\Towerdefense\GameConstants.cpp" />
-    <ClCompile Include="..\..\siddhartha\Towerdefense\gamesession.cpp" />
-    <ClCompile Include="..\..\siddhartha\Towerdefense\Game.cpp" />
-    <ClCompile Include="..\..\siddhartha\Towerdefense\Renders.cpp" />
-    <ClCompile Include="..\..\siddhartha\Towerdefense\Towers.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="enemy.cpp" />
+    <ClCompile Include="GameConstants.cpp" />
+    <ClCompile Include="gamesession.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Renders.cpp" />
+    <ClCompile Include="Towers.cpp" />
     <ClCompile Include="EnvLoader.cpp" />
     <ClCompile Include="Login.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\siddhartha\Towerdefense\Bullet.h" />
-    <ClInclude Include="..\..\siddhartha\Towerdefense\GameConstants.h" />
-    <ClInclude Include="..\..\siddhartha\Towerdefense\gamesession.h" />
-    <ClInclude Include="..\..\siddhartha\Towerdefense\Renders.h" />
-    <ClInclude Include="..\..\siddhartha\Towerdefense\Towers.h" />
+    <ClInclude Include="Bullet.h" />
+    <ClInclude Include="enemy.h" />
+    <ClInclude Include="GameConstants.h" />
+    <ClInclude Include="gamesession.h" />
+    <ClInclude Include="Renders.h" />
+    <ClInclude Include="Towers.h" />
     <ClInclude Include="Envloader.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="login.h" />
