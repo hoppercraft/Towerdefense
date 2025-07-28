@@ -34,7 +34,7 @@ bool login()
     sf::RenderWindow window(sf::VideoMode({ width, height }), "TOWER DEFENCE");
 
     sf::Font font;
-    if (!font.openFromFile("C:\\Aayush\\source\\repos\\Towerdefence\\Towerdefense\\arial.ttf")) {
+    if (!font.openFromFile("arial.ttf")) {
         std::cout << "Failed to load font\n";
         return -1;
     }
