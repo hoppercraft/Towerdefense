@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+<<<<<<< Updated upstream
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="GameConstants.cpp" />
     <ClCompile Include="Enemy.cpp" />
@@ -154,10 +155,35 @@
   <ItemGroup>
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Enemy.h" />
+=======
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="enemy.cpp" />
+    <ClCompile Include="GameConstants.cpp" />
+    <ClCompile Include="gamesession.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Renders.cpp" />
+    <ClCompile Include="Towers.cpp" />
+    <ClCompile Include="EnvLoader.cpp" />
+    <ClCompile Include="Login.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Bullet.h" />
+>>>>>>> Stashed changes
     <ClInclude Include="GameConstants.h" />
     <ClInclude Include="gamesession.h" />
     <ClInclude Include="Renders.h" />
     <ClInclude Include="Towers.h" />
+<<<<<<< Updated upstream
+=======
+    <ClInclude Include="Envloader.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="login.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Ignore.gitignore" />
+    <None Include="Security.env" />
+>>>>>>> Stashed changes
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
