@@ -32,7 +32,7 @@ void showLoadingScreen(const sf::Font& font) {
             }
         }
 
-        if (clock.getElapsedTime().asMilliseconds() > 50) {
+        if (clock.getElapsedTime().asMilliseconds() > 30) {
             currentStep++;
             progressBarFront.setSize({4.f * currentStep, 30});
             clock.restart();
@@ -51,4 +51,4 @@ void showLoadingScreen(const sf::Font& font) {
     }
 }
 
-} // namespace CS
+} 
