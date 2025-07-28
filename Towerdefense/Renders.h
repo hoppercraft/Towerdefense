@@ -15,14 +15,13 @@ public:
 
 private:
     std::vector<sf::RectangleShape> frames;
-    std::vector<Tower> towers;
-    std::vector<Tower> deployedtowers;
+    std::vector<std::unique_ptr<Tower>> towers;
+    std::vector<std::unique_ptr<Tower>> deployedtowers;
     Tower* operatedtower = nullptr;
     sf::RectangleShape bar;
     bool dragging = false;
-    Tower draggedTower;
+    std::unique_ptr<Tower> draggedTower;
     bool clicked = false;
-    Boat boat;
 };
 
 class aim {

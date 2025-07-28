@@ -21,10 +21,14 @@ Shop::Shop() {
             });
         frame.setFillColor(sf::Color(0xC4B093FF));
         frames.push_back(frame);
-
-        Tower tower(frame.getPosition().x, frame.getPosition().y);
-        towers.push_back(tower);
+        if (i == 0) {
+            towers.push_back(std::make_unique<CannonTower>(frame.getPosition().x, frame.getPosition().y));
+        }
+        else{
+             towers.push_back(std::make_unique<Boat>(frame.getPosition().x, frame.getPosition().y));
+        }
     }
+
 }
 
 void Shop::draw(sf::RenderWindow& window) {
@@ -32,12 +36,11 @@ void Shop::draw(sf::RenderWindow& window) {
     for (const auto& frame : frames)
         window.draw(frame);
     for (const auto& tower : towers)
-        tower.draw(window);
-    if (dragging)
-        draggedTower.draw(window);
+        tower->draw(window);
+    if (dragging && draggedTower)
+        draggedTower->draw(window);
     for (const auto& tower : deployedtowers)
-        tower.draw(window);
-    boat.draw(window);
+        tower->draw(window);
     if (clicked) {
         operatedtower->draw(window);
     }
@@ -56,19 +59,19 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window,Pl
                 clicked = false;
             }
             for (size_t i = 0; i < deployedtowers.size(); ++i) {
-                if (deployedtowers[i].contain(mousePos)) {
-                    operatedtower = &deployedtowers[i];
+                if (deployedtowers[i]->contain(mousePos)) {
+                    operatedtower = deployedtowers[i].get();
                     operatedtower->showrange();
                     clicked = true;
                     break;
                 }
             }
             for (size_t i = 0; i < towers.size(); ++i) {
-                if (towers[i].contain(mousePos)) {
+                if (towers[i]->contain(mousePos)) {
                     dragging = true;
-                    draggedTower = towers[i];
-                    draggedTower.setfillcolorlight();
-                    draggedTower.setposition(mousePos);
+                    draggedTower = towers[i]->clone();
+                    draggedTower->setfillcolorlight();
+                    draggedTower->setposition(mousePos);
                     break;
                 }
             }
@@ -78,11 +81,12 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window,Pl
         if (mouseReleased->button == sf::Mouse::Button::Left && dragging) {
             dragging = false;
             if (tileX >= 0 && tileX < Game::MAP_WIDTH && tileY >= 0 && tileY < Game::MAP_HEIGHT) {
-                if (Game::Map1[tileY][tileX] == Game::TileType::Grass) {
+                
+                if (Game::Map1[tileY][tileX] == draggedTower->towertilereq()) {
                     if (Shop::bounded() == false) {
                         if (pinfo->enoughmoney(100)) {
-                            draggedTower.setfillcolordefault();
-                            deployedtowers.push_back(draggedTower);
+                            draggedTower->setfillcolordefault();
+                            deployedtowers.push_back(draggedTower->clone());
                             pinfo->turrentplaced(100);
                         }
                         else {
@@ -93,27 +97,29 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window,Pl
             }
         }
     }
-
-
-
-    if (tileX >= 0 && tileX < Game::MAP_WIDTH && tileY >= 0 && tileY < Game::MAP_HEIGHT) {
-        if (Game::Map1[tileY][tileX] == Game::TileType::Grass && Shop::bounded()==false) {
-            draggedTower.setfillcolorlight();
-        }
-        else {
-            draggedTower.setfillcolorred();
+    if (dragging && draggedTower) {
+        if (tileX >= 0 && tileX < Game::MAP_WIDTH && tileY >= 0 && tileY < Game::MAP_HEIGHT) {
+            
+            if(draggedTower)
+            if (Game::Map1[tileY][tileX] == draggedTower->towertilereq() && Shop::bounded() == false) {
+                draggedTower->setfillcolorlight();
+            }
+            else {
+                draggedTower->setfillcolorred();
+            }
         }
     }
 }
 
 bool Shop::bounded() {
+    if (!draggedTower) return false;
     for (size_t i = 0; i < deployedtowers.size(); ++i) {
-        sf::Vector2f center = deployedtowers[i].gettowerposition();
-        sf::Vector2f target = draggedTower.gettowerposition();
+        sf::Vector2f center = deployedtowers[i]->gettowerposition();
+        sf::Vector2f target = draggedTower->gettowerposition();
         float dx = center.x - target.x;
         float dy = target.y - center.y;
         float distance = std::sqrt(dx * dx + dy * dy);
-        if (distance<= deployedtowers[i].getradius()*3) {
+        if (distance<= deployedtowers[i]->getradius()*3) {
             return true;
         }
     }
@@ -121,27 +127,27 @@ bool Shop::bounded() {
 }
 
 void Shop::update(const sf::RenderWindow& window,float dt) {
-    if (dragging) {
+    if (dragging && draggedTower) {
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-        draggedTower.setposition(mousePos);
+        draggedTower->setposition(mousePos);
     }
     for (size_t i = 0; i < deployedtowers.size(); ++i) {
-        deployedtowers[i].updateBullets(dt);
+        deployedtowers[i]->updateBullets(dt);
     }
 }
 
 void Shop::Towertarget(std::vector<Enemy*>& enemies,float dt){
     for (size_t i = 0; i < deployedtowers.size(); ++i) {
         for (size_t j = 0; j < enemies.size(); ++j) {
-            sf::Vector2f center = deployedtowers[i].gettowerposition();
+            sf::Vector2f center = deployedtowers[i]->gettowerposition();
             sf::Vector2f target = enemies[j]->getposition();
             float dx = center.x - target.x;
             float dy = target.y - center.y;
             float distance = std::sqrt(dx * dx + dy * dy);
-            if (deployedtowers[i].isInRange(enemies[j]->getposition(),deployedtowers[i].getrange())) {
+            if (deployedtowers[i]->isInRange(enemies[j]->getposition(),deployedtowers[i]->getrange())) {
                 float a = atan2(dx,dy);
-                deployedtowers[i].setangle(a);
-                deployedtowers[i].tryShoot(enemies);
+                deployedtowers[i]->setangle(a);
+                deployedtowers[i]->tryShoot(enemies);
                 break;
             }
 

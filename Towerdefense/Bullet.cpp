@@ -1,7 +1,7 @@
 #include "Bullet.h"
 
 Bullet::Bullet(sf::Vector2f startPos,Enemy* enemy) : targetEnemy(enemy) {
-    shape.setRadius(3.f);
+    shape.setRadius(2.f);
     shape.setFillColor(sf::Color::Yellow);
     shape.setOrigin(sf::Vector2f(shape.getRadius(), shape.getRadius()));
     shape.setPosition(startPos);
