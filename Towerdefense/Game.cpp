@@ -7,7 +7,10 @@
 #include "Bullet.h"
 #include <cstdlib>
 #include"gamesession.h"
-int main() {
+#include "Game.h"
+
+void runGame()
+{
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
 
@@ -25,7 +28,6 @@ int main() {
     sf::Texture tileTexture;
     if (!tileTexture.loadFromFile("Sprites/tile.png")) {
         std::cerr << "Failed to load tile texture.\n";
-        return -1;
     }
 
     sf::IntRect tileRects[4];
@@ -123,12 +125,12 @@ int main() {
                 }
             }
         }
+
+        shop.draw(window);
+        playerinfo.draw(window);
         if (playerinfo.gameover()) {
             window.draw(gameovertext);
         }
-        shop.draw(window);
-        playerinfo.draw(window);
         window.display();
     }
-    return 0;
 }

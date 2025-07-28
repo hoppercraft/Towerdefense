@@ -1,4 +1,3 @@
-
 #include "GameConstants.h"
 
 namespace Game {

@@ -1,18 +1,18 @@
 #include "Bullet.h"
 
-Bullet::Bullet(sf::Vector2f startPos, sf::Vector2f targetPos) {
+Bullet::Bullet(sf::Vector2f startPos, Enemy* enemy) : targetEnemy(enemy) {
     shape.setRadius(3.f);
     shape.setFillColor(sf::Color::Yellow);
     shape.setOrigin(sf::Vector2f(shape.getRadius(), shape.getRadius()));
     shape.setPosition(startPos);
 
     position = startPos;
-    targetPosition = targetPos;
+    target = enemy->getposition();
 
-    sf::Vector2f direction = targetPosition - position;
+    sf::Vector2f direction = target - position;
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     if (length != 0) {
-        velocity = direction / length * 300.f; // 300 pixels per second
+        velocity = direction / length * 300.f;
     }
 }
 
@@ -27,12 +27,22 @@ void Bullet::draw(sf::RenderWindow& window) const {
 
 bool Bullet::reachedTarget() const {
     float distance = std::sqrt(
-        (targetPosition.x - position.x) * (targetPosition.x - position.x) +
-        (targetPosition.y - position.y) * (targetPosition.y - position.y)
+        (target.x - position.x) * (target.x - position.x) +
+        (target.y - position.y) * (target.y - position.y)
     );
+    if (distance < 5.f) {
+        targetEnemy->Health -= 10;
+    }
     return distance < 5.f;
 }
 
-sf::Vector2f Bullet::getPosition() const {
-    return position;
+bool Bullet::isMoving() const {
+    return std::abs(velocity.x) > 0.01f || std::abs(velocity.y) > 0.01f;
 }
+
+void Bullet::hitenemy() {
+    targetEnemy->Health -= 10;
+    targetEnemy->updateHealthbarnev();
+}
+
+sf::Vector2f Bullet::getPosition() const { return position; }
