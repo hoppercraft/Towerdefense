@@ -159,16 +159,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\1\Towerdefense\Bullet.cpp" />
+    <ClCompile Include="..\..\1\Towerdefense\enemy.cpp" />
+    <ClCompile Include="..\..\1\Towerdefense\Game.cpp" />
+    <ClCompile Include="..\..\1\Towerdefense\GameConstants.cpp" />
+    <ClCompile Include="..\..\1\Towerdefense\gamesession.cpp" />
+    <ClCompile Include="..\..\1\Towerdefense\main.cpp" />
+    <ClCompile Include="..\..\1\Towerdefense\Renders.cpp" />
+    <ClCompile Include="..\..\1\Towerdefense\Towers.cpp" />
     <ClCompile Include="EnvLoader.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Login.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bullet.h" />
-    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="..\..\1\Towerdefense\Bullet.h" />
+    <ClInclude Include="..\..\1\Towerdefense\enemy.h" />
+    <ClInclude Include="..\..\1\Towerdefense\Game.h" />
+    <ClInclude Include="..\..\1\Towerdefense\GameConstants.h" />
+    <ClInclude Include="..\..\1\Towerdefense\gamesession.h" />
+    <ClInclude Include="..\..\1\Towerdefense\Renders.h" />
+    <ClInclude Include="..\..\1\Towerdefense\Towers.h" />
     <ClInclude Include="Envloader.h" />
-    <ClInclude Include="GameConstants.h" />
-    <ClInclude Include="Renders.h" />
-    <ClInclude Include="Towers.h" />
+    <ClInclude Include="login.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Ignore.gitignore" />
