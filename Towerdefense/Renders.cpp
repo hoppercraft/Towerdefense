@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include"gamesession.h"
+#include"Towers.h"
 Shop::Shop() {
     bar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });
     bar.setSize({ Game::TILE_SIZE * 3, Game::TILE_SIZE * Game::MAP_HEIGHT });
@@ -36,6 +37,7 @@ void Shop::draw(sf::RenderWindow& window) {
         draggedTower.draw(window);
     for (const auto& tower : deployedtowers)
         tower.draw(window);
+    boat.draw(window);
     if (clicked) {
         operatedtower->draw(window);
     }

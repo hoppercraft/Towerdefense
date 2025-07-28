@@ -9,19 +9,20 @@ public:
     Shop();
     void draw(sf::RenderWindow& window);
     void handleEvent(const sf::Event& event, const sf::RenderWindow& window, PlayerInfo* info);
-    void update(const sf::RenderWindow& window,float dt);
+    void update(const sf::RenderWindow& window, float dt);
     bool bounded();
-    void Towertarget(std::vector<Enemy*>& enemies,float dt);
+    void Towertarget(std::vector<Enemy*>& enemies, float dt);
 
 private:
     std::vector<sf::RectangleShape> frames;
     std::vector<Tower> towers;
     std::vector<Tower> deployedtowers;
-    Tower* operatedtower=nullptr;
+    Tower* operatedtower = nullptr;
     sf::RectangleShape bar;
     bool dragging = false;
     Tower draggedTower;
     bool clicked = false;
+    Boat boat;
 };
 
 class aim {

@@ -123,11 +123,12 @@ int main() {
                 }
             }
         }
+        
+        shop.draw(window);
+        playerinfo.draw(window);
         if (playerinfo.gameover()) {
             window.draw(gameovertext);
         }
-        shop.draw(window);
-        playerinfo.draw(window);
         window.display();
     }
     return 0;
