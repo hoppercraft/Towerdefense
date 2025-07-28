@@ -1,4 +1,5 @@
 ﻿#include <SFML/Graphics.hpp>
+#include<SFML/Audio.hpp>
 #include <iostream>
 #include "GameConstants.h"
 #include "Towers.h"
@@ -21,11 +22,24 @@ int main() {
     PlayerInfo playerinfo;
     sf::Clock deltaClock;
 
+    sf::Music backgroundMusic;
+    bool musicLoaded = false;
+
     // Load tile texture
     sf::Texture tileTexture;
     if (!tileTexture.loadFromFile("Sprites/tile.png")) {
         std::cerr << "Failed to load tile texture.\n";
         return -1;
+    }
+    if (backgroundMusic.openFromFile("D:\\new1\\Sounds\\s.wav.wav")) {
+        backgroundMusic.setLooping(true);
+        backgroundMusic.setVolume(50);
+        backgroundMusic.play();
+        musicLoaded = true;
+        std::cout << "Background music started.\n";
+    }
+    else {
+        std::cerr << "Could not load background music.\n";
     }
 
     sf::IntRect tileRects[4];
@@ -57,7 +71,20 @@ int main() {
                     enemies.clear();
                     waveManager.reset();
                 }
+                // Add this in your existing keyboard event handling
+                else if (keypressed->scancode == sf::Keyboard::Scancode::M) {
+                    if (musicLoaded) {
+                        if (backgroundMusic.getStatus() == sf::SoundSource::Status::Playing) {
+                            backgroundMusic.pause();
+                        }
+                        else {
+                            backgroundMusic.play();
+                        }
+                    }
+                }
             }
+
+
             // Handle shop events (tower selection, dragging, deployment)
             shop.handleEvent(event.value(), window);
         }
@@ -128,7 +155,10 @@ int main() {
 
         window.display();
     }
-
+    // Stop music before closing
+    if (musicLoaded) {
+        backgroundMusic.stop();
+    }
     // Clean up enemies
     for (auto* enemy : enemies) {
         delete enemy;
