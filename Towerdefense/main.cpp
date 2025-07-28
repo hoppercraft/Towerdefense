@@ -5,7 +5,7 @@
 #include "Renders.h"
 #include "Enemy.h"
 #include "Bullet.h"
-#include "WaveManager.h"  // Add this include
+#include "WaveManager.h"
 #include <cstdlib>
 #include "gamesession.h"
 
@@ -14,12 +14,12 @@ int main() {
     window.setFramerateLimit(60);
 
     std::vector<Enemy*> enemies;
-    WaveManager waveManager;  // Create wave manager
-
+    WaveManager waveManager;
     Shop shop;
     const float speed = 25.0f;
-    PlayerInfo playerinfo;
+    PlayerInfo playerinfo(500, 5);  // Initialize with 500 coins and 5 health
     sf::Clock deltaClock;
+    bool gameOverDisplayed = false;
 
     // Load tile texture
     sf::Texture tileTexture;
@@ -36,6 +36,13 @@ int main() {
 
     // Main game loop
     while (window.isOpen()) {
+        // Check for game over condition first
+        if (playerinfo.gameover() && !gameOverDisplayed) {
+            std::cout << "Game Over! You ran out of health!\n";
+            gameOverDisplayed = true;
+            // You could add game over screen logic here
+        }
+
         // Handle events
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>())
@@ -44,11 +51,11 @@ int main() {
                 if (keypressed->scancode == sf::Keyboard::Scancode::Escape) {
                     window.close();
                 }
-                // Optional: Allow player to start next wave early with spacebar
+                // Allow player to start next wave early with spacebar
                 else if (keypressed->scancode == sf::Keyboard::Scancode::Space) {
                     waveManager.startNextWave();
                 }
-                // Optional: Reset game with R key
+                // Reset game with R key
                 else if (keypressed->scancode == sf::Keyboard::Scancode::R) {
                     // Clear all enemies
                     for (auto* enemy : enemies) {
@@ -56,10 +63,46 @@ int main() {
                     }
                     enemies.clear();
                     waveManager.reset();
+                    // Reset player info
+                    playerinfo = PlayerInfo(500, 5);
+                    gameOverDisplayed = false;
                 }
             }
             // Handle shop events (tower selection, dragging, deployment)
-            shop.handleEvent(event.value(), window);
+            shop.handleEvent(event.value(), window, playerinfo);  // Pass playerinfo to shop
+        }
+
+        // Skip game updates if game is over
+        if (playerinfo.gameover()) {
+            // Still render the current state but don't update
+            window.clear();
+
+            // Draw map tiles
+            for (int row = 0; row < Game::MAP_HEIGHT; ++row) {
+                for (int col = 0; col < Game::MAP_WIDTH; ++col) {
+                    int tileType = Game::Map1[row][col];
+                    tile.setTextureRect(tileRects[tileType]);
+                    tile.setPosition({ static_cast<float>(col * Game::TILE_SIZE), static_cast<float>(row * Game::TILE_SIZE) });
+                    window.draw(tile);
+                }
+            }
+
+            // Draw remaining enemies
+            for (auto& enemy : enemies) {
+                enemy->draw(window);
+            }
+
+            // Draw shop UI and towers
+            shop.draw(window);
+
+            // Draw player info (will show 0 health)
+            playerinfo.draw(window);
+
+            // Draw wave manager UI
+            waveManager.draw(window);
+
+            window.display();
+            continue;
         }
 
         // Update game state
@@ -72,7 +115,7 @@ int main() {
         shop.Towertarget(enemies, deltaTime);
         shop.update(window, deltaTime);
 
-        // Update enemies
+        // Update enemies and check for enemies that reached the end
         for (auto& enemy : enemies) {
             enemy->update(speed * deltaTime);
         }
@@ -93,12 +136,16 @@ int main() {
         // Update and draw enemies
         for (auto it = enemies.begin(); it != enemies.end(); ) {
             if (!(*it)->isAlive) {
+                // Enemy was killed by tower - give coins to player
+                playerinfo.coinsearned((*it)->getReward()); // Assuming Enemy has getReward() method
                 delete* it;
                 it = enemies.erase(it);
             }
             else {
                 (*it)->update(speed * deltaTime);
                 if (!(*it)->isMoving) {
+                    // Enemy reached the end - player loses health
+                    playerinfo.enemypassed((*it)->getDamage()); // Assuming Enemy has getDamage() method
                     (*it)->isAlive = false;
                 }
                 (*it)->draw(window);
@@ -115,10 +162,8 @@ int main() {
         // Draw wave manager UI
         waveManager.draw(window);
 
-        // Check for game over conditions
-        if (waveManager.allWavesComplete()) {
-            // You could add victory screen logic here
-            // For now, just display victory message in console
+        // Check for game victory conditions
+        if (waveManager.allWavesComplete() && enemies.empty()) {
             static bool victoryShown = false;
             if (!victoryShown) {
                 std::cout << "Victory! All waves completed!\n";
