@@ -33,39 +33,35 @@ WaveManager::WaveManager() :
     }
 
     if (fontLoaded) {
-        // SFML 3.0 compatible initialization - smaller, clearer text
         waveText.emplace(font);
         waveText->setCharacterSize(120);
-        //  waveText->setCharacterSize(16);  // Smaller size for clarity
-        waveText->setFillColor(sf::Color::White);
-        waveText->setScale({ 0.1f,0.1f });
-
-
+       waveText->setFillColor(sf::Color::White);
+        waveText->setScale({ 0.05f,0.05f });
         waveText->setPosition(sf::Vector2f(0.f, 0.f));  // Better positioning
         waveText->setStyle(sf::Text::Bold);
 
         cooldownText.emplace(font);
         cooldownText->setCharacterSize(120);
-        //  cooldownText->setCharacterSize(14);  // Smaller size for secondary info
+       
         cooldownText->setFillColor(sf::Color::Yellow);
-        cooldownText->setScale({ 0.1f,0.1f });
-        cooldownText->setPosition(sf::Vector2f(0.f, 10.f));  // Adjusted spacing
-        cooldownText->setStyle(sf::Text::Regular);  // Less bold for secondary text
+        cooldownText->setScale({ 0.05f,0.05f });
+        cooldownText->setPosition(sf::Vector2f(0.f, 10.f));  
+        cooldownText->setStyle(sf::Text::Regular);  
     }
     else {
         std::cerr << "Warning: Could not load any font file. Text will not be displayed.\n";
     }
 
     // Progress bar setup - adjusted position to account for text changes
-    waveProgressBackground.setSize(sf::Vector2f(40.f, 4.f));  // Slightly wider, thinner
-    waveProgressBackground.setPosition(sf::Vector2f(0.f, 30.f));  // Moved down
+    waveProgressBackground.setSize(sf::Vector2f(40.f, 4.f)); 
+    waveProgressBackground.setPosition(sf::Vector2f(0.f, 20.f));  
     waveProgressBackground.setFillColor(sf::Color(40, 40, 40));
     waveProgressBackground.setOutlineThickness(1.f);
     waveProgressBackground.setOutlineColor(sf::Color::White);
 
 
-    waveProgressBar.setSize(sf::Vector2f(40.f, 4.f));  // Match background size
-    waveProgressBar.setPosition(sf::Vector2f(0.f, 30.f));  // Match background position
+    waveProgressBar.setSize(sf::Vector2f(40.f, 4.f));  
+    waveProgressBar.setPosition(sf::Vector2f(0.f, 20.f));  
     waveProgressBar.setFillColor(sf::Color::Green);
 }
 
@@ -217,7 +213,7 @@ void WaveManager::updateUI() {
         progress = static_cast<float>(enemiesSpawnedInWave) / static_cast<float>(totalEnemiesInWave);
     }
 
-    waveProgressBar.setSize(sf::Vector2f(progress * 40.f, 4.f));  // Match updated size
+    waveProgressBar.setSize(sf::Vector2f(progress * 40.f, 4.f));  
 
     // Change progress bar color based on state
     if (inCooldown) {
