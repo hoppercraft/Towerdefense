@@ -31,6 +31,7 @@ private:
     // Tesla bullet specific components
     sf::Clock animationClock;
     std::vector<sf::CircleShape> sparkles;
+
     void initializeBullet();
     void updateTeslaBullet(float deltaTime);
 };

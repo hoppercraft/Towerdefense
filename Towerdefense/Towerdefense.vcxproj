@@ -149,6 +149,7 @@
     <ClCompile Include="gamesession.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Renders.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Towers.cpp" />
     <ClCompile Include="WaveManager.cpp" />
   </ItemGroup>

@@ -36,16 +36,15 @@ WaveManager::WaveManager() :
         waveText.emplace(font);
         waveText->setCharacterSize(120);
         waveText->setFillColor(sf::Color::White);
-        waveText->setScale({ 0.05f,0.05f });
-        waveText->setPosition(sf::Vector2f(0.f, 0.f));  // Better positioning
+        waveText->setScale({ 0.05f, 0.05f });
+        waveText->setPosition({ 0.f, 0.f });  // SFML 3.0: use braced initialization
         waveText->setStyle(sf::Text::Bold);
 
         cooldownText.emplace(font);
         cooldownText->setCharacterSize(120);
-
         cooldownText->setFillColor(sf::Color::Yellow);
-        cooldownText->setScale({ 0.05f,0.05f });
-        cooldownText->setPosition(sf::Vector2f(0.f, 10.f));
+        cooldownText->setScale({ 0.05f, 0.05f });
+        cooldownText->setPosition({ 0.f, 10.f });  // SFML 3.0: use braced initialization
         cooldownText->setStyle(sf::Text::Regular);
     }
     else {
@@ -53,15 +52,14 @@ WaveManager::WaveManager() :
     }
 
     // Progress bar setup - adjusted position to account for text changes
-    waveProgressBackground.setSize(sf::Vector2f(40.f, 4.f));
-    waveProgressBackground.setPosition(sf::Vector2f(0.f, 20.f));
+    waveProgressBackground.setSize({ 40.f, 4.f });  // SFML 3.0: use braced initialization
+    waveProgressBackground.setPosition({ 0.f, 20.f });  // SFML 3.0: use braced initialization
     waveProgressBackground.setFillColor(sf::Color(40, 40, 40));
     waveProgressBackground.setOutlineThickness(1.f);
     waveProgressBackground.setOutlineColor(sf::Color::White);
 
-
-    waveProgressBar.setSize(sf::Vector2f(40.f, 4.f));
-    waveProgressBar.setPosition(sf::Vector2f(0.f, 20.f));
+    waveProgressBar.setSize({ 40.f, 4.f });  // SFML 3.0: use braced initialization
+    waveProgressBar.setPosition({ 0.f, 20.f });  // SFML 3.0: use braced initialization
     waveProgressBar.setFillColor(sf::Color::Green);
 }
 
@@ -183,7 +181,7 @@ void WaveManager::updateUI() {
             waveText->setString("All Waves Complete!");
             cooldownText->setString("");
         }
-        waveProgressBar.setSize(sf::Vector2f(120.f, 4.f));  // Match updated size
+        waveProgressBar.setSize({ 40.f, 4.f });  // SFML 3.0: use braced initialization
         return;
     }
 
@@ -213,7 +211,7 @@ void WaveManager::updateUI() {
         progress = static_cast<float>(enemiesSpawnedInWave) / static_cast<float>(totalEnemiesInWave);
     }
 
-    waveProgressBar.setSize(sf::Vector2f(progress * 40.f, 4.f));
+    waveProgressBar.setSize({ progress * 40.f, 4.f });  // SFML 3.0: use braced initialization
 
     // Change progress bar color based on state
     if (inCooldown) {

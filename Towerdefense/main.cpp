@@ -6,7 +6,8 @@
 #include "Renders.h"
 #include "Enemy.h"
 #include "Bullet.h"
-#include "WaveManager.h"  // Add this include
+#include "WaveManager.h"
+#include "SoundManager.h"  // Add this include
 #include <cstdlib>
 #include "gamesession.h"
 
@@ -15,7 +16,7 @@ int main() {
     window.setFramerateLimit(60);
 
     std::vector<Enemy*> enemies;
-    WaveManager waveManager;  // Create wave manager
+    WaveManager waveManager;
 
     Shop shop;
     const float speed = 25.0f;
@@ -25,15 +26,21 @@ int main() {
     sf::Music backgroundMusic;
     bool musicLoaded = false;
 
+    // Load bullet sounds using SoundManager
+    if (!SoundManager::getInstance().loadSounds()) {
+        std::cerr << "Warning: Could not load bullet sounds. Game will continue without bullet sound effects.\n";
+    }
+
     // Load tile texture
     sf::Texture tileTexture;
     if (!tileTexture.loadFromFile("Sprites/tile.png")) {
         std::cerr << "Failed to load tile texture.\n";
         return -1;
     }
+
     if (backgroundMusic.openFromFile("D:\\new1\\Sounds\\s.wav.wav")) {
         backgroundMusic.setLooping(true);
-        backgroundMusic.setVolume(50);
+        backgroundMusic.setVolume(20);
         backgroundMusic.play();
         musicLoaded = true;
         std::cout << "Background music started.\n";
@@ -58,20 +65,16 @@ int main() {
                 if (keypressed->scancode == sf::Keyboard::Scancode::Escape) {
                     window.close();
                 }
-                // Optional: Allow player to start next wave early with spacebar
                 else if (keypressed->scancode == sf::Keyboard::Scancode::Space) {
                     waveManager.startNextWave();
                 }
-                // Optional: Reset game with R key
                 else if (keypressed->scancode == sf::Keyboard::Scancode::R) {
-                    // Clear all enemies
                     for (auto* enemy : enemies) {
                         delete enemy;
                     }
                     enemies.clear();
                     waveManager.reset();
                 }
-                // Add this in your existing keyboard event handling
                 else if (keypressed->scancode == sf::Keyboard::Scancode::M) {
                     if (musicLoaded) {
                         if (backgroundMusic.getStatus() == sf::SoundSource::Status::Playing) {
@@ -84,18 +87,19 @@ int main() {
                 }
             }
 
-
-            // Handle shop events (tower selection, dragging, deployment)
             shop.handleEvent(event.value(), window);
         }
 
         // Update game state
         float deltaTime = deltaClock.restart().asSeconds();
 
-        // Update wave manager (handles enemy spawning)
+        // Update SoundManager (cleans up finished sounds)
+        SoundManager::getInstance().update();
+
+        // Update wave manager
         waveManager.update(deltaTime, enemies);
 
-        // Update shop (tower targeting, bullet updates)
+        // Update shop
         shop.Towertarget(enemies, deltaTime);
         shop.update(window, deltaTime);
 
@@ -144,8 +148,6 @@ int main() {
 
         // Check for game over conditions
         if (waveManager.allWavesComplete()) {
-            // You could add victory screen logic here
-            // For now, just display victory message in console
             static bool victoryShown = false;
             if (!victoryShown) {
                 std::cout << "Victory! All waves completed!\n";
@@ -155,10 +157,15 @@ int main() {
 
         window.display();
     }
+
     // Stop music before closing
     if (musicLoaded) {
         backgroundMusic.stop();
     }
+
+    // Cleanup sounds
+    SoundManager::getInstance().cleanup();
+
     // Clean up enemies
     for (auto* enemy : enemies) {
         delete enemy;
