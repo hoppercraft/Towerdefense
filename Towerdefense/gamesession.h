@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SFML/Graphics.hpp>
 
 class PlayerInfo {
@@ -12,7 +11,6 @@ public:
     void notEnoughMoneywarning();
     void coinsearned(int m);
     bool gameover();
-
 private:
     sf::Font font;
     sf::Text cointext;
@@ -22,5 +20,8 @@ private:
     sf::ConvexShape heartShape;
     int coins;
     int health;
+    int i;
     sf::Clock timer;
+    sf::Time offset;
+    sf::Time elapsed;
 };
