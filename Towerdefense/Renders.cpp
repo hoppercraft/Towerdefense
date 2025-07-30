@@ -43,6 +43,8 @@ void Shop::draw(sf::RenderWindow& window) {
         tower->draw(window);
     if (clicked) {
         operatedtower->draw(window);
+        window.draw(shopbar);
+        shopTower->draw(window);
     }
 }
 
@@ -61,7 +63,9 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window,Pl
             for (size_t i = 0; i < deployedtowers.size(); ++i) {
                 if (deployedtowers[i]->contain(mousePos)) {
                     operatedtower = deployedtowers[i].get();
+                    shopTower = deployedtowers[i]->clone();
                     operatedtower->showrange();
+                    Towerupgradeshop(pinfo);
                     clicked = true;
                     break;
                 }
@@ -157,3 +161,11 @@ void Shop::Towertarget(std::vector<Enemy*>& enemies,float dt){
 
 }
 
+void Shop::Towerupgradeshop(PlayerInfo* info) {
+    shopbar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });
+    shopbar.setSize({ Game::TILE_SIZE * 3, Game::TILE_SIZE * (Game::MAP_HEIGHT-1) });
+    shopbar.setFillColor(sf::Color(0x7C5123FF));
+    shopTower->setposition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,Game::TILE_SIZE * 1.25f + Game::TILE_SIZE * 2.0f });
+    shopTower->setangle(0.f);
+    shopTower->clearBullets();
+}

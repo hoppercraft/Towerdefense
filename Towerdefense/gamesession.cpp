@@ -6,9 +6,9 @@ PlayerInfo::PlayerInfo(int coin, int health)
     font.openFromFile("ARIAL.ttf");
     hearttext.setScale({ 0.105f, 0.105f });
     hearttext.setFillColor(sf::Color::White);
-    hearttext.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + 30 ,Game::MAP_HEIGHT * Game::TILE_SIZE - 15 });
-    heartShape.setPointCount(9);
+    hearttext.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + 30 ,Game::MAP_HEIGHT * Game::TILE_SIZE -15 });
 
+    heartShape.setPointCount(9);
     heartShape.setPoint(0, sf::Vector2f(110.f, -40.f));   // Bottom point
     heartShape.setPoint(1, sf::Vector2f(180.f, 40.f));   // Right low
     heartShape.setPoint(2, sf::Vector2f(200.f, 80.f));   // Right curve outer

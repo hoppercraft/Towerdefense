@@ -169,6 +169,10 @@ void Tower::updateBullets(float dt) {
         [](const Bullet& b) { return b.reachedTarget() || !b.isMoving(); }), bullets.end());
 }
 
+void Tower::clearBullets() {
+    bullets.clear();
+}
+
 std::unique_ptr<Tower> Tower::clone() const {
     return std::make_unique<Tower>(*this);
 }
