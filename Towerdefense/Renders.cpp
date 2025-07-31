@@ -4,7 +4,7 @@
 #include <cmath>
 #include"gamesession.h"
 #include"Towers.h"
-Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"upgrade",80){
+Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"upgrade",80),sell(font,"sell",80){
     font.openFromFile("ARIAL.ttf");
     bar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });
     bar.setSize({ Game::TILE_SIZE * 3, Game::TILE_SIZE * Game::MAP_HEIGHT });
@@ -14,7 +14,7 @@ Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"upgrade",80){
 
     shopTowername.setScale({ 0.105f, 0.105f });
     shopTowername.setFillColor(sf::Color::White);
-    shopTowername.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,Game::TILE_SIZE * 1.5f-10 });
+    shopTowername.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,Game::TILE_SIZE * 1.5f-20 });
     shopTowername.setStyle(sf::Text::Bold);
 
     upgrade.setScale({ 0.105f, 0.105f });
@@ -22,6 +22,11 @@ Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"upgrade",80){
     upgrade.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x-15,Game::TILE_SIZE * 3.5f + 15 });
     upgrade.setStyle(sf::Text::Bold);
 
+    sell.setScale({ 0.105f,0.105f });
+    sell.setFillColor(sf::Color::White);
+    sell.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x - 15,Game::TILE_SIZE * 3.5f + 30 });
+    sell.setStyle(sf::Text::Bold);
+    
     upgradeshopframe.setSize({ Game::TILE_SIZE * 2.5f, Game::TILE_SIZE * 1.75f });
     upgradeshopframe.setOrigin(upgradeshopframe.getGeometricCenter());
     upgradeshopframe.setPosition({
@@ -30,6 +35,29 @@ Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"upgrade",80){
         });
     upgradeshopframe.setFillColor(sf::Color(0xC4B093FF));
 
+    sellframe.setSize({ Game::TILE_SIZE * 2.5f, Game::TILE_SIZE * 1.75f });
+    sellframe.setOrigin(sellframe.getGeometricCenter());
+    sellframe.setPosition({
+        Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,
+        Game::TILE_SIZE * 3.5f + 40
+        });
+    sellframe.setFillColor(sf::Color(0xC4B093FF));
+
+    hammer.setSize({ 18.f,11.f });
+    hammer.setOrigin({ hammer.getGeometricCenter().x,hammer.getGeometricCenter().y+10});
+    hammer.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x+5,
+        Game::TILE_SIZE * 3.5f + 10 });
+    hammer.setFillColor(sf::Color(204, 204, 204));
+    hammer.setRotation(sf::degrees(-45.f));
+
+    pole.setSize({ 2.f,25.f });
+    pole.setOrigin({ pole.getGeometricCenter().x,pole.getGeometricCenter().y + 5 });
+    pole.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,
+        Game::TILE_SIZE * 3.5f + 10 });
+    pole.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x+5,
+        Game::TILE_SIZE * 3.5f + 10 });
+    pole.setFillColor(sf::Color(133, 94, 66));
+    pole.setRotation(sf::degrees(-45.f));
     shopbar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });
     shopbar.setSize({ Game::TILE_SIZE * 3, Game::TILE_SIZE * (Game::MAP_HEIGHT - 1) });
     shopbar.setFillColor(sf::Color(0x7C5123FF));
@@ -70,7 +98,11 @@ void Shop::draw(sf::RenderWindow& window) {
         shopTower->draw(window);
         window.draw(shopTowername);
         window.draw(upgradeshopframe);
+        window.draw(sellframe);
         window.draw(upgrade);
+        window.draw(pole);
+        window.draw(hammer);
+        window.draw(sell);
     }
 }
 
