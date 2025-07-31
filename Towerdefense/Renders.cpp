@@ -4,13 +4,17 @@
 #include <cmath>
 #include"gamesession.h"
 #include"Towers.h"
-Shop::Shop() {
+Shop::Shop() :shopTowername(font,"", 80) {
+    font.openFromFile("ARIAL.ttf");
     bar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });
     bar.setSize({ Game::TILE_SIZE * 3, Game::TILE_SIZE * Game::MAP_HEIGHT });
     bar.setFillColor(sf::Color(0x7C5123FF));
     bar.setOutlineThickness({ 2.0f });
-    bar.setOutlineColor(sf::Color(0xa0acaaFF));
+    bar.setOutlineColor(sf::Color(0xa0acaaFF)); 
 
+    shopTowername.setScale({ 0.105f, 0.105f });
+    shopTowername.setFillColor(sf::Color::White);
+    shopTowername.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x-6,Game::TILE_SIZE * 1.5f-10 });
     for (int i = 0; i < 3; ++i) {
         sf::RectangleShape frame;
         frame.setSize({ Game::TILE_SIZE * 1.75f, Game::TILE_SIZE * 1.75f });
@@ -45,6 +49,7 @@ void Shop::draw(sf::RenderWindow& window) {
         operatedtower->draw(window);
         window.draw(shopbar);
         shopTower->draw(window);
+        window.draw(shopTowername);
     }
 }
 
@@ -165,7 +170,11 @@ void Shop::Towerupgradeshop(PlayerInfo* info) {
     shopbar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });
     shopbar.setSize({ Game::TILE_SIZE * 3, Game::TILE_SIZE * (Game::MAP_HEIGHT-1) });
     shopbar.setFillColor(sf::Color(0x7C5123FF));
-    shopTower->setposition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,Game::TILE_SIZE * 1.25f + Game::TILE_SIZE * 2.0f });
+    shopTower->setposition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,Game::TILE_SIZE * 2.0f });
     shopTower->setangle(0.f);
     shopTower->clearBullets();
+    shopTowername.setString(shopTower->gettowername());    
+    shopTowername.setOrigin({ shopTowername.getLocalBounds().getCenter().x / 2.0f,
+       shopTowername.getLocalBounds().getCenter().y / 2.0f
+        });
 }

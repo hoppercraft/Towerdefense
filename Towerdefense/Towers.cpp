@@ -159,6 +159,9 @@ void Tower::tryShoot(std::vector<Enemy*>& enemies) {
         }
     }
 }
+std::string Tower::gettowername() {
+    return("Cannon");
+}
 
 void Tower::updateBullets(float dt) {
     for (auto& bullet : bullets) {
@@ -251,6 +254,10 @@ void Boat::draw(sf::RenderWindow& window) const {
     window.draw(crossbone1);
     window.draw(crossbone2);
     window.draw(Towerrange);
+}
+
+std::string Boat::gettowername() {
+    return("Boat");
 }
 
 void Boat::setangle(float x) {

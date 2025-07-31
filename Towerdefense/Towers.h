@@ -28,6 +28,7 @@ public:
     virtual ~Tower() = default;
     virtual Game::TileType towertilereq();
     void clearBullets();
+    virtual std::string gettowername();
 protected:
     sf::CircleShape Towerrange;
     sf::CircleShape base;
@@ -65,6 +66,7 @@ public:
     std::unique_ptr<Tower> clone() const override;
     void tryShoot(std::vector<Enemy*>& enemies) override;
     Game::TileType towertilereq() override;
+    std::string gettowername() override;
 
 private:
     sf::CircleShape Towerrange;
