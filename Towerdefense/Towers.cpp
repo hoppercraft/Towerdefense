@@ -132,6 +132,8 @@ void Tower::draw(sf::RenderWindow& window) const {
     window.draw(Towerrange);
     window.draw(barrel);
     window.draw(sight);
+    if(upgraded){
+    }
 }
 
 bool Tower::contain(sf::Vector2f mousepos) {
@@ -189,6 +191,16 @@ void Tower::upgrade() {
     Towerrange.setRadius(80.f);
     Towerrange.setOrigin(Towerrange.getGeometricCenter());
     upgraded = true;
+    sight.setFillColor(sf::Color(00, 00, 00));
+    body.setFillColor(sf::Color(150, 200, 100, 255));
+    body.setOutlineColor(sf::Color(15, 80, 30, 255));
+    head.setFillColor(sf::Color(124, 152, 70, 255));
+    head.setOutlineColor(sf::Color(85, 107, 47, 255));
+    base.setFillColor(sf::Color(0x556b2fFF));
+    Towerrange.setFillColor(sf::Color(0x00000000));
+    Towerrange.setOutlineColor(sf::Color(0x80808000));
+    barrel.setFillColor(sf::Color(187, 187, 187, 255));
+    barrel.setOutlineColor(sf::Color(32, 32, 32, 255));
 }
 
 std::unique_ptr<Tower> Tower::clone() const {
@@ -216,14 +228,14 @@ Boat::Boat(float x, float y) {
     boat.setOutlineColor(sf::Color(212, 143, 87));
     boat.setPointCount(5);
     boat.setScale({0.4f, 0.4f});
-    boat.setPoint(0, sf::Vector2f(10, 20));
-    boat.setPoint(1, sf::Vector2f(20, 10));
-    boat.setPoint(2, sf::Vector2f(60, 10));
-    boat.setPoint(3, sf::Vector2f(60, 30));
-    boat.setPoint(4, sf::Vector2f(20, 30));
+    boat.setPoint(0, sf::Vector2f(17, 20));
+    boat.setPoint(1, sf::Vector2f(27, 11));
+    boat.setPoint(2, sf::Vector2f(60, 11));
+    boat.setPoint(3, sf::Vector2f(60, 29));
+    boat.setPoint(4, sf::Vector2f(27, 29));
     boat.setOutlineThickness(5.f);
     boat.setOrigin(boat.getGeometricCenter());
-    flag.setSize({8.0f, 16.0f});
+    flag.setSize({8.0f, 14.0f});
     flag.setFillColor(sf::Color(232, 228, 201));
     flag.setOrigin({ flag.getGeometricCenter().x-5,flag.getGeometricCenter().y });
     skull.setRadius(2.0f);
@@ -245,11 +257,11 @@ Boat::Boat(float x, float y) {
     // Position crossbones in X formation
     crossbone1.setPosition({ x,y });
     crossbone2.setPosition({ x,y });
-    cannonL.setSize({ 5.f,10.f });
+    cannonL.setSize({ 4.f,10.f });
     cannonL.setFillColor(sf::Color(48, 48, 47));
     cannonL.setOrigin({ cannonL.getGeometricCenter().x,cannonL.getGeometricCenter().y-5 });
     cannonL.setPosition({ x,y });    
-    cannonR.setSize({ 5.f,10.f });
+    cannonR.setSize({ 4.f,10.f });
     cannonR.setFillColor(sf::Color(48, 48, 47));
     cannonR.setOrigin({ cannonL.getGeometricCenter().x,cannonL.getGeometricCenter().y + 5 });
     cannonR.setPosition({ x,y });
@@ -422,4 +434,13 @@ void Boat::upgrade() {
     Towerrange.setOrigin(Towerrange.getGeometricCenter());
     flag.setFillColor(sf::Color(00, 00, 00, 255));
     upgraded = true;
+    boat.setPoint(0, sf::Vector2f(10, 20));
+    boat.setPoint(1, sf::Vector2f(20, 10));
+    boat.setPoint(2, sf::Vector2f(60, 10));
+    boat.setPoint(3, sf::Vector2f(60, 30));
+    boat.setPoint(4, sf::Vector2f(20, 30));
+    flag.setSize({ 8.0f, 16.0f });
+    flag.setOrigin({ flag.getGeometricCenter().x - 5, flag.getGeometricCenter().y });
+    cannonL.setSize({ 5.f,10.f });
+    cannonR.setSize({ 5.f,10.f });
 }

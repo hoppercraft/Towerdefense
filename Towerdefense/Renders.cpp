@@ -90,6 +90,7 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window,Pl
                     if (operatedtower) {
                         if(pinfo->enoughmoney(250)){
                             operatedtower->upgrade();
+                            shopTower->upgrade();
                             pinfo->turrentplaced(250);
                         }
                         else {
