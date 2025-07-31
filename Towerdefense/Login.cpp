@@ -495,7 +495,7 @@ bool login()
                 window.draw(passwordPlaceholder);
             }
             else {
-                passwordText.setString(std::string(password.length(), '*'));
+                /*passwordText.setString(std::string(password.length(), '*'));*/
                 window.draw(passwordText);
             }
 
