@@ -11,9 +11,11 @@ public:
     sf::Vector2f getPosition() const;
     void hitenemy();
     bool isMoving() const;
+    void increasebulletdamage();
 private:
     sf::CircleShape shape;
     sf::Vector2f position;
     sf::Vector2f target;
     sf::Vector2f velocity;
+    int bulletdamage=10;
 };

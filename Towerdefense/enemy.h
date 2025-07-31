@@ -60,6 +60,7 @@ public:
     float Health = 100.0f;
     float maxHealth = 100.f;
     void updateHealthbarnev();
+    int coindropped;
 };
 
 

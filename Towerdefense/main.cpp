@@ -86,9 +86,9 @@ int main() {
             }
             for (auto it = enemies.begin(); it != enemies.end(); ) {
                 if (!(*it)->isAlive) {
+                    playerinfo.coinsearned((*it)->coindropped);
                     delete* it;
                     it = enemies.erase(it);
-                    playerinfo.coinsearned(50);
                 }
                 else {
                     (*it)->update(speed * deltaTime);

@@ -24,8 +24,9 @@ private:
     std::unique_ptr<Tower> shopTower;
     bool clicked = false;
     sf::RectangleShape shopbar;
-    sf::Text shopTowername;
+    sf::Text shopTowername,upgrade;
     sf::Font font;
+    sf::RectangleShape upgradeshopframe;
 };
 
 class aim {

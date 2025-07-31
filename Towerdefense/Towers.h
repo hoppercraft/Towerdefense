@@ -13,6 +13,7 @@ public:
     virtual void draw(sf::RenderWindow& window) const;
     virtual bool contain(sf::Vector2f mousepos);
     virtual void showrange();
+    virtual void hiderange();
     virtual void setangle(float x);
     virtual sf::Angle gettowerangle();
     virtual void tryShoot(std::vector<Enemy*>& enemies);
@@ -29,6 +30,9 @@ public:
     virtual Game::TileType towertilereq();
     void clearBullets();
     virtual std::string gettowername();
+    bool upgraded=false;
+    virtual void upgrade();
+    int towercost;
 protected:
     sf::CircleShape Towerrange;
     sf::CircleShape base;
@@ -67,14 +71,13 @@ public:
     void tryShoot(std::vector<Enemy*>& enemies) override;
     Game::TileType towertilereq() override;
     std::string gettowername() override;
-
+    void upgrade() override;
+    void hiderange() override;
 private:
     sf::CircleShape Towerrange;
     sf::ConvexShape boat;
     sf::RectangleShape flag;
-    sf::RectangleShape cannonL;
-    sf::RectangleShape cannonR;
-    sf::CircleShape skull;
-    sf::RectangleShape crossbone1;
-    sf::RectangleShape crossbone2;
+    sf::RectangleShape cannonL,cannonR;
+    sf::CircleShape skull,man;
+    sf::RectangleShape crossbone1, crossbone2;
 };

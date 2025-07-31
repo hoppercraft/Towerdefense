@@ -25,13 +25,16 @@ void Bullet::draw(sf::RenderWindow& window) const {
     window.draw(shape);
 }
 
+void Bullet::increasebulletdamage() {
+    bulletdamage = 20;
+}
 bool Bullet::reachedTarget() const {
     float distance = std::sqrt(
         (target.x - position.x) * (target.x - position.x) +
         (target.y - position.y) * (target.y - position.y)
     );
     if (distance < 5.f) {
-        targetEnemy->Health -= 10;
+        targetEnemy->Health -= bulletdamage;
     }
     return distance < 5.f;
 }

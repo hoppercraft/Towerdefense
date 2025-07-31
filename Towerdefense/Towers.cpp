@@ -3,6 +3,7 @@
 #include"iostream"
 #include "GameConstants.h"
 Tower::Tower(float a, float b) {
+    towercost=100;
     base.setRadius(12.f);
     base.setPointCount(8);
     base.setFillColor(sf::Color(85, 107, 47));
@@ -72,6 +73,11 @@ void Tower::setfillcolordefault() {
 void Tower::showrange() {
     Towerrange.setFillColor(sf::Color(0x00000022));
     Towerrange.setOutlineColor(sf::Color(0x80808088));
+}
+
+void Tower::hiderange() {
+    Towerrange.setFillColor(sf::Color(0x00000000));
+    Towerrange.setOutlineColor(sf::Color(0x80808000));
 }
 void Tower::setfillcolorlight() {
     body.setFillColor(sf::Color(107, 142, 35,100));
@@ -153,7 +159,9 @@ void Tower::tryShoot(std::vector<Enemy*>& enemies) {
             if (isInRange(enemy->getposition(),Towerrange.getRadius())) {
                 bullets.emplace_back(body.getPosition(), enemy);
                 fireCooldown.restart();
-
+                if (upgraded) {
+                    bullets.back().increasebulletdamage();
+                }
                 break;
             }
         }
@@ -176,6 +184,13 @@ void Tower::clearBullets() {
     bullets.clear();
 }
 
+void Tower::upgrade() {
+    fireRate = 0.5f;
+    Towerrange.setRadius(80.f);
+    Towerrange.setOrigin(Towerrange.getGeometricCenter());
+    upgraded = true;
+}
+
 std::unique_ptr<Tower> Tower::clone() const {
     return std::make_unique<Tower>(*this);
 }
@@ -195,6 +210,7 @@ std::unique_ptr<Tower> CannonTower::clone() const {
 }
 
 Boat::Boat(float x, float y) {
+    towercost=150;
     boat.setFillColor(sf::Color(133, 89, 54));
     boat.setPosition({ x,y });
     boat.setOutlineColor(sf::Color(212, 143, 87));
@@ -208,7 +224,7 @@ Boat::Boat(float x, float y) {
     boat.setOutlineThickness(5.f);
     boat.setOrigin(boat.getGeometricCenter());
     flag.setSize({8.0f, 16.0f});
-    flag.setFillColor(sf::Color::Black);
+    flag.setFillColor(sf::Color(232, 228, 201));
     flag.setOrigin({ flag.getGeometricCenter().x-5,flag.getGeometricCenter().y });
     skull.setRadius(2.0f);
     skull.setScale({ 0.5f,1.f });
@@ -241,6 +257,10 @@ Boat::Boat(float x, float y) {
     Towerrange.setRadius(75.f);
     Towerrange.setFillColor(sf::Color(0x00000000));
     Towerrange.setOutlineColor(sf::Color(0x80808000));
+    man.setFillColor(sf::Color(164, 91, 72));
+    man.setRadius(3.f);
+    man.setOrigin({ man.getGeometricCenter().x-5,man.getGeometricCenter().y });
+    man.setPosition({ x,y });
 }
 
 void Boat::draw(sf::RenderWindow& window) const {
@@ -249,11 +269,16 @@ void Boat::draw(sf::RenderWindow& window) const {
     window.draw(cannonL);
     window.draw(cannonR);
     window.draw(boat);
-    window.draw(flag);
-    window.draw(skull);
-    window.draw(crossbone1);
-    window.draw(crossbone2);
     window.draw(Towerrange);
+    window.draw(flag);
+    if (!upgraded) {
+        window.draw(man);
+    }
+    if (upgraded) {
+        window.draw(skull);
+        window.draw(crossbone1);
+        window.draw(crossbone2);
+    }
 }
 
 std::string Boat::gettowername() {
@@ -269,12 +294,13 @@ void Boat::setangle(float x) {
     cannonR.setRotation(a);
     crossbone1.setRotation(a+ sf::degrees(60.f));
     crossbone2.setRotation(a+ sf::degrees(120.f));
+    man.setRotation(a);
 }
 
 void Boat::setfillcolordefault() {
     boat.setFillColor(sf::Color(133, 89, 54,255));
     boat.setOutlineColor(sf::Color(212, 143, 87,255));
-    flag.setFillColor(sf::Color(00,00,00,255));
+    flag.setFillColor(sf::Color(232, 228, 201,255));
     skull.setFillColor(sf::Color(255,255,255,255));
     crossbone1.setFillColor(sf::Color(255, 255, 255, 255));
     crossbone2.setFillColor(sf::Color(255, 255, 255, 255));
@@ -282,6 +308,7 @@ void Boat::setfillcolordefault() {
     cannonR.setFillColor(sf::Color(48, 48, 47,255));
     Towerrange.setFillColor(sf::Color(0x00000000));
     Towerrange.setOutlineColor(sf::Color(0x80808000));
+    man.setFillColor(sf::Color(164, 91, 72));
 }
 
 sf::Angle Boat::gettowerangle() {
@@ -293,10 +320,15 @@ void Boat::showrange() {
     Towerrange.setOutlineColor(sf::Color(0x80808088));
 }
 
+void Boat::hiderange() {
+    Towerrange.setFillColor(sf::Color(0x00000000));
+    Towerrange.setOutlineColor(sf::Color(0x80808000));
+}
+
 void Boat::setfillcolorlight() {
     boat.setFillColor(sf::Color(133, 89, 54, 100));
     boat.setOutlineColor(sf::Color(212, 143, 87, 100));
-    flag.setFillColor(sf::Color(00, 00, 00, 100));
+    flag.setFillColor(sf::Color(232, 228, 201, 100));
     skull.setFillColor(sf::Color(255, 255, 255, 100));
     crossbone1.setFillColor(sf::Color(255, 255, 255, 100));
     crossbone2.setFillColor(sf::Color(255, 255, 255, 100));
@@ -304,12 +336,13 @@ void Boat::setfillcolorlight() {
     cannonR.setFillColor(sf::Color(48, 48, 47, 100));
     Towerrange.setFillColor(sf::Color(0x00000022));
     Towerrange.setOutlineColor(sf::Color(0x80808088));
+    man.setFillColor(sf::Color(164, 91, 72,100));
 }
 
 void Boat::setfillcolorred() {
     boat.setFillColor(sf::Color(200, 89, 54, 100));
     boat.setOutlineColor(sf::Color(255, 143, 87, 100));
-    flag.setFillColor(sf::Color(100, 00, 00, 100));
+    flag.setFillColor(sf::Color(255, 200, 201, 100));
     skull.setFillColor(sf::Color(255, 200, 200, 100));
     crossbone1.setFillColor(sf::Color(255, 200, 200, 100));
     crossbone2.setFillColor(sf::Color(255, 200, 200, 100));
@@ -317,6 +350,7 @@ void Boat::setfillcolorred() {
     cannonR.setFillColor(sf::Color(200, 48, 47, 100));
     Towerrange.setFillColor(sf::Color(0xFF000022));
     Towerrange.setOutlineColor(sf::Color(0xFF808088));
+    man.setFillColor(sf::Color(255, 91, 72,100));
 }
 
 sf::Vector2f Boat::gettowerposition() {
@@ -336,6 +370,7 @@ void Boat::setposition(sf::Vector2f position) {
     crossbone2.setPosition(position);
     cannonL.setPosition(position);
     cannonR.setPosition(position);
+    man.setPosition({ position.x,position.y });
 }
 
 bool Boat::contain(sf::Vector2f mousepos) {
@@ -368,7 +403,9 @@ void Boat::tryShoot(std::vector<Enemy*>& enemies) {
             if (isInRange(enemy->getposition(), Towerrange.getRadius())) {
                 bullets.emplace_back(boat.getPosition(), enemy);
                 fireCooldown.restart();
-
+                if (upgraded) {
+                    bullets.back().increasebulletdamage();
+                }
                 break;
             }
         }
@@ -377,4 +414,12 @@ void Boat::tryShoot(std::vector<Enemy*>& enemies) {
 
 Game::TileType Boat::towertilereq() {
     return (Game::TileType::Water);
+}
+
+void Boat::upgrade() {
+    fireRate = 0.5f;
+    Towerrange.setRadius(90.f);
+    Towerrange.setOrigin(Towerrange.getGeometricCenter());
+    flag.setFillColor(sf::Color(00, 00, 00, 255));
+    upgraded = true;
 }

@@ -14,6 +14,7 @@ Enemy::Enemy() {
     sf::Color goldAccent(200, 165, 32);
     sf::Color leatherBrown(80, 50, 35);
 
+    coindropped = 50;
     body.setRadius(5);
     body.setFillColor(darkNinja);
     body.setOrigin({ 5.f, 5.f });
@@ -303,6 +304,7 @@ FastEnemy::FastEnemy() {
     body.setFillColor(sf::Color(60, 60, 255));
     hood.setFillColor(sf::Color(100, 120, 255));
     speed = 1.5f;
+    coindropped = 75;
 }
 void FastEnemy::update(float deltaTime) {
     Enemy::update(deltaTime);
