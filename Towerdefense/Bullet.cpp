@@ -17,16 +17,16 @@ void Bullet::initializeBullet() {
     case BulletType::BASIC:
         shape.setRadius(3.f);
         shape.setFillColor(sf::Color::Yellow);
-        shape.setOrigin({ shape.getRadius(), shape.getRadius() });  // SFML 3.0: use braced initialization
+        shape.setOrigin({ shape.getRadius(), shape.getRadius() });  
         speed = 300.f;
         damage = 10;
         break;
     case BulletType::TESLA:
         shape.setRadius(2.f);
-        shape.setFillColor(sf::Color(0, 191, 255, 220)); // Deep sky blue with transparency
-        shape.setOrigin({ shape.getRadius(), shape.getRadius() });  // SFML 3.0: use braced initialization
-        speed = 250.f; // Slightly slower than basic bullets
-        damage = 3; // Much lower damage per bullet, but hits all enemies
+        shape.setFillColor(sf::Color(0, 191, 255, 220)); 
+        shape.setOrigin({ shape.getRadius(), shape.getRadius() });  
+        speed = 250.f; 
+        damage = 50; 
         // Initialize sparkles for Tesla bullet
         sparkles.resize(4);
         for (auto& sparkle : sparkles) {

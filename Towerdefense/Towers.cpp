@@ -44,8 +44,7 @@ void Tower::initializeComponents() {
     head.setFillColor(sf::Color(124, 152, 70));
     head.setOutlineColor(sf::Color(85, 107, 47));
     head.setOrigin({ head.getRadius(), head.getRadius() });
-    head.setPosition({ a, b - 2.f });\
-
+    head.setPosition({ a, b - 2.f });
 
     barrel.setSize({ 4.f, 18.f }); // Width, Height
     barrel.setFillColor(sf::Color(64, 64, 64, 255)); // Fully opaque dark gray
@@ -199,6 +198,9 @@ void BasicTower::draw(sf::RenderWindow& window) const {
 }
 
 // TeslaTower Implementation
+// NOTE: Add this method declaration to TeslaTower class in header file:
+// bool isInRange(sf::Vector2f other, float range) override;
+
 TeslaTower::TeslaTower(float a, float b) : Tower(a, b, TowerType::TESLA) {
     // Set Tesla-specific properties
     range = 75.0f; // Tesla towers have longer range
@@ -212,62 +214,71 @@ void TeslaTower::initializeComponents() {
     float a = position.x;
     float b = position.y;
 
-    // Tesla tower base (larger than basic tower) - NOW RED
-    teslaBase.setRadius(15.f);
-    teslaBase.setPointCount(6); // Hexagonal base
-    teslaBase.setFillColor(sf::Color(220, 20, 60)); // Crimson red
-    teslaBase.setOutlineThickness(2.f);
-    teslaBase.setOutlineColor(sf::Color(139, 0, 0)); // Dark red
-    teslaBase.setOrigin({ teslaBase.getRadius(), teslaBase.getRadius() });
-    teslaBase.setPosition({ a, b });
+    // Tesla tower base platform (green with brown outline) - MADE EVEN SMALLER
+    teslaBase.setSize({ 20.f, 6.f }); // Reduced from 28x8 to 20x6
+    teslaBase.setFillColor(sf::Color(107, 142, 35)); // Olive green
+    teslaBase.setOutlineThickness(1.f);
+    teslaBase.setOutlineColor(sf::Color(139, 69, 19)); // Brown outline
+    teslaBase.setOrigin({ 10.f, 3.f }); // Updated origin for new size
+    teslaBase.setPosition({ a, b + 3.f }); // Adjusted position
 
-    // Tesla coil structure (multiple rings)
-    teslaCoil1.setRadius(8.f);
-    teslaCoil1.setFillColor(sf::Color(100, 149, 237)); // Cornflower blue
-    teslaCoil1.setOutlineThickness(1.f);
-    teslaCoil1.setOutlineColor(sf::Color(72, 61, 139)); // Dark slate blue
-    teslaCoil1.setOrigin({ teslaCoil1.getRadius(), teslaCoil1.getRadius() });
-    teslaCoil1.setPosition({ a, b - 8.f });
-
-    teslaCoil2.setRadius(6.f);
-    teslaCoil2.setFillColor(sf::Color(138, 43, 226)); // Blue violet
-    teslaCoil2.setOutlineThickness(1.f);
-    teslaCoil2.setOutlineColor(sf::Color(75, 0, 130)); // Indigo
-    teslaCoil2.setOrigin({ teslaCoil2.getRadius(), teslaCoil2.getRadius() });
-    teslaCoil2.setPosition({ a, b - 16.f });
-
-    teslaCoil3.setRadius(4.f);
-    teslaCoil3.setFillColor(sf::Color(147, 112, 219)); // Medium purple
-    teslaCoil3.setOutlineThickness(1.f);
-    teslaCoil3.setOutlineColor(sf::Color(102, 51, 153)); // Rebecca purple
-    teslaCoil3.setOrigin({ teslaCoil3.getRadius(), teslaCoil3.getRadius() });
-    teslaCoil3.setPosition({ a, b - 24.f });
-
-    // Tesla top (sphere)
-    teslaTop.setRadius(5.f);
-    teslaTop.setFillColor(sf::Color(255, 255, 255)); // White
-    teslaTop.setOutlineThickness(1.f);
-    teslaTop.setOutlineColor(sf::Color(220, 220, 220)); // Gainsboro
-    teslaTop.setOrigin({ teslaTop.getRadius(), teslaTop.getRadius() });
-    teslaTop.setPosition({ a, b - 30.f });
-
-    // Central rod
-    teslaRod.setSize({ 2.f, 35.f });
-    teslaRod.setFillColor(sf::Color(192, 192, 192)); // Silver
+    // Central vertical support rod (gray metallic) - MADE SMALLER
+    teslaRod.setSize({ 2.f, 18.f }); // Reduced from 3x24 to 2x18
+    teslaRod.setFillColor(sf::Color(128, 128, 128)); // Gray
     teslaRod.setOutlineThickness(0.5f);
-    teslaRod.setOutlineColor(sf::Color(169, 169, 169)); // Dark gray
-    teslaRod.setOrigin({ 1.f, 0.f });
-    teslaRod.setPosition({ a, b - 2.f });
+    teslaRod.setOutlineColor(sf::Color(64, 64, 64)); // Dark gray
+    teslaRod.setOrigin({ 1.f, 0.f }); // Updated origin
+    teslaRod.setPosition({ a, b - 15.f }); // Adjusted position
 
-    // Initialize lightning arcs (will be updated dynamically)
+    // Coil sections (copper/brown colored spirals) - MADE SMALLER
+    // Bottom coil section
+    teslaCoil1.setSize({ 7.f, 3.f }); // Reduced from 10x4 to 7x3
+    teslaCoil1.setFillColor(sf::Color(184, 115, 51)); // Copper brown
+    teslaCoil1.setOutlineThickness(0.5f);
+    teslaCoil1.setOutlineColor(sf::Color(139, 69, 19)); // Darker brown
+    teslaCoil1.setOrigin({ 3.5f, 1.5f }); // Updated origin
+    teslaCoil1.setPosition({ a, b - 4.f }); // Adjusted position
+
+    // Middle coil section
+    teslaCoil2.setSize({ 7.f, 3.f }); // Reduced from 10x4 to 7x3
+    teslaCoil2.setFillColor(sf::Color(184, 115, 51)); // Copper brown
+    teslaCoil2.setOutlineThickness(0.5f);
+    teslaCoil2.setOutlineColor(sf::Color(139, 69, 19)); // Darker brown
+    teslaCoil2.setOrigin({ 3.5f, 1.5f }); // Updated origin
+    teslaCoil2.setPosition({ a, b - 8.f }); // Adjusted position
+
+    // Upper coil section
+    teslaCoil3.setSize({ 7.f, 3.f }); // Reduced from 10x4 to 7x3
+    teslaCoil3.setFillColor(sf::Color(184, 115, 51)); // Copper brown
+    teslaCoil3.setOutlineThickness(0.5f);
+    teslaCoil3.setOutlineColor(sf::Color(139, 69, 19)); // Darker brown
+    teslaCoil3.setOrigin({ 3.5f, 1.5f }); // Updated origin
+    teslaCoil3.setPosition({ a, b - 12.f }); // Adjusted position
+
+    // Top conductor (cylindrical, metallic gray with highlight) - MADE SMALLER
+    teslaTop.setSize({ 12.f, 4.f }); // Reduced from 16x5 to 12x4
+    teslaTop.setFillColor(sf::Color(192, 192, 192)); // Light gray
+    teslaTop.setOutlineThickness(1.f);
+    teslaTop.setOutlineColor(sf::Color(64, 64, 64)); // Dark gray
+    teslaTop.setOrigin({ 6.f, 2.f }); // Updated origin
+    teslaTop.setPosition({ a, b - 17.f }); // Adjusted position
+
+    // Top conductor highlight (to simulate cylindrical shape) - MADE SMALLER
+    teslaTopHighlight.setSize({ 9.f, 0.8f }); // Reduced from 12x1 to 9x0.8
+    teslaTopHighlight.setFillColor(sf::Color(220, 220, 220)); // Very light gray
+    teslaTopHighlight.setOrigin({ 4.5f, 0.4f }); // Updated origin
+    teslaTopHighlight.setPosition({ a, b - 18.f }); // Adjusted position
+
+    // Initialize lightning arcs (will be updated dynamically) - MADE SMALLER
     lightningArcs.resize(3);
-    for (auto& arc : lightningArcs) {
-        arc.setSize({ 1.f, 10.f });
-        arc.setFillColor(sf::Color(255, 255, 0, 150)); // Semi-transparent yellow
+    for (size_t i = 0; i < lightningArcs.size(); ++i) {
+        lightningArcs[i].setSize({ 1.f, 7.f }); // Reduced from 1.5x10 to 1x7
+        lightningArcs[i].setFillColor(sf::Color(0, 191, 255, 180)); // Electric blue with transparency
+        lightningArcs[i].setOrigin({ 0.5f, 3.5f }); // Updated origin
     }
 
-    // Update the Towerrange for Tesla tower
-    Towerrange.setRadius(range);
+    // Update the Towerrange for Tesla tower - ensure it matches the actual range
+    Towerrange.setRadius(range); // This should be 75.0f for Tesla towers
     Towerrange.setOrigin(Towerrange.getGeometricCenter());
     Towerrange.setPosition({ a, b });
 
@@ -284,12 +295,13 @@ void TeslaTower::setangle(float x) {
 void TeslaTower::setposition(sf::Vector2f pos) {
     position = pos;
 
-    teslaBase.setPosition(pos);
-    teslaCoil1.setPosition({ pos.x, pos.y - 8.f });
-    teslaCoil2.setPosition({ pos.x, pos.y - 16.f });
-    teslaCoil3.setPosition({ pos.x, pos.y - 24.f });
-    teslaTop.setPosition({ pos.x, pos.y - 30.f });
-    teslaRod.setPosition({ pos.x, pos.y - 2.f });
+    teslaBase.setPosition({ pos.x, pos.y + 3.f }); // Adjusted for smaller size
+    teslaRod.setPosition({ pos.x, pos.y - 15.f }); // Adjusted for smaller size
+    teslaCoil1.setPosition({ pos.x, pos.y - 4.f }); // Adjusted for smaller size
+    teslaCoil2.setPosition({ pos.x, pos.y - 8.f }); // Adjusted for smaller size
+    teslaCoil3.setPosition({ pos.x, pos.y - 12.f }); // Adjusted for smaller size
+    teslaTop.setPosition({ pos.x, pos.y - 17.f }); // Adjusted for smaller size
+    teslaTopHighlight.setPosition({ pos.x, pos.y - 18.f }); // Adjusted for smaller size
 
     Towerrange.setPosition(pos);
 
@@ -298,23 +310,37 @@ void TeslaTower::setposition(sf::Vector2f pos) {
 
 bool TeslaTower::contain(sf::Vector2f mousepos) {
     return teslaBase.getGlobalBounds().contains(mousepos) ||
+        teslaTop.getGlobalBounds().contains(mousepos) ||
         teslaCoil1.getGlobalBounds().contains(mousepos) ||
-        teslaTop.getGlobalBounds().contains(mousepos);
+        teslaCoil2.getGlobalBounds().contains(mousepos) ||
+        teslaCoil3.getGlobalBounds().contains(mousepos);
 }
 
 void TeslaTower::updateLightning() {
-    // Create dynamic lightning effects
+    // Create dynamic lightning effects emanating from the top conductor
+    float time = lightningClock.getElapsedTime().asSeconds();
+
     for (size_t i = 0; i < lightningArcs.size(); ++i) {
-        float angle = (i * 120.f + lightningClock.getElapsedTime().asSeconds() * 100.f);
-        float x = position.x + std::cos(angle * 3.14159f / 180.f) * (10.f + i * 3.f);
-        float y = position.y - 20.f + std::sin(angle * 3.14159f / 180.f) * 5.f;
+        // Calculate angles for lightning bolts (120 degrees apart)
+        float baseAngle = i * 120.f;
+        float wobble = std::sin(time * 8.f + i * 2.f) * 15.f; // Add some randomness
+        float angle = baseAngle + wobble;
+
+        // Position lightning from the edges of the top conductor - ADJUSTED FOR SMALLER SIZE
+        float radius = 7.f; // Reduced from 10.f to 7.f
+        float x = position.x + std::cos(angle * 3.14159f / 180.f) * radius;
+        float y = position.y - 17.f + std::sin(angle * 3.14159f / 180.f) * radius; // Adjusted for new top position
 
         lightningArcs[i].setPosition({ x, y });
         lightningArcs[i].setRotation(sf::degrees(angle));
 
-        // Flicker effect
-        int alpha = 100 + (int)(55 * std::sin(lightningClock.getElapsedTime().asSeconds() * 10.f + i));
-        lightningArcs[i].setFillColor(sf::Color(255, 255, 0, alpha));
+        // Dynamic length and intensity - SHORTER FOR SMALLER TOWER
+        float length = 5.f + std::sin(time * 12.f + i) * 3.f; // Reduced from 8+5 to 5+3
+        lightningArcs[i].setSize({ 1.f, length });
+
+        // Flicker effect with electric blue color
+        int alpha = 120 + (int)(80 * std::sin(time * 15.f + i * 1.5f));
+        lightningArcs[i].setFillColor(sf::Color(0, 191, 255, alpha));
     }
 }
 
@@ -323,19 +349,29 @@ void TeslaTower::draw(sf::RenderWindow& window) const {
     for (const auto& bullet : bullets)
         bullet.draw(window);
 
-    // Draw Tesla tower components (NO BARREL!)
+    // Draw Tesla tower components in proper order (back to front)
     window.draw(Towerrange);
-    window.draw(teslaBase);
-    window.draw(teslaRod);
-    window.draw(teslaCoil1);
-    window.draw(teslaCoil2);
-    window.draw(teslaCoil3);
-    window.draw(teslaTop);
+    window.draw(teslaBase);      // Base platform
+    window.draw(teslaRod);       // Central support rod
+    window.draw(teslaCoil1);     // Bottom coil
+    window.draw(teslaCoil2);     // Middle coil
+    window.draw(teslaCoil3);     // Top coil
+    window.draw(teslaTop);       // Top conductor
+    window.draw(teslaTopHighlight); // Highlight on top conductor
 
-    // Draw lightning effects
+    // Draw lightning effects on top
     for (const auto& arc : lightningArcs) {
         window.draw(arc);
     }
+}
+
+bool TeslaTower::isInRange(sf::Vector2f other, float range) {
+    // Use Tesla tower's position (center of the base) instead of body position
+    sf::Vector2f center = position; // Tesla tower uses its stored position
+    float dx = center.x - other.x;
+    float dy = center.y - other.y;
+    float distance = std::sqrt(dx * dx + dy * dy);
+    return distance <= range;
 }
 
 void TeslaTower::tryShoot(std::vector<Enemy*>& enemies) {
@@ -344,7 +380,8 @@ void TeslaTower::tryShoot(std::vector<Enemy*>& enemies) {
         bool shotFired = false;
 
         for (auto& enemy : enemies) {
-            if (isInRange(enemy->getposition(), range)) {
+            // Use the Tesla tower's specific range that matches the visual circle
+            if (isInRange(enemy->getposition(), Towerrange.getRadius())) {
                 bullets.emplace_back(teslaTop.getPosition(), enemy, BulletType::TESLA);
                 shotFired = true;
             }
@@ -358,37 +395,43 @@ void TeslaTower::tryShoot(std::vector<Enemy*>& enemies) {
 }
 
 void TeslaTower::setfillcolordefault() {
-    teslaBase.setFillColor(sf::Color(220, 20, 60, 255)); // Crimson red
-    teslaBase.setOutlineColor(sf::Color(139, 0, 0, 255)); // Dark red
-    teslaCoil1.setFillColor(sf::Color(100, 149, 237, 255));
-    teslaCoil2.setFillColor(sf::Color(138, 43, 226, 255));
-    teslaCoil3.setFillColor(sf::Color(147, 112, 219, 255));
-    teslaTop.setFillColor(sf::Color(255, 255, 255, 255));
-    teslaRod.setFillColor(sf::Color(192, 192, 192, 255));
+    teslaBase.setFillColor(sf::Color(107, 142, 35, 255)); // Olive green
+    teslaBase.setOutlineColor(sf::Color(139, 69, 19, 255)); // Brown
+    teslaRod.setFillColor(sf::Color(128, 128, 128, 255)); // Gray
+    teslaRod.setOutlineColor(sf::Color(64, 64, 64, 255)); // Dark gray
+    teslaCoil1.setFillColor(sf::Color(184, 115, 51, 255)); // Copper
+    teslaCoil2.setFillColor(sf::Color(184, 115, 51, 255)); // Copper
+    teslaCoil3.setFillColor(sf::Color(184, 115, 51, 255)); // Copper
+    teslaTop.setFillColor(sf::Color(192, 192, 192, 255)); // Light gray
+    teslaTopHighlight.setFillColor(sf::Color(220, 220, 220, 255)); // Very light gray
     Towerrange.setFillColor(sf::Color(0x00000000));
     Towerrange.setOutlineColor(sf::Color(0x80808000));
 }
 
 void TeslaTower::setfillcolorlight() {
-    teslaBase.setFillColor(sf::Color(220, 20, 60, 100)); // Crimson red with transparency
-    teslaBase.setOutlineColor(sf::Color(139, 0, 0, 100)); // Dark red with transparency
-    teslaCoil1.setFillColor(sf::Color(100, 149, 237, 100));
-    teslaCoil2.setFillColor(sf::Color(138, 43, 226, 100));
-    teslaCoil3.setFillColor(sf::Color(147, 112, 219, 100));
-    teslaTop.setFillColor(sf::Color(255, 255, 255, 100));
-    teslaRod.setFillColor(sf::Color(192, 192, 192, 100));
+    teslaBase.setFillColor(sf::Color(107, 142, 35, 100)); // Olive green with transparency
+    teslaBase.setOutlineColor(sf::Color(139, 69, 19, 100)); // Brown with transparency
+    teslaRod.setFillColor(sf::Color(128, 128, 128, 100)); // Gray with transparency
+    teslaRod.setOutlineColor(sf::Color(64, 64, 64, 100)); // Dark gray with transparency
+    teslaCoil1.setFillColor(sf::Color(184, 115, 51, 100)); // Copper with transparency
+    teslaCoil2.setFillColor(sf::Color(184, 115, 51, 100)); // Copper with transparency
+    teslaCoil3.setFillColor(sf::Color(184, 115, 51, 100)); // Copper with transparency
+    teslaTop.setFillColor(sf::Color(192, 192, 192, 100)); // Light gray with transparency
+    teslaTopHighlight.setFillColor(sf::Color(220, 220, 220, 100)); // Very light gray with transparency
     Towerrange.setFillColor(sf::Color(0x00000022));
     Towerrange.setOutlineColor(sf::Color(0x80808088));
 }
 
 void TeslaTower::setfillcolorred() {
-    teslaBase.setFillColor(sf::Color(255, 50, 50, 100)); // Brighter red with transparency
-    teslaBase.setOutlineColor(sf::Color(200, 0, 0, 100)); // Bright red outline with transparency
-    teslaCoil1.setFillColor(sf::Color(255, 149, 237, 100));
-    teslaCoil2.setFillColor(sf::Color(255, 43, 226, 100));
-    teslaCoil3.setFillColor(sf::Color(255, 112, 219, 100));
-    teslaTop.setFillColor(sf::Color(255, 200, 200, 100));
-    teslaRod.setFillColor(sf::Color(255, 192, 192, 100));
+    teslaBase.setFillColor(sf::Color(255, 142, 35, 100)); // Orange-red with transparency
+    teslaBase.setOutlineColor(sf::Color(255, 69, 19, 100)); // Red-orange with transparency
+    teslaRod.setFillColor(sf::Color(255, 128, 128, 100)); // Pink-gray with transparency
+    teslaRod.setOutlineColor(sf::Color(200, 64, 64, 100)); // Red-gray with transparency
+    teslaCoil1.setFillColor(sf::Color(255, 115, 51, 100)); // Red-copper with transparency
+    teslaCoil2.setFillColor(sf::Color(255, 115, 51, 100)); // Red-copper with transparency
+    teslaCoil3.setFillColor(sf::Color(255, 115, 51, 100)); // Red-copper with transparency
+    teslaTop.setFillColor(sf::Color(255, 192, 192, 100)); // Pink-gray with transparency
+    teslaTopHighlight.setFillColor(sf::Color(255, 220, 220, 100)); // Light pink with transparency
     Towerrange.setFillColor(sf::Color(0xFF000022));
     Towerrange.setOutlineColor(sf::Color(0x80808088));
 }

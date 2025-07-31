@@ -24,12 +24,12 @@ public:
     virtual bool contain(sf::Vector2f mousepos);
     void showrange();
     // Rotation functions
-    virtual void setangle(float x);  // Made virtual so Tesla can override
+    virtual void setangle(float x);  
     sf::Angle gettowerangle();
     // Combat functions
     virtual void tryShoot(std::vector<Enemy*>& enemies);
     void updateBullets(float dt);
-    bool isInRange(sf::Vector2f other, float range);
+    virtual bool isInRange(sf::Vector2f other, float range);  
     // Getters
     float getrange();
     float getradius();
@@ -40,7 +40,7 @@ protected:
     std::vector<Bullet> bullets;
     sf::Clock fireCooldown;
     float fireRate = 0.5f;
-    float range = 50.0f; // Fixed: was 100.0f, changed to match usage in code
+    float range = 50.0f;
     sf::Vector2f position;
     float angle = 0.0f;
     // Basic tower components (used by BasicTower)
@@ -61,26 +61,28 @@ private:
 class TeslaTower : public Tower {
 public:
     TeslaTower(float a = 0, float b = 0);
-
     void draw(sf::RenderWindow& window) const override;
     void tryShoot(std::vector<Enemy*>& enemies) override;
     void setposition(sf::Vector2f pos) override;
-    void setangle(float x) override;  // Override to prevent rotation of base Tower components
+    void setangle(float x) override;  
     bool contain(sf::Vector2f mousepos) override;
+    bool isInRange(sf::Vector2f other, float range) override;  
     // Tesla-specific color functions
     void setfillcolordefault() override;
     void setfillcolorlight() override;
     void setfillcolorred() override;
     void updateLightning();
+
 private:
     void initializeComponents() override;
-    // Tesla tower specific components
-    sf::CircleShape teslaBase;
-    sf::CircleShape teslaCoil1;
-    sf::CircleShape teslaCoil2;
-    sf::CircleShape teslaCoil3;
-    sf::CircleShape teslaTop;
-    sf::RectangleShape teslaRod;
+    // Tesla tower specific components - UPDATED TO MATCH NEW DESIGN
+    sf::RectangleShape teslaBase;        // Changed from CircleShape to RectangleShape (platform)
+    sf::RectangleShape teslaRod;         // Central support rod
+    sf::RectangleShape teslaCoil1;       // Changed from CircleShape to RectangleShape (coil sections)
+    sf::RectangleShape teslaCoil2;       // Changed from CircleShape to RectangleShape
+    sf::RectangleShape teslaCoil3;       // Changed from CircleShape to RectangleShape
+    sf::RectangleShape teslaTop;         // Changed from CircleShape to RectangleShape (top conductor)
+    sf::RectangleShape teslaTopHighlight; // NEW: Highlight for cylindrical effect
     std::vector<sf::RectangleShape> lightningArcs;
     sf::Clock lightningClock;
 };
