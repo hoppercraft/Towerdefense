@@ -4,8 +4,10 @@
 #include <cmath>
 #include"gamesession.h"
 #include"Towers.h"
-Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"upgrade",80),sell(font,"sell",80){
-    font.openFromFile("ARIAL.ttf");
+Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"250-upgrade",70),sell(font, "-sell",70){
+    if (!font.openFromFile("Arial.ttf")) {
+        std::cerr << "Failed to load font file!\n";
+    }
     bar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });
     bar.setSize({ Game::TILE_SIZE * 3, Game::TILE_SIZE * Game::MAP_HEIGHT });
     bar.setFillColor(sf::Color(0x7C5123FF));
@@ -17,21 +19,33 @@ Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"upgrade",80),sell(font,"
     shopTowername.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,Game::TILE_SIZE * 1.5f-20 });
     shopTowername.setStyle(sf::Text::Bold);
 
+    upgrade.setOrigin(upgrade.getLocalBounds().getCenter());
     upgrade.setScale({ 0.105f, 0.105f });
     upgrade.setFillColor(sf::Color::White);
-    upgrade.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x-15,Game::TILE_SIZE * 3.5f + 15 });
+    upgrade.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,Game::TILE_SIZE * 4.f-3  });
     upgrade.setStyle(sf::Text::Bold);
+
+    cross1.setFillColor(sf::Color::Red);
+    cross2.setFillColor(sf::Color::Red);
+    cross1.setSize({ 3.f,20.f });
+    cross2.setSize({ 3.f,20.f });
+    cross1.setRotation(sf::degrees(45));
+    cross2.setRotation(sf::degrees(-45));
+    cross1.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x  ,Game::TILE_SIZE * 5.f+5  });
+    cross2.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x  ,Game::TILE_SIZE * 5.f +5});
+    cross1.setOrigin(cross1.getGeometricCenter());
+    cross2.setOrigin(cross2.getGeometricCenter());
 
     sell.setScale({ 0.105f,0.105f });
     sell.setFillColor(sf::Color::White);
-    sell.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x - 15,Game::TILE_SIZE * 3.5f + 30 });
+    sell.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x  ,Game::TILE_SIZE * 5.f+20.f });
     sell.setStyle(sf::Text::Bold);
     
     upgradeshopframe.setSize({ Game::TILE_SIZE * 2.5f, Game::TILE_SIZE * 1.75f });
     upgradeshopframe.setOrigin(upgradeshopframe.getGeometricCenter());
     upgradeshopframe.setPosition({
         Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,
-        Game::TILE_SIZE * 3.5f+10
+        Game::TILE_SIZE * 3.5f-5
         });
     upgradeshopframe.setFillColor(sf::Color(0xC4B093FF));
 
@@ -39,23 +53,23 @@ Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"upgrade",80),sell(font,"
     sellframe.setOrigin(sellframe.getGeometricCenter());
     sellframe.setPosition({
         Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,
-        Game::TILE_SIZE * 3.5f + 40
+        Game::TILE_SIZE * 3.5f + 38
         });
     sellframe.setFillColor(sf::Color(0xC4B093FF));
 
     hammer.setSize({ 18.f,11.f });
     hammer.setOrigin({ hammer.getGeometricCenter().x,hammer.getGeometricCenter().y+10});
     hammer.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x+5,
-        Game::TILE_SIZE * 3.5f + 10 });
+        Game::TILE_SIZE * 3.5f-3 });
     hammer.setFillColor(sf::Color(204, 204, 204));
     hammer.setRotation(sf::degrees(-45.f));
 
-    pole.setSize({ 2.f,25.f });
+    pole.setSize({ 4.f,25.f });
     pole.setOrigin({ pole.getGeometricCenter().x,pole.getGeometricCenter().y + 5 });
     pole.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,
         Game::TILE_SIZE * 3.5f + 10 });
     pole.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x+5,
-        Game::TILE_SIZE * 3.5f + 10 });
+        Game::TILE_SIZE * 3.5f -3 });
     pole.setFillColor(sf::Color(133, 94, 66));
     pole.setRotation(sf::degrees(-45.f));
     shopbar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });
@@ -103,6 +117,8 @@ void Shop::draw(sf::RenderWindow& window) {
         window.draw(pole);
         window.draw(hammer);
         window.draw(sell);
+        window.draw(cross1);
+        window.draw(cross2);
     }
 }
 
@@ -119,18 +135,31 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window,Pl
         if (mousepressed->button == sf::Mouse::Button::Left) {
             if (clicked && upgradeshopframe.getGlobalBounds().contains(mousePos)) {
                 if(!operatedtower->upgraded){
-                    if (operatedtower) {
-                        if(pinfo->enoughmoney(250)){
-                            operatedtower->upgrade();
-                            shopTower->upgrade();
-                            pinfo->turrentplaced(250);
-                        }
-                        else {
-                            pinfo->notEnoughMoneywarning();
-                        }
+                    if(pinfo->enoughmoney(250)){
+                        operatedtower->upgrade();
+                        shopTower->upgrade();
+                        pinfo->turrentplaced(250);
+                        sell.setString(std::to_string(operatedtower->towersellvalue) + "-sell");
+                        upgrade.setString("Max level");
+                        upgrade.setOrigin(upgrade.getLocalBounds().getCenter());
+                    }
+                    else {
+                        pinfo->notEnoughMoneywarning();
                     }
                 }
                 return;
+            }
+            if (clicked && sellframe.getGlobalBounds().contains(mousePos)) {
+                for (auto it = deployedtowers.begin(); it != deployedtowers.end(); ++it) {
+                    if (it->get() == operatedtower) {
+                        pinfo->coinsearned(operatedtower->towersellvalue);
+                        deployedtowers.erase(it);
+                        operatedtower = nullptr;
+                        shopTower = nullptr;
+                        clicked = false;
+                        break;
+                    }
+                }
             }
             if (operatedtower) {
                 operatedtower->hiderange();
@@ -139,6 +168,13 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window,Pl
             for (size_t i = 0; i < deployedtowers.size(); ++i) {
                 if (deployedtowers[i]->contain(mousePos)) {
                     operatedtower = deployedtowers[i].get();
+                    if (!operatedtower->upgraded) {
+                        upgrade.setString("250-upgrade");
+                    }
+                    else {
+                        upgrade.setString("Max upgrade");
+                    }
+                    upgrade.setOrigin(upgrade.getLocalBounds().getCenter());
                     shopTower = deployedtowers[i]->clone();
                     operatedtower->showrange();
                     Towerupgradeshop(pinfo);
@@ -166,10 +202,10 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window,Pl
                 
                 if (Game::Map1[tileY][tileX] == draggedTower->towertilereq()) {
                     if (Shop::bounded() == false) {
-                        if (pinfo->enoughmoney(100)) {
+                        if (pinfo->enoughmoney(draggedTower->towercost)) {
                             draggedTower->setfillcolordefault();
                             deployedtowers.push_back(draggedTower->clone());
-                            pinfo->turrentplaced(100);
+                            pinfo->turrentplaced(draggedTower->towercost);
                         }
                         else {
                             pinfo->notEnoughMoneywarning();
@@ -240,9 +276,12 @@ void Shop::Towertarget(std::vector<Enemy*>& enemies,float dt){
 }
 
 void Shop::Towerupgradeshop(PlayerInfo* info) {
-    shopTower->setposition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,Game::TILE_SIZE * 2.0f });
+    shopTower->setposition({ Game::MAP_WIDTH * Game::TILE_SIZE + bar.getGeometricCenter().x,Game::TILE_SIZE * 1.0f+10 });
     shopTower->setangle(0.f);
     shopTower->clearBullets();
     shopTowername.setString(shopTower->gettowername());    
     shopTowername.setOrigin(shopTowername.getLocalBounds().getCenter());
+    sell.setString(std::to_string(shopTower->towersellvalue) + "-sell");
+    sell.setOrigin(sell.getLocalBounds().getCenter());
+
 }

@@ -33,6 +33,7 @@ public:
     bool upgraded=false;
     virtual void upgrade();
     int towercost;
+    int towersellvalue = 75;
 protected:
     sf::CircleShape Towerrange;
     sf::CircleShape base;

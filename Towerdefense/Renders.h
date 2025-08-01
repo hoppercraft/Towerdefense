@@ -23,7 +23,7 @@ private:
     std::unique_ptr<Tower> draggedTower;
     std::unique_ptr<Tower> shopTower;
     bool clicked = false;
-    sf::RectangleShape shopbar;
+    sf::RectangleShape shopbar,cross1,cross2;
     sf::Text shopTowername,upgrade,sell;
     sf::Font font;
     sf::RectangleShape upgradeshopframe,sellframe,hammer,pole;

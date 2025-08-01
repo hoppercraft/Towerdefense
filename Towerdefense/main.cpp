@@ -7,11 +7,14 @@
 #include "Bullet.h"
 #include <cstdlib>
 #include"gamesession.h"
+#include"WaveManager.h"
 int main() {
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
 
     std::vector<Enemy*> enemies;
+    WaveManager waveManager;
+
     sf::Clock spawnClock;
     float spawnInterval = 2.f;
     int maxEnemies = 20;
@@ -36,7 +39,10 @@ int main() {
     sf::Sprite tile(tileTexture);
 
     sf::Font font;
-    font.openFromFile("ARIAL.ttf");
+    if (!font.openFromFile("Arial.ttf")) {
+        std::cerr << "Failed to load font file!\n";
+        return -1;
+    }
     sf::Text gameovertext(font,"GAME OVER", 170);
     gameovertext.setScale({ 0.105f, 0.105f });
     gameovertext.setStyle(sf::Text::Bold);
@@ -51,25 +57,21 @@ int main() {
                 if (keypressed->scancode == sf::Keyboard::Scancode::Escape) {
                     window.close();
                 }
+                else if (keypressed->scancode == sf::Keyboard::Scancode::Space) {
+                    waveManager.startNextWave();
+                }
             }
+            
             shop.handleEvent(event.value(), window, &playerinfo);
         }
+        
+
         if (!playerinfo.gameover()) {
             float deltaTime = deltaClock.restart().asSeconds();
+            waveManager.update(deltaTime, enemies);
             shop.Towertarget(enemies, deltaTime);
             shop.update(window, deltaTime);
-            if (spawnedEnemies < maxEnemies && spawnClock.getElapsedTime().asSeconds() >= spawnInterval) {
-                int type = rand() % 2;
-                if (type == 0) {
-                    enemies.push_back(new Enemy());
-                }
-                else if (type == 1) {
-                    enemies.push_back(new FastEnemy());
-                }
-                spawnClock.restart();
-                spawnedEnemies++;
-            }
-
+            
 
             for (auto& enemy : enemies)
                 enemy->update(speed * deltaTime);
@@ -126,6 +128,14 @@ int main() {
         
         shop.draw(window);
         playerinfo.draw(window);
+        waveManager.draw(window);
+        if (waveManager.allWavesComplete()) {
+            static bool victoryShown = false;
+            if (!victoryShown) {
+                std::cout << "Victory! All waves completed!\n";
+                victoryShown = true;
+            }
+        }
         if (playerinfo.gameover()) {
             window.draw(gameovertext);
         }

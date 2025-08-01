@@ -150,6 +150,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Renders.cpp" />
     <ClCompile Include="Towers.cpp" />
+    <ClCompile Include="WaveManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bullet.h" />
@@ -158,6 +159,7 @@
     <ClInclude Include="gamesession.h" />
     <ClInclude Include="Renders.h" />
     <ClInclude Include="Towers.h" />
+    <ClInclude Include="WaveManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

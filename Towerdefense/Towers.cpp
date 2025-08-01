@@ -191,14 +191,15 @@ void Tower::upgrade() {
     Towerrange.setRadius(80.f);
     Towerrange.setOrigin(Towerrange.getGeometricCenter());
     upgraded = true;
-    body.setFillColor(sf::Color(100, 132, 30, 255));
-    body.setOutlineColor(sf::Color(85, 107, 47, 255));
-    head.setFillColor(sf::Color(114, 142, 60, 255));
-    head.setOutlineColor(sf::Color(85, 107, 47, 255));
+    body.setFillColor(sf::Color(0x556b2fff));
+    body.setOutlineColor(sf::Color(44, 66, 34, 255));
+    head.setFillColor(sf::Color(0x556b2fff));
+    head.setOutlineColor(sf::Color(44, 66, 34, 255));
     base.setFillColor(sf::Color(0x505b1fFF));
     barrel.setFillColor(sf::Color(64, 64, 64, 255));
     barrel.setOutlineColor(sf::Color(32, 32, 32, 255));
     sight.setFillColor(sf::Color(187, 187, 187, 255));
+    towersellvalue = 275;
 }
 
 std::unique_ptr<Tower> Tower::clone() const {
@@ -221,6 +222,7 @@ std::unique_ptr<Tower> CannonTower::clone() const {
 
 Boat::Boat(float x, float y) {
     towercost=150;
+    towersellvalue = 100;
     boat.setFillColor(sf::Color(133, 89, 54));
     boat.setPosition({ x,y });
     boat.setOutlineColor(sf::Color(212, 143, 87));
@@ -441,4 +443,5 @@ void Boat::upgrade() {
     flag.setOrigin({ flag.getGeometricCenter().x - 4, flag.getGeometricCenter().y });
     cannonL.setSize({ 5.f,10.f });
     cannonR.setSize({ 5.f,10.f });
+    towersellvalue = 300;
 }
