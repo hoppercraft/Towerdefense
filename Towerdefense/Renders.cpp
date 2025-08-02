@@ -93,7 +93,7 @@ Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"250-upgrade",70),sell(fo
              towers.push_back(std::make_unique<Boat>(frame.getPosition().x, frame.getPosition().y));
         }
         else{
-            towers.push_back(std::make_unique<TeslaTower>(frame.getPosition().x, frame.getPosition().y));
+            towers.push_back(std::make_unique<TeslaTower>(frame.getPosition().x, frame.getPosition().y+5));
         }
     }
 
@@ -172,7 +172,7 @@ void Shop::handleEvent(const sf::Event& event, const sf::RenderWindow& window,Pl
                 if (deployedtowers[i]->contain(mousePos)) {
                     operatedtower = deployedtowers[i].get();
                     if (!operatedtower->upgraded) {
-                        upgrade.setString("250-upgrade");
+                        upgrade.setString(std::to_string(operatedtower->upgradecost)+"-upgrade");
                     }
                     else {
                         upgrade.setString("Max upgrade");

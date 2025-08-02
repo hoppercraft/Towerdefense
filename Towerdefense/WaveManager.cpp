@@ -81,7 +81,8 @@ WaveConfig WaveManager::generateWaveConfig(int waveNumber) {
     // Spawn interval decreases (faster spawning) but not too fast
     config.spawnInterval = std::max(0.3f, 1.5f - (waveNumber - 1) * 0.1f);
 
-    // Health and speed multipliers increase gradually
+    // 
+    // and speed multipliers increase gradually
     config.enemyHealthMultiplier = 1.0f + (waveNumber - 1) * 0.2f;
     config.enemySpeedMultiplier = 1.0f + (waveNumber - 1) * 0.1f;
 

@@ -13,9 +13,8 @@ public:
     void draw(sf::RenderWindow& window) const;
     bool reachedTarget() const;
     sf::Vector2f getPosition() const;
-    void hitenemy();
     bool isMoving() const;
-    void increasebulletdamage();
+    void increasebulletdamage(int dmg);
     BulletType getBulletType() const;
 
 private:

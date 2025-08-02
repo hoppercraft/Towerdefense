@@ -3,6 +3,7 @@
 #include"iostream"
 #include "GameConstants.h"
 Tower::Tower(float a, float b) {
+    upgradecost = 250;
     towercost=100;
     base.setRadius(12.f);
     base.setPointCount(8);
@@ -162,7 +163,7 @@ void Tower::tryShoot(std::vector<Enemy*>& enemies) {
                 bullets.emplace_back(body.getPosition(), enemy);
                 fireCooldown.restart();
                 if (upgraded) {
-                    bullets.back().increasebulletdamage();
+                    bullets.back().increasebulletdamage(10);
                 }
                 break;
             }
@@ -221,6 +222,7 @@ std::unique_ptr<Tower> CannonTower::clone() const {
 }
 
 Boat::Boat(float x, float y) {
+    upgradecost = 250;
     towercost=150;
     towersellvalue = 100;
     boat.setFillColor(sf::Color(133, 89, 54));
@@ -269,6 +271,7 @@ Boat::Boat(float x, float y) {
     Towerrange.setRadius(75.f);
     Towerrange.setFillColor(sf::Color(0x00000000));
     Towerrange.setOutlineColor(sf::Color(0x80808000));
+    Towerrange.setOutlineThickness(1);
     man.setFillColor(sf::Color(164, 91, 72));
     man.setRadius(3.f);
     man.setOrigin({ man.getGeometricCenter().x-4,man.getGeometricCenter().y });
@@ -416,7 +419,7 @@ void Boat::tryShoot(std::vector<Enemy*>& enemies) {
                 bullets.emplace_back(boat.getPosition(), enemy);
                 fireCooldown.restart();
                 if (upgraded) {
-                    bullets.back().increasebulletdamage();
+                    bullets.back().increasebulletdamage(10);
                 }
                 break;
             }
@@ -448,6 +451,9 @@ void Boat::upgrade() {
 
 TeslaTower::TeslaTower(float a, float b) : Tower(a, b) {
     // Set Tesla-specific properties
+    upgradecost = 300;
+    towercost = 300;
+    towersellvalue = 225;
     Towerrange.setRadius(75.0f);
     fireRate = 3.0f;
 
@@ -573,6 +579,9 @@ void TeslaTower::tryShoot(std::vector<Enemy*>& enemies) {
             // Use the Tesla tower's specific range that matches the visual circle
             if (isInRange(enemy->getposition(), Towerrange.getRadius())) {
                 bullets.emplace_back(teslaTop.getPosition(), enemy, BulletType::TESLA);
+                if (upgraded) {
+                    bullets.back().increasebulletdamage(20);
+                }
                 shotFired = true;
             }
         }
@@ -632,4 +641,11 @@ void TeslaTower::setfillcolorred() {
 
 std::unique_ptr<Tower> TeslaTower::clone() const {
     return std::make_unique<TeslaTower>(*this);
+}
+
+void TeslaTower::upgrade() {
+    Towerrange.setRadius(100.f);
+    Towerrange.setOrigin(Towerrange.getGeometricCenter());
+    upgraded = true;
+    towersellvalue = 450;
 }

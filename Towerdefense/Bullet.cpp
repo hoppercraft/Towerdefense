@@ -26,7 +26,7 @@ void Bullet::initializeBullet() {
         shape.setFillColor(sf::Color(0, 191, 255, 220));
         shape.setOrigin({ shape.getRadius(), shape.getRadius() });
         speed = 250.f;
-        bulletdamage = 50;
+        bulletdamage = 25;
         // Initialize sparkles for Tesla bullet
         sparkles.resize(4);
         for (auto& sparkle : sparkles) {
@@ -78,8 +78,8 @@ void Bullet::draw(sf::RenderWindow& window) const {
     }
 }
 
-void Bullet::increasebulletdamage() {
-    bulletdamage = 20;
+void Bullet::increasebulletdamage(int dmg) {
+    bulletdamage = 10+dmg;
 }
 bool Bullet::reachedTarget() const {
     float distance = std::sqrt(
@@ -94,11 +94,6 @@ bool Bullet::reachedTarget() const {
 
 bool Bullet::isMoving() const {
     return std::abs(velocity.x) > 0.01f || std::abs(velocity.y) > 0.01f;
-}
-
-void Bullet::hitenemy() {
-    targetEnemy->Health -= 10;
-    targetEnemy->updateHealthbarnev();
 }
 
 sf::Vector2f Bullet::getPosition() const { return position; }

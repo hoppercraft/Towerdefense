@@ -32,7 +32,7 @@ public:
     virtual std::string gettowername();
     bool upgraded=false;
     virtual void upgrade();
-    int towercost;
+    int towercost,upgradecost;
     int towersellvalue = 75;
 protected:
     sf::CircleShape Towerrange;
@@ -98,6 +98,8 @@ public:
     std::string gettowername() override;
     void updateLightning();
     std::unique_ptr<Tower> clone() const override;
+    void upgrade() override;
+
 private:
     // Tesla tower specific components - UPDATED TO MATCH NEW DESIGN
     sf::RectangleShape teslaBase;        // Changed from CircleShape to RectangleShape (platform)
