@@ -445,3 +445,191 @@ void Boat::upgrade() {
     cannonR.setSize({ 5.f,10.f });
     towersellvalue = 300;
 }
+
+TeslaTower::TeslaTower(float a, float b) : Tower(a, b) {
+    // Set Tesla-specific properties
+    Towerrange.setRadius(75.0f);
+    fireRate = 3.0f;
+
+    // Tesla tower base platform (green with brown outline) - MADE EVEN SMALLER
+    teslaBase.setSize({ 20.f, 6.f });
+    teslaBase.setFillColor(sf::Color(107, 142, 35));
+    teslaBase.setOutlineThickness(1.f);
+    teslaBase.setOutlineColor(sf::Color(139, 69, 19));
+    teslaBase.setOrigin({ 10.f, 3.f });
+    teslaBase.setPosition({ a, b + 3.f });
+
+    // Central vertical support rod 
+    teslaRod.setSize({ 2.f, 18.f });
+    teslaRod.setFillColor(sf::Color(128, 128, 128));
+    teslaRod.setOutlineThickness(0.5f);
+    teslaRod.setOutlineColor(sf::Color(64, 64, 64));
+    teslaRod.setOrigin({ 1.f, 0.f });
+    teslaRod.setPosition({ a, b - 15.f });
+
+    // Bottom coil section
+    teslaCoil1.setSize({ 7.f, 3.f });
+    teslaCoil1.setFillColor(sf::Color(184, 115, 51));
+    teslaCoil1.setOutlineThickness(0.5f);
+    teslaCoil1.setOutlineColor(sf::Color(139, 69, 19));
+    teslaCoil1.setOrigin({ 3.5f, 1.5f });
+    teslaCoil1.setPosition({ a, b - 4.f });
+
+    // Middle coil section
+    teslaCoil2.setSize({ 7.f, 3.f });
+    teslaCoil2.setFillColor(sf::Color(184, 115, 51));
+    teslaCoil2.setOutlineThickness(0.5f);
+    teslaCoil2.setOutlineColor(sf::Color(139, 69, 19));
+    teslaCoil2.setOrigin({ 3.5f, 1.5f });
+    teslaCoil2.setPosition({ a, b - 8.f });
+
+    // Upper coil section
+    teslaCoil3.setSize({ 7.f, 3.f });
+    teslaCoil3.setFillColor(sf::Color(184, 115, 51));
+    teslaCoil3.setOutlineThickness(0.5f);
+    teslaCoil3.setOutlineColor(sf::Color(139, 69, 19));
+    teslaCoil3.setOrigin({ 3.5f, 1.5f });
+    teslaCoil3.setPosition({ a, b - 12.f }); // Adjusted position
+
+    // Top conductor (cylindrical, metallic gray with highlight) - MADE SMALLER
+    teslaTop.setSize({ 12.f, 4.f });
+    teslaTop.setFillColor(sf::Color(192, 192, 192));
+    teslaTop.setOutlineThickness(1.f);
+    teslaTop.setOutlineColor(sf::Color(64, 64, 64));
+    teslaTop.setOrigin({ 6.f, 2.f });
+    teslaTop.setPosition({ a, b - 17.f });
+
+    // Top conductor highlight (to simulate cylindrical shape)
+    teslaTopHighlight.setSize({ 9.f, 0.8f });
+    teslaTopHighlight.setFillColor(sf::Color(220, 220, 220));
+    teslaTopHighlight.setOrigin({ 4.5f, 0.4f });
+    teslaTopHighlight.setPosition({ a, b - 18.f });
+    Towerrange.setOrigin(Towerrange.getGeometricCenter());
+    Towerrange.setPosition({ a, b });
+
+}
+
+
+
+
+
+void TeslaTower::setposition(sf::Vector2f pos) {
+    position = pos;
+
+    teslaBase.setPosition({ pos.x, pos.y + 3.f });
+    teslaRod.setPosition({ pos.x, pos.y - 15.f });
+    teslaCoil1.setPosition({ pos.x, pos.y - 4.f });
+    teslaCoil2.setPosition({ pos.x, pos.y - 8.f });
+    teslaCoil3.setPosition({ pos.x, pos.y - 12.f });
+    teslaTop.setPosition({ pos.x, pos.y - 17.f });
+    teslaTopHighlight.setPosition({ pos.x, pos.y - 18.f });
+
+    Towerrange.setPosition(pos);
+}
+
+bool TeslaTower::contain(sf::Vector2f mousepos) {
+    return teslaBase.getGlobalBounds().contains(mousepos) ||
+        teslaTop.getGlobalBounds().contains(mousepos) ||
+        teslaCoil1.getGlobalBounds().contains(mousepos) ||
+        teslaCoil2.getGlobalBounds().contains(mousepos) ||
+        teslaCoil3.getGlobalBounds().contains(mousepos);
+}
+
+void TeslaTower::updateLightning() {
+    // No lightning effects - Tesla tower is now clean
+}
+
+void TeslaTower::draw(sf::RenderWindow& window) const {
+    // Draw bullets first
+    for (const auto& bullet : bullets)
+        bullet.draw(window);
+
+    // Draw Tesla tower components in proper order (back to front)
+    window.draw(Towerrange);
+    window.draw(teslaBase);
+    window.draw(teslaRod);
+    window.draw(teslaCoil1);
+    window.draw(teslaCoil2);
+    window.draw(teslaCoil3);
+    window.draw(teslaTop);
+    window.draw(teslaTopHighlight);
+}
+
+bool TeslaTower::isInRange(sf::Vector2f other, float range) {
+
+    sf::Vector2f center = position;
+    float dx = center.x - other.x;
+    float dy = center.y - other.y;
+    float distance = std::sqrt(dx * dx + dy * dy);
+    return distance <= range;
+}
+
+void TeslaTower::tryShoot(std::vector<Enemy*>& enemies) {
+    if (fireCooldown.getElapsedTime().asSeconds() >= fireRate) {
+        // Tesla tower shoots ALL enemies in range 
+        bool shotFired = false;
+
+        for (auto& enemy : enemies) {
+            // Use the Tesla tower's specific range that matches the visual circle
+            if (isInRange(enemy->getposition(), Towerrange.getRadius())) {
+                bullets.emplace_back(teslaTop.getPosition(), enemy, BulletType::TESLA);
+                shotFired = true;
+            }
+        }
+
+        if (shotFired) {
+            fireCooldown.restart();
+            updateLightning(); // Update lightning on shooting
+        }
+    }
+}
+
+std::string TeslaTower::gettowername() {
+    return("Tesla");
+}
+
+void TeslaTower::setfillcolordefault() {
+    teslaBase.setFillColor(sf::Color(107, 142, 35, 255));
+    teslaBase.setOutlineColor(sf::Color(139, 69, 19, 255));
+    teslaRod.setFillColor(sf::Color(128, 128, 128, 255));
+    teslaRod.setOutlineColor(sf::Color(64, 64, 64, 255));
+    teslaCoil1.setFillColor(sf::Color(184, 115, 51, 255));
+    teslaCoil2.setFillColor(sf::Color(184, 115, 51, 255));
+    teslaCoil3.setFillColor(sf::Color(184, 115, 51, 255));
+    teslaTop.setFillColor(sf::Color(192, 192, 192, 255));
+    teslaTopHighlight.setFillColor(sf::Color(220, 220, 220, 255));
+    Towerrange.setFillColor(sf::Color(0x00000000));
+    Towerrange.setOutlineColor(sf::Color(0x80808000));
+}
+
+void TeslaTower::setfillcolorlight() {
+    teslaBase.setFillColor(sf::Color(107, 142, 35, 100));
+    teslaBase.setOutlineColor(sf::Color(139, 69, 19, 100));
+    teslaRod.setFillColor(sf::Color(128, 128, 128, 100));
+    teslaRod.setOutlineColor(sf::Color(64, 64, 64, 100));
+    teslaCoil1.setFillColor(sf::Color(184, 115, 51, 100));
+    teslaCoil2.setFillColor(sf::Color(184, 115, 51, 100));
+    teslaCoil3.setFillColor(sf::Color(184, 115, 51, 100));
+    teslaTop.setFillColor(sf::Color(192, 192, 192, 100));
+    teslaTopHighlight.setFillColor(sf::Color(220, 220, 220, 100));
+    Towerrange.setFillColor(sf::Color(0x00000022));
+    Towerrange.setOutlineColor(sf::Color(0x80808088));
+}
+
+void TeslaTower::setfillcolorred() {
+    teslaBase.setFillColor(sf::Color(255, 142, 35, 100));
+    teslaBase.setOutlineColor(sf::Color(255, 69, 19, 100));
+    teslaRod.setFillColor(sf::Color(255, 128, 128, 100));
+    teslaRod.setOutlineColor(sf::Color(200, 64, 64, 100));
+    teslaCoil1.setFillColor(sf::Color(255, 115, 51, 100));
+    teslaCoil2.setFillColor(sf::Color(255, 115, 51, 100));
+    teslaCoil3.setFillColor(sf::Color(255, 115, 51, 100));
+    teslaTop.setFillColor(sf::Color(255, 192, 192, 100));
+    teslaTopHighlight.setFillColor(sf::Color(255, 220, 220, 100));
+    Towerrange.setFillColor(sf::Color(0xFF000022));
+    Towerrange.setOutlineColor(sf::Color(0x80808088));
+}
+
+std::unique_ptr<Tower> TeslaTower::clone() const {
+    return std::make_unique<TeslaTower>(*this);
+}

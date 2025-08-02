@@ -49,7 +49,7 @@ private:
     sf::RectangleShape waveProgressBackground;
 
     // Constants
-    static const int maxWaves = 10;
+    static const int maxWaves = 50;
     static const float cooldownDuration;
 
     // Helper methods

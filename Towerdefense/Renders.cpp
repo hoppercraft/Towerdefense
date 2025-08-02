@@ -89,8 +89,11 @@ Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"250-upgrade",70),sell(fo
         if (i == 0) {
             towers.push_back(std::make_unique<CannonTower>(frame.getPosition().x, frame.getPosition().y));
         }
-        else{
+        else if(i==1){
              towers.push_back(std::make_unique<Boat>(frame.getPosition().x, frame.getPosition().y));
+        }
+        else{
+            towers.push_back(std::make_unique<TeslaTower>(frame.getPosition().x, frame.getPosition().y));
         }
     }
 

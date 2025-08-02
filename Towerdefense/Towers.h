@@ -82,3 +82,32 @@ private:
     sf::CircleShape skull,man;
     sf::RectangleShape crossbone1, crossbone2;
 };
+
+class TeslaTower : public Tower {
+public:
+    TeslaTower(float a = 0, float b = 0);
+    void draw(sf::RenderWindow& window) const override;
+    void tryShoot(std::vector<Enemy*>& enemies) override;
+    void setposition(sf::Vector2f pos) override;
+    bool contain(sf::Vector2f mousepos) override;
+    bool isInRange(sf::Vector2f other, float range) override;
+    // Tesla-specific color functions
+    void setfillcolordefault() override;
+    void setfillcolorlight() override;
+    void setfillcolorred() override;
+    std::string gettowername() override;
+    void updateLightning();
+    std::unique_ptr<Tower> clone() const override;
+private:
+    // Tesla tower specific components - UPDATED TO MATCH NEW DESIGN
+    sf::RectangleShape teslaBase;        // Changed from CircleShape to RectangleShape (platform)
+    sf::RectangleShape teslaRod;         // Central support rod
+    sf::RectangleShape teslaCoil1;       // Changed from CircleShape to RectangleShape (coil sections)
+    sf::RectangleShape teslaCoil2;       // Changed from CircleShape to RectangleShape
+    sf::RectangleShape teslaCoil3;       // Changed from CircleShape to RectangleShape
+    sf::RectangleShape teslaTop;         // Changed from CircleShape to RectangleShape (top conductor)
+    sf::RectangleShape teslaTopHighlight; // NEW: Highlight for cylindrical effect
+    std::vector<sf::RectangleShape> lightningArcs;
+    sf::Vector2f position;
+    sf::Clock lightningClock;
+};

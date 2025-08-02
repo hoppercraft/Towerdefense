@@ -1,9 +1,13 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "enemy.h"
+enum class BulletType {
+    BASIC,
+    TESLA
+};
 class Bullet {
 public:
-    Bullet(sf::Vector2f startPos,Enemy* enemy);
+    Bullet(sf::Vector2f startPos,Enemy* enemy, BulletType type = BulletType::BASIC);
     Enemy* targetEnemy;
     void update(float deltaTime);
     void draw(sf::RenderWindow& window) const;
@@ -12,10 +16,18 @@ public:
     void hitenemy();
     bool isMoving() const;
     void increasebulletdamage();
+    BulletType getBulletType() const;
+
 private:
+    float speed;
+    BulletType bulletType;
     sf::CircleShape shape;
     sf::Vector2f position;
     sf::Vector2f target;
     sf::Vector2f velocity;
-    int bulletdamage=10;
+    int bulletdamage=10; 
+    sf::Clock animationClock;
+    std::vector<sf::CircleShape> sparkles;
+    void initializeBullet();
+    void updateTeslaBullet(float deltaTime);
 };
