@@ -7,14 +7,25 @@
 #include "Bullet.h"
 #include <cstdlib>
 #include"gamesession.h"
-#include "Game.h"
+#include "SoundManager.h"
+#include"WaveManager.h"
+#include<SFML/Audio.hpp>
 
-void runGame()
-{
+void runGame() {
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
 
     std::vector<Enemy*> enemies;
+    WaveManager waveManager;
+
+    sf::Music backgroundMusic;
+    bool musicLoaded = false;
+
+    // Load bullet sounds using SoundManager
+    if (!SoundManager::getInstance().loadSounds()) {
+        std::cerr << "Warning: Could not load bullet sounds. Game will continue without bullet sound effects.\n";
+    }
+
     sf::Clock spawnClock;
     float spawnInterval = 2.f;
     int maxEnemies = 20;
@@ -28,6 +39,18 @@ void runGame()
     sf::Texture tileTexture;
     if (!tileTexture.loadFromFile("Sprites/tile.png")) {
         std::cerr << "Failed to load tile texture.\n";
+      
+    }
+
+    if (backgroundMusic.openFromFile("Sounds\\background.wav")) {
+        backgroundMusic.setLooping(true);
+        backgroundMusic.setVolume(40);
+        backgroundMusic.play();
+        musicLoaded = true;
+        std::cout << "Background music started.\n";
+    }
+    else {
+        std::cerr << "Could not load background music.\n";
     }
 
     sf::IntRect tileRects[4];
@@ -38,7 +61,9 @@ void runGame()
     sf::Sprite tile(tileTexture);
 
     sf::Font font;
-    font.openFromFile("ARIAL.ttf");
+    if (!font.openFromFile("font\\Arial.ttf")) {
+        std::cerr << "Failed to load font file!\n";
+    }
     sf::Text gameovertext(font, "GAME OVER", 170);
     gameovertext.setScale({ 0.105f, 0.105f });
     gameovertext.setStyle(sf::Text::Bold);
@@ -53,24 +78,31 @@ void runGame()
                 if (keypressed->scancode == sf::Keyboard::Scancode::Escape) {
                     window.close();
                 }
+                else if (keypressed->scancode == sf::Keyboard::Scancode::Space) {
+                    waveManager.startNextWave();
+                }
+                else if (keypressed->scancode == sf::Keyboard::Scancode::M) {
+                    if (musicLoaded) {
+                        if (backgroundMusic.getStatus() == sf::SoundSource::Status::Playing) {
+                            backgroundMusic.pause();
+                        }
+                        else {
+                            backgroundMusic.play();
+                        }
+                    }
+                }
             }
+
             shop.handleEvent(event.value(), window, &playerinfo);
         }
+
+        SoundManager::getInstance().update();
+
         if (!playerinfo.gameover()) {
             float deltaTime = deltaClock.restart().asSeconds();
+            waveManager.update(deltaTime, enemies);
             shop.Towertarget(enemies, deltaTime);
             shop.update(window, deltaTime);
-            if (spawnedEnemies < maxEnemies && spawnClock.getElapsedTime().asSeconds() >= spawnInterval) {
-                int type = rand() % 2;
-                if (type == 0) {
-                    enemies.push_back(new Enemy());
-                }
-                else if (type == 1) {
-                    enemies.push_back(new FastEnemy());
-                }
-                spawnClock.restart();
-                spawnedEnemies++;
-            }
 
 
             for (auto& enemy : enemies)
@@ -88,9 +120,9 @@ void runGame()
             }
             for (auto it = enemies.begin(); it != enemies.end(); ) {
                 if (!(*it)->isAlive) {
+                    playerinfo.coinsearned((*it)->coindropped, (*it)->coindropped);
                     delete* it;
                     it = enemies.erase(it);
-                    playerinfo.coinsearned(50);
                 }
                 else {
                     (*it)->update(speed * deltaTime);
@@ -128,9 +160,22 @@ void runGame()
 
         shop.draw(window);
         playerinfo.draw(window);
+        waveManager.draw(window);
+        if (waveManager.allWavesComplete()) {
+            static bool victoryShown = false;
+            if (!victoryShown) {
+                std::cout << "Victory! All waves completed!\n";
+                victoryShown = true;
+            }
+        }
         if (playerinfo.gameover()) {
             window.draw(gameovertext);
         }
         window.display();
     }
+    if (musicLoaded) {
+        backgroundMusic.stop();
+    }
+
+    SoundManager::getInstance().cleanup();
 }
