@@ -3,7 +3,7 @@
 #include"GameConstants.h"
 PlayerInfo::PlayerInfo(int coin, int health)
     : coins(coin), health(health), cointext(font, std::to_string(coin), 80) ,hearttext(font,std::to_string(health),80),warningtext(font,"",170){
-    font.openFromFile("ARIAL.ttf");
+    font.openFromFile("font\\ARIAL.ttf");
     hearttext.setScale({ 0.105f, 0.105f });
     hearttext.setFillColor(sf::Color::White);
     hearttext.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + 30 ,Game::MAP_HEIGHT * Game::TILE_SIZE -15 });

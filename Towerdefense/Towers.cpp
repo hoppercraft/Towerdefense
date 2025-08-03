@@ -416,7 +416,7 @@ void Boat::tryShoot(std::vector<Enemy*>& enemies) {
     if (Tower::fireCooldown.getElapsedTime().asSeconds() >= fireRate) {
         for (auto& enemy : enemies) {
             if (isInRange(enemy->getposition(), Towerrange.getRadius())) {
-                bullets.emplace_back(boat.getPosition(), enemy);
+                bullets.emplace_back(boat.getPosition(), enemy, BulletType::CANNON);
                 fireCooldown.restart();
                 if (upgraded) {
                     bullets.back().increasebulletdamage(10);

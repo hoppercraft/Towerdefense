@@ -7,13 +7,23 @@
 #include "Bullet.h"
 #include <cstdlib>
 #include"gamesession.h"
+#include "SoundManager.h"
 #include"WaveManager.h"
+#include<SFML/Audio.hpp>
 int main() {
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
 
     std::vector<Enemy*> enemies;
     WaveManager waveManager;
+
+    sf::Music backgroundMusic;
+    bool musicLoaded = false;
+
+    // Load bullet sounds using SoundManager
+    if (!SoundManager::getInstance().loadSounds()) {
+        std::cerr << "Warning: Could not load bullet sounds. Game will continue without bullet sound effects.\n";
+    }
 
     sf::Clock spawnClock;
     float spawnInterval = 2.f;
@@ -31,6 +41,17 @@ int main() {
         return -1;
     }
 
+    if (backgroundMusic.openFromFile("Sounds\\background.wav")) {
+        backgroundMusic.setLooping(true);
+        backgroundMusic.setVolume(40);
+        backgroundMusic.play();
+        musicLoaded = true;
+        std::cout << "Background music started.\n";
+    }
+    else {
+        std::cerr << "Could not load background music.\n";
+    }
+
     sf::IntRect tileRects[4];
     for (int i = 0; i < 4; ++i) {
         tileRects[i] = sf::IntRect({ 20 * i + 1,0 }, { 20,20 });
@@ -39,7 +60,7 @@ int main() {
     sf::Sprite tile(tileTexture);
 
     sf::Font font;
-    if (!font.openFromFile("Arial.ttf")) {
+    if (!font.openFromFile("font\\Arial.ttf")) {
         std::cerr << "Failed to load font file!\n";
         return -1;
     }
@@ -60,11 +81,22 @@ int main() {
                 else if (keypressed->scancode == sf::Keyboard::Scancode::Space) {
                     waveManager.startNextWave();
                 }
+                else if (keypressed->scancode == sf::Keyboard::Scancode::M) {
+                    if (musicLoaded) {
+                        if (backgroundMusic.getStatus() == sf::SoundSource::Status::Playing) {
+                            backgroundMusic.pause();
+                        }
+                        else {
+                            backgroundMusic.play();
+                        }
+                    }
+                }
             }
             
             shop.handleEvent(event.value(), window, &playerinfo);
         }
         
+        SoundManager::getInstance().update();
 
         if (!playerinfo.gameover()) {
             float deltaTime = deltaClock.restart().asSeconds();
@@ -141,5 +173,12 @@ int main() {
         }
         window.display();
     }
+    if (musicLoaded) {
+        backgroundMusic.stop();
+    }
+
+    // Cleanup sounds
+    SoundManager::getInstance().cleanup();
+
     return 0;
 }

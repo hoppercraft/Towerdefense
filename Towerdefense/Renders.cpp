@@ -5,7 +5,7 @@
 #include"gamesession.h"
 #include"Towers.h"
 Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"250-upgrade",70),sell(font, "-sell",70){
-    if (!font.openFromFile("Arial.ttf")) {
+    if (!font.openFromFile("font\\Arial.ttf")) {
         std::cerr << "Failed to load font file!\n";
     }
     bar.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE, 0 });

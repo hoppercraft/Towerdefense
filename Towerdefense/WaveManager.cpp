@@ -18,16 +18,7 @@ WaveManager::WaveManager() :
 
     initializeWaves();
 
-    if (font.openFromFile("arial.ttf")) {
-        fontLoaded = true;
-    }
-    else if (font.openFromFile("C:/Windows/Fonts/arial.ttf")) {
-        fontLoaded = true;
-    }
-    else if (font.openFromFile("/System/Library/Fonts/Arial.ttf")) {
-        fontLoaded = true;
-    }
-    else if (font.openFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")) {
+    if (font.openFromFile("font\\ARIAL.ttf")) {
         fontLoaded = true;
     }
 

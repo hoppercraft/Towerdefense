@@ -1,5 +1,5 @@
 #include "Bullet.h"
-
+#include "SoundManager.h"
 Bullet::Bullet(sf::Vector2f startPos,Enemy* enemy,BulletType type) : targetEnemy(enemy), bulletType(type), position(startPos) {
     target = enemy->getposition();
     initializeBullet();
@@ -8,6 +8,15 @@ Bullet::Bullet(sf::Vector2f startPos,Enemy* enemy,BulletType type) : targetEnemy
     if (length != 0) {
         velocity = direction / length * speed;
     }
+    if (bulletType == BulletType::BASIC) {
+        SoundManager::getInstance().playBulletSound();
+    }
+    else if (bulletType == BulletType::CANNON) {
+        SoundManager::getInstance().playCannonSound();
+    }
+    else if (bulletType == BulletType::TESLA) {
+        SoundManager::getInstance().playTeslaSound();
+    }
 }
 
 BulletType Bullet::getBulletType() const { return bulletType; }
@@ -15,6 +24,7 @@ BulletType Bullet::getBulletType() const { return bulletType; }
 void Bullet::initializeBullet() {
     switch (bulletType) {
     case BulletType::BASIC:
+    case BulletType::CANNON:
         speed = 300.f;
         shape.setRadius(2.f);
         shape.setFillColor(sf::Color::Yellow);

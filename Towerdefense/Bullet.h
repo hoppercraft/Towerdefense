@@ -3,6 +3,7 @@
 #include "enemy.h"
 enum class BulletType {
     BASIC,
+    CANNON,
     TESLA
 };
 class Bullet {
