@@ -161,6 +161,90 @@ void GameSaveManager::autoSaveIfNeeded(const PlayerInfo& playerInfo, const WaveM
     }
 }
 
+bool GameSaveManager::updateHighScore(MYSQL* conn, const std::string& username, int& currentHighScore)
+{
+    // First, get the user_id
+    std::string userQuery = "SELECT user_id FROM players WHERE username='" + username + "'";
+    if (mysql_query(conn, userQuery.c_str()) != 0) {
+        std::cout << "Error getting user ID: " << mysql_error(conn) << std::endl;
+        return false;
+    }
+
+    MYSQL_RES* userRes = mysql_store_result(conn);
+    if (!userRes) {
+        std::cout << "Error storing user result: " << mysql_error(conn) << std::endl;
+        return false;
+    }
+
+    MYSQL_ROW userRow = mysql_fetch_row(userRes);
+    if (!userRow) {
+        std::cout << "User not found!" << std::endl;
+        mysql_free_result(userRes);
+        return false;
+    }
+
+    int user_id = std::stoi(userRow[0]);
+    mysql_free_result(userRes);
+
+    // Get current score from game_saves table
+    std::string currentScoreQuery = "SELECT current_score FROM game_saves WHERE user_id=" + std::to_string(user_id);    if (mysql_query(conn, currentScoreQuery.c_str()) != 0) {
+        std::cout << "Error getting current score: " << mysql_error(conn) << std::endl;
+        return false;
+    }
+
+    MYSQL_RES* currentRes = mysql_store_result(conn);
+    if (!currentRes) {
+        std::cout << "Error storing current score result: " << mysql_error(conn) << std::endl;
+        return false;
+    }
+
+    MYSQL_ROW currentRow = mysql_fetch_row(currentRes);
+    if (!currentRow || !currentRow[0]) {
+        std::cout << "No current score found in game_saves!" << std::endl;
+        mysql_free_result(currentRes);
+        return false;
+    }
+
+    int currentScore = std::stoi(currentRow[0]);
+    mysql_free_result(currentRes);
+
+    // Get highest score from scores table
+    std::string highScoreQuery = "SELECT MAX(score) FROM scores WHERE user_id=" + std::to_string(user_id);
+    if (mysql_query(conn, highScoreQuery.c_str()) != 0) {
+        std::cout << "Error getting high score: " << mysql_error(conn) << std::endl;
+        return false;
+    }
+
+    MYSQL_RES* highRes = mysql_store_result(conn);
+    if (!highRes) {
+        std::cout << "Error storing high score result: " << mysql_error(conn) << std::endl;
+        return false;
+    }
+
+    MYSQL_ROW highRow = mysql_fetch_row(highRes);
+    int highestScore = (highRow && highRow[0]) ? std::stoi(highRow[0]) : 0;
+    mysql_free_result(highRes);
+
+    // Check if current score is higher than the highest score
+    if (currentScore > highestScore) {
+        // Insert new high score into scores table
+        std::string insertScoreQuery = "INSERT INTO scores (user_id, score) VALUES(" +
+            std::to_string(user_id) + ", " +
+            std::to_string(currentScore) + ", NOW())";
+
+        if (mysql_query(conn, insertScoreQuery.c_str()) != 0) {
+            std::cout << "Error inserting new high score: " << mysql_error(conn) << std::endl;
+            return false;
+        }
+
+        // Update the current high score variable
+        currentHighScore = currentScore;
+        std::cout << "New high score achieved: " << currentScore << std::endl;
+        return true; // Score was updated
+    }
+    return false;
+}
+
 bool GameSaveManager::savePlayerAndWaveData(int coins, int health, int current_score, int wave, bool waveActive,
    float cooldown, bool inCooldown) {
     std::string query = "INSERT INTO game_saves (user_id, coins, health, current_score, current_wave, wave_active, "
@@ -349,6 +433,9 @@ void GameSaveManager::restoreTowers(Shop& shop, const std::vector<TowerSaveData>
 
     std::cout << "Restored " << towerData.size() << " towers." << std::endl;
 }
+// Add these functions to your code
+
+
 
 std::string GameSaveManager::escapeString(const std::string& str) {
     std::string escaped;

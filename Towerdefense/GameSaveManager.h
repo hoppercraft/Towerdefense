@@ -27,7 +27,7 @@ public:
 
     // Auto-save functionality
     void autoSaveIfNeeded(const PlayerInfo& playerInfo, const WaveManager& waveManager, const Shop& shop);
-
+    bool updateHighScore(MYSQL* conn, const std::string& username, int& currentHighScore);
 
 private:
     std::string playerUsername;
@@ -47,3 +47,5 @@ private:
     void restoreTowers(Shop& shop, const std::vector<TowerSaveData>& towerData);
     std::string escapeString(const std::string& str);
 };
+
+

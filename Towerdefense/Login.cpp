@@ -405,7 +405,7 @@ bool login()
                                             state = AppState::PlayerUI;
                                             playerNameText.setString("Player: " + username);
 
-                                            highScoreText.setString("High Score: ");
+                                            highScoreText.setString("High Score: " );
                                             errorText.setString("");
                                             errorVisible = false;
                                         }
