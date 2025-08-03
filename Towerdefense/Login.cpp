@@ -128,7 +128,7 @@ bool login()
     errorText.setFillColor(sf::Color::Red);
     errorText.setPosition(sf::Vector2f(280.f, 390.f));
 
-    sf::Text errorText1 (font, "", 16);
+    sf::Text errorText1(font, "", 16);
     errorText1.setFillColor(sf::Color::Red);
     errorText1.setPosition(sf::Vector2f(203.f, 390.f));
 
@@ -177,7 +177,7 @@ bool login()
     PassIcon.setScale(sf::Vector2f(0.05f, 0.05f));
     PassIcon.setPosition(sf::Vector2f(280.f, 248.f));
 
-    
+
 
     // Colors for hover and pressed states (just a bit darker/lighter)
     sf::Color loginNormalColor = sf::Color(200, 255, 200);
@@ -353,9 +353,9 @@ bool login()
                     if (signupPressed) {
                         signupPressed = false;
                         signupButton.setFillColor(signupNormalColor);
-                        
+
                         if (!isValidPassword(password)) {
-                            
+
                             errorVisible1 = true;
                             errorStartTime = std::chrono::steady_clock::now();
                             errorText1.setString("Password must be 8 + chars, upper, lower, digit, special.");
@@ -501,7 +501,7 @@ bool login()
 
             window.draw(signupButton);
             window.draw(signupText);
-            
+
             window.draw(loginButton);
             window.draw(loginText);
 
@@ -528,7 +528,7 @@ bool login()
             }
 
         }
-              
+
         else if (state == AppState::PlayerUI) {
             window.draw(playerNameText);
             window.draw(highScoreText);
