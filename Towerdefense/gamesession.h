@@ -15,8 +15,25 @@ public:
     static void setCurrentUser(const std::string& username, MYSQL* conn);
     bool saveScoreToDatabase();
     int getCurrentScore() const { return score; }
+    int getCurrentCoins() const { return coins; }
+    int getCurrentHealth() const { return health; }
     static void closeDatabase();
     bool isNewHighScore();
+
+    void setCoins(int newCoins) {
+        coins = newCoins;
+        cointext.setString(std::to_string(coins));
+    }
+    void setHealth(int newHealth) {
+        health = newHealth;
+        hearttext.setString(std::to_string(health));
+    }
+
+    void setScore(int newScore) {
+        score = newScore;
+        scoretext.setString("Score:" + std::to_string(score));
+    }
+
 private:
     sf::Font font;
     sf::Text cointext;

@@ -51,6 +51,9 @@
     <ClCompile Include="EnvLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameSaveManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="DatabaseManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -87,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Envloader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSaveManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

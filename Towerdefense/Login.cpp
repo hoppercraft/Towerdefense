@@ -13,9 +13,10 @@ auto env = loadEnv("Security.env");
 const char* HOST = env["HOST"].c_str();
 const char* USER = env["USER"].c_str();
 const char* PASS = env["PASS"].c_str();
-const char* DB = env["DB"].c_str(); 
+const char* DB = env["DB"].c_str();
 
-MYSQL* globalConnection = nullptr; // Global connection to pass to game
+// Global variables that Game.cpp will use
+MYSQL* globalConnection = nullptr;
 std::string loggedInUsername = "";
 
 enum class AppState {
@@ -36,7 +37,7 @@ bool login()
     conn = mysql_init(NULL);
     if (!mysql_real_connect(conn, HOST, USER, PASS, DB, 4134, NULL, 0)) {
         std::cout << "MySQL Connection Error: " << mysql_error(conn) << std::endl;
-        return 1;
+        return false;
     }
 
     unsigned int width = 800;
@@ -46,7 +47,7 @@ bool login()
     sf::Font font;
     if (!font.openFromFile("arial.ttf")) {
         std::cout << "Failed to load font\n";
-        return -1;
+        return false;
     }
 
     AppState state = AppState::Login;
@@ -90,7 +91,6 @@ bool login()
     usernameBox.setOutlineColor(sf::Color(180, 180, 180));
     usernameBox.setOutlineThickness(2.f);
 
-
     sf::Text usernameText(font, "", 18);
     usernameText.setFillColor(sf::Color::Black);
     usernameText.setPosition(sf::Vector2f(310.f, 193.f));
@@ -107,17 +107,13 @@ bool login()
     passwordText.setPosition(sf::Vector2f(310.f, 250.f));
 
     // Login & Signup Buttons
-
-
     sf::RectangleShape loginButton(sf::Vector2f(100.f, 40.f));
     loginButton.setPosition(sf::Vector2f(400.f, 340.f));
     loginButton.setFillColor(sf::Color(200, 255, 200));
 
-
     sf::Text loginText(font, "LOGIN", 18);
     loginText.setFillColor(sf::Color::Black);
     loginText.setPosition(sf::Vector2f(425.f, 350.f));
-
 
     sf::RectangleShape signupButton(sf::Vector2f(100.f, 40.f));
     signupButton.setPosition(sf::Vector2f(275.f, 340.f));
@@ -131,11 +127,9 @@ bool login()
     errorText.setFillColor(sf::Color::Red);
     errorText.setPosition(sf::Vector2f(280.f, 390.f));
 
-    sf::Text errorText1 (font, "", 16);
+    sf::Text errorText1(font, "", 16);
     errorText1.setFillColor(sf::Color::Red);
     errorText1.setPosition(sf::Vector2f(203.f, 390.f));
-
-
 
     // Player UI Elements
     sf::Text playerNameText(font, "", 24);
@@ -148,7 +142,6 @@ bool login()
     highScoreText.setStyle(sf::Text::Bold | sf::Text::Italic);
     highScoreText.setPosition(sf::Vector2f(600.f, 20.f));
 
-
     sf::RectangleShape playButton(sf::Vector2f(160.f, 50.f));
     playButton.setPosition(sf::Vector2f(320.f, 300.f));
     playButton.setFillColor(sf::Color(200, 255, 200));
@@ -159,30 +152,28 @@ bool login()
 
     // Placeholder texts
     sf::Text usernamePlaceholder(font, "Username", 18);
-    usernamePlaceholder.setFillColor(sf::Color(150, 150, 150));  // Light gray color
+    usernamePlaceholder.setFillColor(sf::Color(150, 150, 150));
     usernamePlaceholder.setPosition(usernameText.getPosition());
 
     sf::Text passwordPlaceholder(font, "Password", 18);
-    passwordPlaceholder.setFillColor(sf::Color(150, 150, 150));  // Light gray color
+    passwordPlaceholder.setFillColor(sf::Color(150, 150, 150));
     passwordPlaceholder.setPosition(passwordText.getPosition());
 
     sf::Texture userIconTex;
     if (!userIconTex.loadFromFile("user.png"))
-        return -1;
+        return false;
     sf::Sprite userIcon(userIconTex);
     userIcon.setScale(sf::Vector2f(0.05f, 0.05f));
     userIcon.setPosition(sf::Vector2f(280.f, 191.f));
 
     sf::Texture PassIconTex;
     if (!PassIconTex.loadFromFile("password.png"))
-        return -1;
+        return false;
     sf::Sprite PassIcon(PassIconTex);
     PassIcon.setScale(sf::Vector2f(0.05f, 0.05f));
     PassIcon.setPosition(sf::Vector2f(280.f, 248.f));
 
-    
-
-    // Colors for hover and pressed states (just a bit darker/lighter)
+    // Colors for hover and pressed states
     sf::Color loginNormalColor = sf::Color(200, 255, 200);
     sf::Color loginHoverColor = sf::Color(150, 230, 150);
     sf::Color loginPressedColor = sf::Color(100, 180, 100);
@@ -209,7 +200,13 @@ bool login()
         }
 
         // Poll events
-        while (const std::optional<sf::Event> event = window.pollEvent()) {
+        while (const std::optional<sf::Event> event = window.pollEvent())
+        {
+            if (auto resizeEvent = event->getIf<sf::Event::Resized>()) {
+                sf::Vector2u newSize = window.getSize();
+                sf::FloatRect visibleArea(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(width, height));
+                window.setView(sf::View(visibleArea));
+            }
             if (event->is<sf::Event::Closed>()) window.close();
 
             if (state == AppState::Login) {
@@ -230,23 +227,21 @@ bool login()
                 }
                 if (auto keyEvent = event->getIf<sf::Event::KeyPressed>()) {
                     if (keyEvent->code == sf::Keyboard::Key::Tab) {
-                        typingUsername = !typingUsername;  // Switch input field on Tab
+                        typingUsername = !typingUsername;
                     }
                     else if (keyEvent->code == sf::Keyboard::Key::Enter) {
                         if (!username.empty() && !password.empty()) {
-                            // Trigger login button click simulation
                             loginPressed = true;
                         }
                         else {
-                            typingUsername = !typingUsername;  // Switch input on Enter if empty
+                            typingUsername = !typingUsername;
                         }
                     }
                 }
 
-
                 if (event->getIf<sf::Event::MouseMoved>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
 
                     // Login Button Hover
                     if (loginButton.getGlobalBounds().contains(mouseVec)) {
@@ -279,8 +274,8 @@ bool login()
                 }
 
                 if (event->getIf<sf::Event::MouseButtonPressed>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
 
                     // Login Button Press
                     if (loginButton.getGlobalBounds().contains(mouseVec)) {
@@ -302,8 +297,8 @@ bool login()
                 }
 
                 if (event->getIf<sf::Event::MouseButtonReleased>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
 
                     // Login Button Release
                     if (loginPressed) {
@@ -325,7 +320,7 @@ bool login()
                                         Highest_score = scoreRow[0] ? std::stoi(scoreRow[0]) : 0;
                                         mysql_free_result(scoreRes);
 
-                                        // NEW: Set global variables for game use
+                                        // SET GLOBAL VARIABLES HERE
                                         globalConnection = conn;
                                         loggedInUsername = username;
 
@@ -360,45 +355,46 @@ bool login()
                     if (signupPressed) {
                         signupPressed = false;
                         signupButton.setFillColor(signupNormalColor);
-                        
+
                         if (!isValidPassword(password)) {
-                            
                             errorVisible1 = true;
                             errorStartTime = std::chrono::steady_clock::now();
                             errorText1.setString("Password must be 8 + chars, upper, lower, digit, special.");
                         }
                         else {
-
-                            if (loginButton.getGlobalBounds().contains(mouseVec)) {
-                                std::string query = "SELECT user_id FROM players WHERE username='" + username + "' AND password_hash='" + password + "'";
-                                if (mysql_query(conn, query.c_str()) == 0) {
+                            if (signupButton.getGlobalBounds().contains(mouseVec)) {
+                                std::string checkQuery = "SELECT * FROM players WHERE username='" + username + "'";
+                                if (mysql_query(conn, checkQuery.c_str()) == 0) {
                                     MYSQL_RES* res = mysql_store_result(conn);
-                                    if (MYSQL_ROW row = mysql_fetch_row(res)) {
-                                        int user_id = std::stoi(row[0]);
-                                        mysql_free_result(res);
-
-                                        std::string scoreQuery = "SELECT MAX(score) FROM scores WHERE user_id=" + std::to_string(user_id);
-                                        if (mysql_query(conn, scoreQuery.c_str()) == 0) {
-                                            // NEW: Set global variables for game use
+                                    if (mysql_num_rows(res) > 0) {
+                                        errorText.setString("Username already exists.");
+                                        errorStartTime = std::chrono::steady_clock::now();
+                                        errorVisible = true;
+                                    }
+                                    else {
+                                        std::string insertQuery = "INSERT INTO players (username, password_hash) VALUES('" +
+                                            username + "', '" + password + "')";
+                                        if (mysql_query(conn, insertQuery.c_str()) == 0) {
+                                            // SET GLOBAL VARIABLES HERE TOO
                                             globalConnection = conn;
                                             loggedInUsername = username;
 
                                             state = AppState::PlayerUI;
                                             playerNameText.setString("Player: " + username);
-                                            highScoreText.setString("High Score: 0"); // New user starts with 0
+                                            highScoreText.setString("High Score: 0");
                                             errorText.setString("");
                                             errorVisible = false;
                                         }
+                                        else {
+                                            errorText.setString("Insert error.");
+                                            errorStartTime = std::chrono::steady_clock::now();
+                                            errorVisible = true;
+                                        }
                                     }
-                                    else {
-                                        errorText.setString("Invalid username or password.");
-                                        mysql_free_result(res);
-                                        errorStartTime = std::chrono::steady_clock::now();
-                                        errorVisible = true;
-                                    }
+                                    mysql_free_result(res);
                                 }
                                 else {
-                                    errorText.setString("Database error!");
+                                    errorText.setString("Database error.");
                                     errorStartTime = std::chrono::steady_clock::now();
                                     errorVisible = true;
                                 }
@@ -421,8 +417,9 @@ bool login()
             }
             else if (state == AppState::PlayerUI) {
                 if (event->getIf<sf::Event::MouseMoved>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
+
                     if (playButton.getGlobalBounds().contains(mouseVec)) {
                         if (!playPressed)
                             playButton.setFillColor(playHoverColor);
@@ -433,8 +430,9 @@ bool login()
                 }
 
                 if (event->getIf<sf::Event::MouseButtonPressed>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
+
                     if (playButton.getGlobalBounds().contains(mouseVec)) {
                         playPressed = true;
                         playButton.setFillColor(playPressedColor);
@@ -442,8 +440,8 @@ bool login()
                 }
 
                 if (event->getIf<sf::Event::MouseButtonReleased>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
                     if (playPressed) {
                         playPressed = false;
                         playButton.setFillColor(playNormalColor);
@@ -477,7 +475,6 @@ bool login()
             window.draw(panel);
             window.draw(usernameBox);
 
-
             // Show username text with caret if typing
             std::string usernameDisplay = username;
             if (typingUsername && showCaret) usernameDisplay += '|';
@@ -494,7 +491,6 @@ bool login()
             window.draw(userIcon);
             window.draw(PassIcon);
 
-
             // Show password masked and caret if typing
             std::string passwordDisplay(password.size(), '*');
             if (!typingUsername && showCaret) passwordDisplay += '|';
@@ -503,18 +499,16 @@ bool login()
                 window.draw(passwordPlaceholder);
             }
             else {
-                /*passwordText.setString(std::string(password.length(), '*'));*/
                 window.draw(passwordText);
             }
 
             window.draw(signupButton);
             window.draw(signupText);
-            
+
             window.draw(loginButton);
             window.draw(loginText);
 
-            if (errorVisible1)
-            {
+            if (errorVisible1) {
                 auto elapsed = std::chrono::steady_clock::now() - errorStartTime;
                 if (std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() > 3) {
                     errorVisible1 = false;
@@ -522,7 +516,6 @@ bool login()
                 }
                 window.draw(errorText1);
             }
-            // Show error text for 3 seconds
 
             if (errorVisible) {
                 auto elapsed = std::chrono::steady_clock::now() - errorStartTime;
@@ -534,9 +527,7 @@ bool login()
                     window.draw(errorText);
                 }
             }
-
         }
-              
         else if (state == AppState::PlayerUI) {
             window.draw(playerNameText);
             window.draw(highScoreText);
@@ -546,6 +537,14 @@ bool login()
 
         window.display();
     }
- 
+
+    // Only close connection if login was not successful
+    // If successful, Game.cpp will use the connection
+    if (!loginSuccessful) {
+        mysql_close(conn);
+        globalConnection = nullptr;
+        loggedInUsername = "";
+    }
+
     return loginSuccessful;
 }

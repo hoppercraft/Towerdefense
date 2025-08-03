@@ -149,6 +149,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameConstants.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="GameSaveManager.cpp" />
     <ClCompile Include="gamesession.cpp" />
     <ClCompile Include="Login.cpp" />
     <ClCompile Include="main.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="Envloader.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameConstants.h" />
+    <ClInclude Include="GameSaveManager.h" />
     <ClInclude Include="gamesession.h" />
     <ClInclude Include="login.h" />
     <ClInclude Include="SoundManager.h" />

@@ -228,6 +228,9 @@ void WaveManager::draw(sf::RenderWindow& window) {
 }
 
 void WaveManager::startNextWave() {
+
+
+
     if (inCooldown) {
         inCooldown = false;
         currentWaveActive = true;

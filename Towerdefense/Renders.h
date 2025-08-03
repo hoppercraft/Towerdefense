@@ -13,6 +13,24 @@ public:
     bool bounded();
     void Towertarget(std::vector<Enemy*>& enemies, float dt);
     void Towerupgradeshop(PlayerInfo* info);
+
+    const std::vector<std::unique_ptr<Tower>>& getDeployedTowers() const {
+        return deployedtowers;
+    } 
+
+    void clearAllTowers() {
+        deployedtowers.clear();
+        if (operatedtower) {
+            operatedtower = nullptr;
+            shopTower = nullptr;
+            clicked = false;
+        }
+    }
+
+    void addSavedTower(std::unique_ptr<Tower> tower) {
+        deployedtowers.push_back(std::move(tower));
+    }
+
 private:
     std::vector<sf::RectangleShape> frames;
     sf::Text Cost1;

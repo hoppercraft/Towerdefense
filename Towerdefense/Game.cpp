@@ -11,7 +11,9 @@
 #include"WaveManager.h"
 #include<SFML/Audio.hpp>
 #include <mysql.h>
+#include "GameSaveManager.h"
 
+// Declare external variables that are defined in Login.cpp
 extern MYSQL* globalConnection;
 extern std::string loggedInUsername;
 
@@ -39,14 +41,21 @@ void runGame() {
     const float speed = 7.0f;
     PlayerInfo playerinfo;
 
-    PlayerInfo::setCurrentUser(loggedInUsername, globalConnection); 
+    // Use the global variables from Login.cpp
+    PlayerInfo::setCurrentUser(loggedInUsername, globalConnection);
+    GameSaveManager saveManager(loggedInUsername, globalConnection);
+
+    // Check for existing save
+    if (saveManager.hasSaveFile()) {
+        std::cout << "Loading previous game..." << std::endl;
+        saveManager.loadGame(playerinfo, waveManager, shop);
+    }
 
     sf::Clock deltaClock;
 
     sf::Texture tileTexture;
     if (!tileTexture.loadFromFile("Sprites/tile.png")) {
         std::cerr << "Failed to load tile texture.\n";
-      
     }
 
     if (backgroundMusic.openFromFile("Sounds\\background.wav")) {
@@ -80,10 +89,26 @@ void runGame() {
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>())
+            {
+                if (!playerinfo.gameover()) {
+                    saveManager.saveGame(playerinfo, waveManager, shop);
+                }
                 window.close();
+            }
+                
             else if (const auto* keypressed = event->getIf<sf::Event::KeyPressed>()) {
                 if (keypressed->scancode == sf::Keyboard::Scancode::Escape) {
+                    if (!playerinfo.gameover()) {
+                        saveManager.saveGame(playerinfo, waveManager, shop);
+                    }
                     window.close();
+                }
+                else if (keypressed->scancode == sf::Keyboard::Scancode::F5) {
+                    // Manual save
+                    if (!playerinfo.gameover()) {
+                        saveManager.saveGame(playerinfo, waveManager, shop);
+                        std::cout << "Game saved manually!\n";
+                    }
                 }
                 else if (keypressed->scancode == sf::Keyboard::Scancode::Space) {
                     waveManager.startNextWave();
@@ -108,13 +133,13 @@ void runGame() {
         if (!playerinfo.gameover()) {
             float deltaTime = deltaClock.restart().asSeconds();
             waveManager.update(deltaTime, enemies);
+            saveManager.autoSaveIfNeeded(playerinfo, waveManager, shop);
             shop.Towertarget(enemies, deltaTime);
             shop.update(window, deltaTime);
 
-
             for (auto& enemy : enemies)
                 enemy->update(speed * deltaTime);
-
+            
             window.clear();
 
             for (int row = 0; row < Game::MAP_HEIGHT; ++row) {
@@ -125,6 +150,8 @@ void runGame() {
                     window.draw(tile);
                 }
             }
+            
+            // Clean up dead enemies and handle enemy logic
             for (auto it = enemies.begin(); it != enemies.end(); ) {
                 if (!(*it)->isAlive) {
                     playerinfo.coinsearned((*it)->coindropped, (*it)->coindropped);
@@ -144,41 +171,27 @@ void runGame() {
                     ++it;
                 }
             }
-            for (auto it = enemies.begin(); it != enemies.end(); ) {
-                if (!(*it)->isAlive) {
-                    delete* it;
-                    it = enemies.erase(it);
-                    playerinfo.coinsearned(50);
-                }
-                else {
-                    (*it)->update(speed * deltaTime);
-                    if (!(*it)->isMoving) {
-                        playerinfo.enemypassed(1);
-                        (*it)->isAlive = false;
-                        delete* it;
-                        it = enemies.erase(it);
-                        continue;
-                    }
-                    (*it)->draw(window);
-                    ++it;
-                }
-            }
         }
 
         shop.draw(window);
         playerinfo.draw(window);
         waveManager.draw(window);
+        
         if (waveManager.allWavesComplete()) {
             static bool victoryShown = false;
             if (!victoryShown) {
                 std::cout << "Victory! All waves completed!\n";
                 victoryShown = true;
+                // Save the victory state
+                if (!playerinfo.gameover()) {
+                    saveManager.saveGame(playerinfo, waveManager, shop);
+                }
             }
         }
+        
         if (playerinfo.gameover()) {
             // Check if it's a new high score before showing game over
             if (playerinfo.isNewHighScore()) {
-                // You could create a special "NEW HIGH SCORE!" text here
                 sf::Text highScoreMessage(font, "NEW HIGH SCORE!", 150);
                 highScoreMessage.setScale({ 0.105f, 0.105f });
                 highScoreMessage.setStyle(sf::Text::Bold);
@@ -190,6 +203,12 @@ void runGame() {
         }
         window.display();
     }
+
+    // Clean up
+    for (auto* enemy : enemies) {
+        delete enemy;
+    }
+    enemies.clear();
 
     PlayerInfo::closeDatabase();
     if (musicLoaded) {

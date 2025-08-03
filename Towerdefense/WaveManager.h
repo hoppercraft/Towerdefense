@@ -20,8 +20,26 @@ public:
     void draw(sf::RenderWindow& window);
     bool isWaveActive() const { return currentWaveActive; }
     int getCurrentWave() const { return currentWaveNumber; }
+    float getWaveCooldownTime() const { return waveCooldownTime; }
+    bool isInCooldown() const { return inCooldown; }
+
     bool allWavesComplete() const { return currentWaveNumber > maxWaves; }
     void startNextWave();
+
+    void loadSavedWaveState(int wave, bool active, float cooldown, bool cooldownState) {
+        currentWaveNumber = wave;
+        currentWaveActive = active;
+        waveCooldownTime = cooldown;
+        inCooldown = cooldownState;
+
+        if (currentWaveNumber <= maxWaves) {
+            const WaveConfig& waveConfig = waves[currentWaveNumber - 1];
+        }
+
+        updateUI();
+    }
+
+
     
 private:
     // Wave configuration
