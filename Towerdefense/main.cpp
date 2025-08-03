@@ -10,6 +10,7 @@
 #include "SoundManager.h"
 #include"WaveManager.h"
 #include<SFML/Audio.hpp>
+
 int main() {
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
     window.setFramerateLimit(60);
