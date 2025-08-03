@@ -9,17 +9,18 @@ public:
     void enemypassed(int healthlost);
     bool enoughmoney(int cost);
     void notEnoughMoneywarning();
-    void coinsearned(int m);
+    void coinsearned(int m,int n=0);
     bool gameover();
 private:
     sf::Font font;
     sf::Text cointext;
     sf::Text hearttext;
-    sf::Text warningtext;
+    sf::Text warningtext,scoretext;
     sf::CircleShape coinShape;
     sf::ConvexShape heartShape;
     int coins;
     int health;
+    int score;
     int i;
     sf::Clock timer;
     sf::Time offset;

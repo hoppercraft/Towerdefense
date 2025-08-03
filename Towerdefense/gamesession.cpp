@@ -2,30 +2,33 @@
 #include "gamesession.h"
 #include"GameConstants.h"
 PlayerInfo::PlayerInfo(int coin, int health)
-    : coins(coin), health(health), cointext(font, std::to_string(coin), 80) ,hearttext(font,std::to_string(health),80),warningtext(font,"",170){
+    : coins(coin), health(health), cointext(font, std::to_string(coin), 80),score(0), scoretext(font, "Score:" + std::to_string(score),80),hearttext(font,std::to_string(health), 80), warningtext(font, "", 170) {
     font.openFromFile("font\\ARIAL.ttf");
     hearttext.setScale({ 0.105f, 0.105f });
     hearttext.setFillColor(sf::Color::White);
-    hearttext.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + 30 ,Game::MAP_HEIGHT * Game::TILE_SIZE -15 });
+    hearttext.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + 30 ,Game::MAP_HEIGHT * Game::TILE_SIZE - 15 });
+
+    scoretext.setScale({ 0.105f, 0.105f });
+    scoretext.setFillColor(sf::Color::White);
+    scoretext.setPosition({ Game::MAP_WIDTH/2-5 ,Game::MAP_WIDTH*2});
+    scoretext.setString("Score:" + std::to_string(score));
 
     heartShape.setPointCount(9);
-    heartShape.setPoint(0, sf::Vector2f(110.f, -40.f));   // Bottom point
-    heartShape.setPoint(1, sf::Vector2f(180.f, 40.f));   // Right low
-    heartShape.setPoint(2, sf::Vector2f(200.f, 80.f));   // Right curve outer
-    heartShape.setPoint(3, sf::Vector2f(150.f, 150.f));  // Top right bump
-    heartShape.setPoint(4, sf::Vector2f(100.f, 120.f));  // Center dip
-    heartShape.setPoint(5, sf::Vector2f(50.f, 150.f));   // Top left bump
-    heartShape.setPoint(6, sf::Vector2f(0.f, 80.f));    // Left curve outer
+    heartShape.setPoint(0, sf::Vector2f(110.f, -40.f));
+    heartShape.setPoint(1, sf::Vector2f(180.f, 40.f)); 
+    heartShape.setPoint(2, sf::Vector2f(200.f, 80.f));   
+    heartShape.setPoint(3, sf::Vector2f(150.f, 150.f)); 
+    heartShape.setPoint(4, sf::Vector2f(100.f, 120.f)); 
+    heartShape.setPoint(5, sf::Vector2f(50.f, 150.f));   
+    heartShape.setPoint(6, sf::Vector2f(0.f, 80.f));   
     heartShape.setPoint(7, sf::Vector2f(20.f, 40.f));
     heartShape.setPoint(8, sf::Vector2f(90.f, -40.f));
     heartShape.setRotation(sf::degrees(180.f));
     heartShape.setScale({ 0.06f,0.06f });
-    // Style it
-    heartShape.setFillColor(sf::Color(255, 50, 50)); // Red heart
+    heartShape.setFillColor(sf::Color(255, 50, 50));
     heartShape.setOutlineThickness(10.0f);
     heartShape.setOutlineColor(sf::Color::Black);
 
-    // Position it next to heart text
     heartShape.setPosition({
         hearttext.getPosition().x - 4,
         hearttext.getPosition().y+10
@@ -34,9 +37,9 @@ PlayerInfo::PlayerInfo(int coin, int health)
     cointext.setFillColor(sf::Color::White);
     cointext.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE + 30 ,Game::MAP_HEIGHT * Game::TILE_SIZE - 30 });
     coinShape.setRadius(5.f);
-    coinShape.setFillColor(sf::Color(255, 215, 0));  // Gold color
+    coinShape.setFillColor(sf::Color(255, 215, 0));
     coinShape.setPointCount(10);
-    coinShape.setOutlineColor(sf::Color(218, 165, 32));  // Darker gold
+    coinShape.setOutlineColor(sf::Color(218, 165, 32));
     coinShape.setOutlineThickness(1.5f);
     coinShape.setPosition({ cointext.getPosition().x - 15,cointext.getPosition().y });
 
@@ -51,6 +54,7 @@ void PlayerInfo::draw(sf::RenderWindow& window) {
     window.draw(coinShape);
     window.draw(hearttext);
     window.draw(heartShape);
+    window.draw(scoretext);
     if(timer.getElapsedTime().asSeconds() <= 1.f) {
         window.draw(warningtext);
     }
@@ -61,9 +65,11 @@ void PlayerInfo::turrentplaced(int cost) {
     cointext.setString(std::to_string(coins));
 }
 
-void PlayerInfo::coinsearned(int m) {
+void PlayerInfo::coinsearned(int m,int n) {
     coins += m;
     cointext.setString(std::to_string(coins));
+    score += n;
+    scoretext.setString("Score:" + std::to_string(score));
 }
 
 void PlayerInfo::enemypassed(int healthlost) {

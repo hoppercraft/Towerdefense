@@ -4,7 +4,7 @@
 #include <cmath>
 #include"gamesession.h"
 #include"Towers.h"
-Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"250-upgrade",70),sell(font, "-sell",70){
+Shop::Shop() :shopTowername(font,"", 80), Cost1(font, "100", 70), Cost2(font, "150", 70), Cost3(font, "300", 70),upgrade(font,"250-upgrade",70),sell(font, "-sell",70){
     if (!font.openFromFile("font\\Arial.ttf")) {
         std::cerr << "Failed to load font file!\n";
     }
@@ -86,15 +86,34 @@ Shop::Shop() :shopTowername(font,"", 80) ,upgrade(font,"250-upgrade",70),sell(fo
             });
         frame.setFillColor(sf::Color(0xC4B093FF));
         frames.push_back(frame);
-        if (i == 0) {
-            towers.push_back(std::make_unique<CannonTower>(frame.getPosition().x, frame.getPosition().y));
+        std::unique_ptr<Tower> tower;
+
+        switch (i) {
+        case 0:
+            Cost1.setPosition({ frame.getPosition().x, frame.getPosition().y +14});
+            Cost1.setOrigin(Cost1.getLocalBounds().getCenter());
+            Cost1.setScale({ 0.105f, 0.105f });
+            tower = std::make_unique<CannonTower>(frame.getPosition().x, frame.getPosition().y-3);
+            break;
+        case 1:
+
+            Cost2.setPosition({ frame.getPosition().x, frame.getPosition().y + 14 });
+            Cost2.setOrigin(Cost2.getLocalBounds().getCenter());
+            Cost2.setScale({ 0.105f, 0.105f });
+            tower = std::make_unique<Boat>(frame.getPosition().x, frame.getPosition().y);
+            break;
+        case 2:
+        default:
+
+            Cost3.setPosition({ frame.getPosition().x, frame.getPosition().y + 14 });
+            Cost3.setOrigin(Cost3.getLocalBounds().getCenter());
+            Cost3.setScale({ 0.105f, 0.105f });
+            tower = std::make_unique<TeslaTower>(frame.getPosition().x, frame.getPosition().y + 4);
+            break;
         }
-        else if(i==1){
-             towers.push_back(std::make_unique<Boat>(frame.getPosition().x, frame.getPosition().y));
-        }
-        else{
-            towers.push_back(std::make_unique<TeslaTower>(frame.getPosition().x, frame.getPosition().y+5));
-        }
+
+
+        towers.push_back(std::move(tower));
     }
 
 }
@@ -109,6 +128,10 @@ void Shop::draw(sf::RenderWindow& window) {
         draggedTower->draw(window);
     for (const auto& tower : deployedtowers)
         tower->draw(window);
+
+    window.draw(Cost1);
+    window.draw(Cost2);
+    window.draw(Cost3);
     if (clicked) {
         operatedtower->draw(window);
         window.draw(shopbar);

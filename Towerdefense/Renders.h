@@ -15,6 +15,9 @@ public:
     void Towerupgradeshop(PlayerInfo* info);
 private:
     std::vector<sf::RectangleShape> frames;
+    sf::Text Cost1;
+    sf::Text Cost2;
+    sf::Text Cost3;
     std::vector<std::unique_ptr<Tower>> towers;
     std::vector<std::unique_ptr<Tower>> deployedtowers;
     Tower* operatedtower = nullptr;

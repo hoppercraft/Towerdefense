@@ -89,7 +89,7 @@ void Bullet::draw(sf::RenderWindow& window) const {
 }
 
 void Bullet::increasebulletdamage(int dmg) {
-    bulletdamage = 10+dmg;
+    bulletdamage += dmg;
 }
 bool Bullet::reachedTarget() const {
     float distance = std::sqrt(

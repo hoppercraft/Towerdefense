@@ -36,7 +36,6 @@ void SoundManager::playBulletSound() {
     sound->setVolume(15.f);
     sound->play();
 
-    // Store it so it doesn't get destroyed immediately
     activeSounds.push_back(std::move(sound));
 }
 
@@ -47,7 +46,6 @@ void SoundManager::playCannonSound() {
     sound->setVolume(50.f);
     sound->play();
 
-    // Store it so it doesn't get destroyed immediately
     activeSounds.push_back(std::move(sound));
 }
 
@@ -58,7 +56,6 @@ void SoundManager::playTeslaSound() {
     sound->setVolume(15.f);
     sound->play();
 
-    // Store it so it doesn't get destroyed immediately
     activeSounds.push_back(std::move(sound));
 }
 

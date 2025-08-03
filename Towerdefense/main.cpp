@@ -120,7 +120,7 @@ int main() {
             }
             for (auto it = enemies.begin(); it != enemies.end(); ) {
                 if (!(*it)->isAlive) {
-                    playerinfo.coinsearned((*it)->coindropped);
+                    playerinfo.coinsearned((*it)->coindropped, (*it)->coindropped);
                     delete* it;
                     it = enemies.erase(it);
                 }
@@ -177,7 +177,6 @@ int main() {
         backgroundMusic.stop();
     }
 
-    // Cleanup sounds
     SoundManager::getInstance().cleanup();
 
     return 0;
