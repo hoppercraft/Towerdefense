@@ -16,6 +16,7 @@
 // Declare external variables that are defined in Login.cpp
 extern MYSQL* globalConnection;
 extern std::string loggedInUsername;
+extern bool isNewGame;
 
 void runGame() {
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
@@ -45,11 +46,27 @@ void runGame() {
     PlayerInfo::setCurrentUser(loggedInUsername, globalConnection);
     GameSaveManager saveManager(loggedInUsername, globalConnection);
 
-    // Check for existing save
-    if (saveManager.hasSaveFile()) {
-        std::cout << "Loading previous game..." << std::endl;
-        saveManager.loadGame(playerinfo, waveManager, shop);
+    if (isNewGame) {
+        // Starting a completely new game
+        std::cout << "Starting new game for " << loggedInUsername << std::endl;
+
+        // Delete any existing save file for this user to ensure fresh start
+        if (saveManager.hasSaveFile()) {
+            std::cout << "Deleting previous save file for new game..." << std::endl;
+            saveManager.deleteSaveFile(); // You might need to add this method to GameSaveManager
+        }
     }
+    else {
+        // Continue from saved game
+        if (saveManager.hasSaveFile()) {
+            std::cout << "Loading previous game for " << loggedInUsername << std::endl;
+            saveManager.loadGame(playerinfo, waveManager, shop);
+        }
+        else {
+            std::cout << "Warning: Continue selected but no save file found. Starting new game." << std::endl;
+        }
+    }
+
 
     sf::Clock deltaClock;
 

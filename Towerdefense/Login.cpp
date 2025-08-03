@@ -18,6 +18,7 @@ const char* DB = env["DB"].c_str();
 // Global variables that Game.cpp will use
 MYSQL* globalConnection = nullptr;
 std::string loggedInUsername = "";
+bool isNewGame = true; // Flag to indicate if starting a new game or continuing
 
 enum class AppState {
     Login,
@@ -28,6 +29,20 @@ bool isValidPassword(const std::string& password)
 {
     std::regex pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d]).{8,}$");
     return std::regex_match(password, pattern);
+}
+
+bool hasSavedGame(MYSQL* conn, const std::string& username) {
+    std::string query = "SELECT COUNT(*) FROM game_saves WHERE username='" + username + "'";
+    if (mysql_query(conn, query.c_str()) == 0) {
+        MYSQL_RES* res = mysql_store_result(conn);
+        if (MYSQL_ROW row = mysql_fetch_row(res)) {
+            int count = std::stoi(row[0]);
+            mysql_free_result(res);
+            return count > 0;
+        }
+        mysql_free_result(res);
+    }
+    return false;
 }
 
 bool login()
@@ -55,6 +70,7 @@ bool login()
     std::string password = "";
     unsigned int Highest_score = 0;
     bool typingUsername = true;
+    bool playerHasSavedGame = false;
 
     // Timer for blinking caret
     auto lastBlink = std::chrono::steady_clock::now();
@@ -142,13 +158,23 @@ bool login()
     highScoreText.setStyle(sf::Text::Bold | sf::Text::Italic);
     highScoreText.setPosition(sf::Vector2f(600.f, 20.f));
 
-    sf::RectangleShape playButton(sf::Vector2f(160.f, 50.f));
-    playButton.setPosition(sf::Vector2f(320.f, 300.f));
-    playButton.setFillColor(sf::Color(200, 255, 200));
+    // New Game Button
+    sf::RectangleShape NewButton(sf::Vector2f(160.f, 50.f));
+    NewButton.setPosition(sf::Vector2f(250.f, 300.f));
+    NewButton.setFillColor(sf::Color(200, 255, 200));
 
-    sf::Text playLabel(font, "PLAY GAME", 20);
-    playLabel.setFillColor(sf::Color::Black);
-    playLabel.setPosition(sf::Vector2f(340.f, 310.f));
+    sf::Text NewLabel(font, "NEW GAME", 20);
+    NewLabel.setFillColor(sf::Color::Black);
+    NewLabel.setPosition(sf::Vector2f(270.f, 310.f));
+
+    // Continue Button
+    sf::RectangleShape ContinueButton(sf::Vector2f(160.f, 50.f));
+    ContinueButton.setPosition(sf::Vector2f(420.f, 300.f));
+    ContinueButton.setFillColor(sf::Color(200, 255, 200));
+
+    sf::Text ContinueLabel(font, "CONTINUE", 20);
+    ContinueLabel.setFillColor(sf::Color::Black);
+    ContinueLabel.setPosition(sf::Vector2f(440.f, 310.f));
 
     // Placeholder texts
     sf::Text usernamePlaceholder(font, "Username", 18);
@@ -182,13 +208,21 @@ bool login()
     sf::Color signupHoverColor = sf::Color(150, 230, 150);
     sf::Color signupPressedColor = sf::Color(100, 180, 100);
 
-    sf::Color playNormalColor = sf::Color(200, 255, 200);
-    sf::Color playHoverColor = sf::Color(150, 230, 150);
-    sf::Color playPressedColor = sf::Color(100, 180, 100);
+    sf::Color NewNormalColor = sf::Color(200, 255, 200);
+    sf::Color NewHoverColor = sf::Color(150, 230, 150);
+    sf::Color NewPressedColor = sf::Color(100, 180, 100);
+
+    sf::Color ContinueNormalColor = sf::Color(200, 255, 200);
+    sf::Color ContinueHoverColor = sf::Color(150, 230, 150);
+    sf::Color ContinuePressedColor = sf::Color(100, 180, 100);
+
+    // Color for disabled continue button
+    sf::Color ContinueDisabledColor = sf::Color(150, 150, 150);
 
     bool loginPressed = false;
     bool signupPressed = false;
-    bool playPressed = false;
+    bool NewPressed = false;
+    bool ContinuePressed = false;
 
     // Game loop
     while (window.isOpen()) {
@@ -260,17 +294,6 @@ bool login()
                     else if (!signupPressed) {
                         signupButton.setFillColor(signupNormalColor);
                     }
-
-                    // Play Button Hover (only in PlayerUI)
-                    if (state == AppState::PlayerUI) {
-                        if (playButton.getGlobalBounds().contains(mouseVec)) {
-                            if (!playPressed)
-                                playButton.setFillColor(playHoverColor);
-                        }
-                        else if (!playPressed) {
-                            playButton.setFillColor(playNormalColor);
-                        }
-                    }
                 }
 
                 if (event->getIf<sf::Event::MouseButtonPressed>()) {
@@ -287,12 +310,6 @@ bool login()
                     if (signupButton.getGlobalBounds().contains(mouseVec)) {
                         signupPressed = true;
                         signupButton.setFillColor(signupPressedColor);
-                    }
-
-                    // Play Button Press
-                    if (state == AppState::PlayerUI && playButton.getGlobalBounds().contains(mouseVec)) {
-                        playPressed = true;
-                        playButton.setFillColor(playPressedColor);
                     }
                 }
 
@@ -319,6 +336,9 @@ bool login()
                                         MYSQL_ROW scoreRow = mysql_fetch_row(scoreRes);
                                         Highest_score = scoreRow[0] ? std::stoi(scoreRow[0]) : 0;
                                         mysql_free_result(scoreRes);
+
+                                        // Check if player has saved game
+                                        playerHasSavedGame = hasSavedGame(conn, username);
 
                                         // SET GLOBAL VARIABLES HERE
                                         globalConnection = conn;
@@ -375,13 +395,17 @@ bool login()
                                         std::string insertQuery = "INSERT INTO players (username, password_hash) VALUES('" +
                                             username + "', '" + password + "')";
                                         if (mysql_query(conn, insertQuery.c_str()) == 0) {
+                                            // New users don't have saved games
+                                            playerHasSavedGame = false;
+
                                             // SET GLOBAL VARIABLES HERE TOO
                                             globalConnection = conn;
                                             loggedInUsername = username;
 
                                             state = AppState::PlayerUI;
                                             playerNameText.setString("Player: " + username);
-                                            highScoreText.setString("High Score: 0");
+
+                                            highScoreText.setString("High Score: ");
                                             errorText.setString("");
                                             errorVisible = false;
                                         }
@@ -401,18 +425,6 @@ bool login()
                             }
                         }
                     }
-
-                    // Play Button Release
-                    if (playPressed) {
-                        playPressed = false;
-                        playButton.setFillColor(playNormalColor);
-
-                        if (state == AppState::PlayerUI && playButton.getGlobalBounds().contains(mouseVec)) {
-                            std::cout << "Game Started!\n";
-                            loginSuccessful = true;
-                            window.close();
-                        }
-                    }
                 }
             }
             else if (state == AppState::PlayerUI) {
@@ -420,12 +432,22 @@ bool login()
                     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                     sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
 
-                    if (playButton.getGlobalBounds().contains(mouseVec)) {
-                        if (!playPressed)
-                            playButton.setFillColor(playHoverColor);
+                    // New Game Button Hover
+                    if (NewButton.getGlobalBounds().contains(mouseVec)) {
+                        if (!NewPressed)
+                            NewButton.setFillColor(NewHoverColor);
                     }
-                    else if (!playPressed) {
-                        playButton.setFillColor(playNormalColor);
+                    else if (!NewPressed) {
+                        NewButton.setFillColor(NewNormalColor);
+                    }
+
+                    // Continue Button Hover (only if player has saved game)
+                    if (hasSavedGame && ContinueButton.getGlobalBounds().contains(mouseVec)) {
+                        if (!ContinuePressed)
+                            ContinueButton.setFillColor(ContinueHoverColor);
+                    }
+                    else if (!ContinuePressed && playerHasSavedGame) {
+                        ContinueButton.setFillColor(ContinueNormalColor);
                     }
                 }
 
@@ -433,20 +455,42 @@ bool login()
                     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                     sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
 
-                    if (playButton.getGlobalBounds().contains(mouseVec)) {
-                        playPressed = true;
-                        playButton.setFillColor(playPressedColor);
+                    // New Game Button Press
+                    if (NewButton.getGlobalBounds().contains(mouseVec)) {
+                        NewPressed = true;
+                        NewButton.setFillColor(NewPressedColor);
+                    }
+
+                    // Continue Button Press (only if player has saved game)
+                    if (hasSavedGame && ContinueButton.getGlobalBounds().contains(mouseVec)) {
+                        ContinuePressed = true;
+                        ContinueButton.setFillColor(ContinuePressedColor);
                     }
                 }
 
                 if (event->getIf<sf::Event::MouseButtonReleased>()) {
                     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                     sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
-                    if (playPressed) {
-                        playPressed = false;
-                        playButton.setFillColor(playNormalColor);
-                        if (playButton.getGlobalBounds().contains(mouseVec)) {
-                            std::cout << "Game Started!\n";
+
+                    // New Game Button Release
+                    if (NewPressed) {
+                        NewPressed = false;
+                        NewButton.setFillColor(NewNormalColor);
+                        if (NewButton.getGlobalBounds().contains(mouseVec)) {
+                            std::cout << "New Game Started!\n";
+                            isNewGame = true; // Set flag for new game
+                            loginSuccessful = true;
+                            window.close();
+                        }
+                    }
+
+                    // Continue Button Release
+                    if (ContinuePressed) {
+                        ContinuePressed = false;
+                        ContinueButton.setFillColor(ContinueNormalColor);
+                        if (ContinueButton.getGlobalBounds().contains(mouseVec)) {
+                            std::cout << "Continuing Previous Game!\n";
+                            isNewGame = false; // Set flag for continuing game
                             loginSuccessful = true;
                             window.close();
                         }
@@ -531,8 +575,26 @@ bool login()
         else if (state == AppState::PlayerUI) {
             window.draw(playerNameText);
             window.draw(highScoreText);
-            window.draw(playButton);
-            window.draw(playLabel);
+
+            // Always draw New Game button
+            window.draw(NewButton);
+            window.draw(NewLabel);
+
+            // Draw Continue button - disabled if no saved game
+            if (playerHasSavedGame) {
+                window.draw(ContinueButton);
+                window.draw(ContinueLabel);
+            }
+            else {
+                // Draw disabled continue button
+                sf::RectangleShape disabledContinueButton = ContinueButton;
+                disabledContinueButton.setFillColor(ContinueDisabledColor);
+                window.draw(disabledContinueButton);
+
+                sf::Text disabledContinueLabel = ContinueLabel;
+                disabledContinueLabel.setFillColor(sf::Color(100, 100, 100));
+                window.draw(disabledContinueLabel);
+            }
         }
 
         window.display();
