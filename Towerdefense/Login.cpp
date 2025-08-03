@@ -206,7 +206,13 @@ bool login()
         }
 
         // Poll events
-        while (const std::optional<sf::Event> event = window.pollEvent()) {
+        while (const std::optional<sf::Event> event = window.pollEvent())
+        {
+            if (auto resizeEvent = event->getIf<sf::Event::Resized>()) {
+                sf::Vector2u newSize = window.getSize();
+                sf::FloatRect visibleArea(sf::Vector2f(0.0f,0.0f),sf::Vector2f(width,height));
+                window.setView(sf::View(visibleArea));
+            }
             if (event->is<sf::Event::Closed>()) window.close();
 
             if (state == AppState::Login) {
@@ -242,8 +248,9 @@ bool login()
 
 
                 if (event->getIf<sf::Event::MouseMoved>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
+
 
                     // Login Button Hover
                     if (loginButton.getGlobalBounds().contains(mouseVec)) {
@@ -276,8 +283,9 @@ bool login()
                 }
 
                 if (event->getIf<sf::Event::MouseButtonPressed>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
+
 
                     // Login Button Press
                     if (loginButton.getGlobalBounds().contains(mouseVec)) {
@@ -299,8 +307,9 @@ bool login()
                 }
 
                 if (event->getIf<sf::Event::MouseButtonReleased>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
+
 
                     // Login Button Release
                     if (loginPressed) {
@@ -413,8 +422,9 @@ bool login()
             }
             else if (state == AppState::PlayerUI) {
                 if (event->getIf<sf::Event::MouseMoved>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
+
                     if (playButton.getGlobalBounds().contains(mouseVec)) {
                         if (!playPressed)
                             playButton.setFillColor(playHoverColor);
@@ -425,8 +435,9 @@ bool login()
                 }
 
                 if (event->getIf<sf::Event::MouseButtonPressed>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
+
                     if (playButton.getGlobalBounds().contains(mouseVec)) {
                         playPressed = true;
                         playButton.setFillColor(playPressedColor);
@@ -434,8 +445,8 @@ bool login()
                 }
 
                 if (event->getIf<sf::Event::MouseButtonReleased>()) {
-                    auto mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mouseVec(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouseVec = window.mapPixelToCoords(mousePos);
                     if (playPressed) {
                         playPressed = false;
                         playButton.setFillColor(playNormalColor);
