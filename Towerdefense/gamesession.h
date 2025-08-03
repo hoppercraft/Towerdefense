@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <mysql.h>
 
 class PlayerInfo {
 public:
@@ -11,6 +12,11 @@ public:
     void notEnoughMoneywarning();
     void coinsearned(int m,int n=0);
     bool gameover();
+    static void setCurrentUser(const std::string& username, MYSQL* conn);
+    bool saveScoreToDatabase();
+    int getCurrentScore() const { return score; }
+    static void closeDatabase();
+    bool isNewHighScore();
 private:
     sf::Font font;
     sf::Text cointext;
@@ -25,4 +31,6 @@ private:
     sf::Clock timer;
     sf::Time offset;
     sf::Time elapsed;
+    static std::string currentUsername; 
+    static MYSQL* dbConnection;
 };

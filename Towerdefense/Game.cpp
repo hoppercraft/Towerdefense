@@ -10,6 +10,10 @@
 #include "SoundManager.h"
 #include"WaveManager.h"
 #include<SFML/Audio.hpp>
+#include <mysql.h>
+
+extern MYSQL* globalConnection;
+extern std::string loggedInUsername;
 
 void runGame() {
     sf::RenderWindow window(sf::VideoMode({ (Game::MAP_WIDTH + 3) * Game::TILE_SIZE, Game::MAP_HEIGHT * Game::TILE_SIZE }), "Tower Defense Map");
@@ -34,6 +38,9 @@ void runGame() {
     Shop shop;
     const float speed = 7.0f;
     PlayerInfo playerinfo;
+
+    PlayerInfo::setCurrentUser(loggedInUsername, globalConnection); 
+
     sf::Clock deltaClock;
 
     sf::Texture tileTexture;
@@ -169,10 +176,22 @@ void runGame() {
             }
         }
         if (playerinfo.gameover()) {
+            // Check if it's a new high score before showing game over
+            if (playerinfo.isNewHighScore()) {
+                // You could create a special "NEW HIGH SCORE!" text here
+                sf::Text highScoreMessage(font, "NEW HIGH SCORE!", 150);
+                highScoreMessage.setScale({ 0.105f, 0.105f });
+                highScoreMessage.setStyle(sf::Text::Bold);
+                highScoreMessage.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE / 2 - 80, Game::MAP_HEIGHT * Game::TILE_SIZE / 2 - 80 });
+                highScoreMessage.setFillColor(sf::Color(255, 215, 0)); // Gold color
+                window.draw(highScoreMessage);
+            }
             window.draw(gameovertext);
         }
         window.display();
     }
+
+    PlayerInfo::closeDatabase();
     if (musicLoaded) {
         backgroundMusic.stop();
     }

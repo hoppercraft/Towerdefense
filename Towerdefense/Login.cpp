@@ -13,7 +13,10 @@ auto env = loadEnv("Security.env");
 const char* HOST = env["HOST"].c_str();
 const char* USER = env["USER"].c_str();
 const char* PASS = env["PASS"].c_str();
-const char* DB = env["DB"].c_str();
+const char* DB = env["DB"].c_str(); 
+
+MYSQL* globalConnection = nullptr; // Global connection to pass to game
+std::string loggedInUsername = "";
 
 enum class AppState {
     Login,
@@ -322,6 +325,10 @@ bool login()
                                         Highest_score = scoreRow[0] ? std::stoi(scoreRow[0]) : 0;
                                         mysql_free_result(scoreRes);
 
+                                        // NEW: Set global variables for game use
+                                        globalConnection = conn;
+                                        loggedInUsername = username;
+
                                         state = AppState::PlayerUI;
                                         playerNameText.setString("Player: " + username);
                                         highScoreText.setString("High Score: " + std::to_string(Highest_score));
@@ -362,35 +369,36 @@ bool login()
                         }
                         else {
 
-                            if (signupButton.getGlobalBounds().contains(mouseVec)) {
-                                std::string checkQuery = "SELECT * FROM players WHERE username='" + username + "'";
-                                if (mysql_query(conn, checkQuery.c_str()) == 0) {
+                            if (loginButton.getGlobalBounds().contains(mouseVec)) {
+                                std::string query = "SELECT user_id FROM players WHERE username='" + username + "' AND password_hash='" + password + "'";
+                                if (mysql_query(conn, query.c_str()) == 0) {
                                     MYSQL_RES* res = mysql_store_result(conn);
-                                    if (mysql_num_rows(res) > 0) {
-                                        errorText.setString("Username already exists.");
-                                        errorStartTime = std::chrono::steady_clock::now();
-                                        errorVisible = true;
-                                    }
-                                    else {
-                                        std::string insertQuery = "INSERT INTO players (username, password_hash) VALUES('" +
-                                            username + "', '" + password + "')";
-                                        if (mysql_query(conn, insertQuery.c_str()) == 0) {
+                                    if (MYSQL_ROW row = mysql_fetch_row(res)) {
+                                        int user_id = std::stoi(row[0]);
+                                        mysql_free_result(res);
+
+                                        std::string scoreQuery = "SELECT MAX(score) FROM scores WHERE user_id=" + std::to_string(user_id);
+                                        if (mysql_query(conn, scoreQuery.c_str()) == 0) {
+                                            // NEW: Set global variables for game use
+                                            globalConnection = conn;
+                                            loggedInUsername = username;
+
                                             state = AppState::PlayerUI;
                                             playerNameText.setString("Player: " + username);
-                                            highScoreText.setString("High Score: 0");
+                                            highScoreText.setString("High Score: 0"); // New user starts with 0
                                             errorText.setString("");
                                             errorVisible = false;
                                         }
-                                        else {
-                                            errorText.setString("Insert error.");
-                                            errorStartTime = std::chrono::steady_clock::now();
-                                            errorVisible = true;
-                                        }
                                     }
-                                    mysql_free_result(res);
+                                    else {
+                                        errorText.setString("Invalid username or password.");
+                                        mysql_free_result(res);
+                                        errorStartTime = std::chrono::steady_clock::now();
+                                        errorVisible = true;
+                                    }
                                 }
                                 else {
-                                    errorText.setString("Database error.");
+                                    errorText.setString("Database error!");
                                     errorStartTime = std::chrono::steady_clock::now();
                                     errorVisible = true;
                                 }
@@ -538,6 +546,6 @@ bool login()
 
         window.display();
     }
-    mysql_close(conn);
+ 
     return loginSuccessful;
 }

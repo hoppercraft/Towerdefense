@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="DatabaseManager.cpp" />
     <ClCompile Include="EnvLoader.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameConstants.cpp" />

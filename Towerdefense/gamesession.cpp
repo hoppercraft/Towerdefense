@@ -1,6 +1,140 @@
 #include <SFML/Graphics.hpp>
 #include "gamesession.h"
 #include"GameConstants.h"
+#include <mysql.h>
+#include <iostream>
+
+std::string PlayerInfo::currentUsername = "";
+MYSQL* PlayerInfo::dbConnection = nullptr;
+
+void PlayerInfo::setCurrentUser(const std::string& username, MYSQL* conn) {
+    currentUsername = username;
+    dbConnection = conn;
+}
+// Replace the saveScoreToDatabase() method in your gamesession.cpp with this:
+
+bool PlayerInfo::saveScoreToDatabase() {
+    if (!dbConnection || currentUsername.empty()) {
+        std::cerr << "No database connection or username not set" << std::endl;
+        return false;
+    }
+
+    // First, get the user_id from the players table
+    std::string getUserQuery = "SELECT user_id FROM players WHERE username='" + currentUsername + "'";
+    if (mysql_query(dbConnection, getUserQuery.c_str()) != 0) {
+        std::cerr << "Error getting user ID: " << mysql_error(dbConnection) << std::endl;
+        return false;
+    }
+
+    MYSQL_RES* res = mysql_store_result(dbConnection);
+    if (!res) {
+        std::cerr << "Error storing result: " << mysql_error(dbConnection) << std::endl;
+        return false;
+    }
+
+    MYSQL_ROW row = mysql_fetch_row(res);
+    if (!row) {
+        std::cerr << "User not found in database" << std::endl;
+        mysql_free_result(res);
+        return false;
+    }
+
+    int user_id = std::stoi(row[0]);
+    mysql_free_result(res);
+
+    // Check the user's current highest score
+    std::string checkScoreQuery = "SELECT MAX(score) FROM scores WHERE user_id=" + std::to_string(user_id);
+    if (mysql_query(dbConnection, checkScoreQuery.c_str()) != 0) {
+        std::cerr << "Error checking previous scores: " << mysql_error(dbConnection) << std::endl;
+        return false;
+    }
+
+    MYSQL_RES* scoreRes = mysql_store_result(dbConnection);
+    if (!scoreRes) {
+        std::cerr << "Error storing score result: " << mysql_error(dbConnection) << std::endl;
+        return false;
+    }
+
+    MYSQL_ROW scoreRow = mysql_fetch_row(scoreRes);
+    int previousHighScore = 0;
+
+    if (scoreRow && scoreRow[0]) {
+        previousHighScore = std::stoi(scoreRow[0]);
+    }
+    mysql_free_result(scoreRes);
+
+    // Only save if current score is higher than previous best
+    if (score > previousHighScore) {
+        // Insert the new high score
+        std::string insertScoreQuery = "INSERT INTO scores (user_id, score, level_reached, recorded_at) VALUES(" +
+            std::to_string(user_id) + ", " +
+            std::to_string(score) + ", " +
+            "1, " +  // Default level_reached value
+            "NOW())";
+
+        if (mysql_query(dbConnection, insertScoreQuery.c_str()) != 0) {
+            std::cerr << "Error inserting score: " << mysql_error(dbConnection) << std::endl;
+            return false;
+        }
+
+        std::cout << "NEW HIGH SCORE! " << score << " (Previous best: " << previousHighScore << ") saved for user " << currentUsername << std::endl;
+        return true;
+    }
+    else {
+        std::cout << "Score " << score << " not saved. Not higher than previous best: " << previousHighScore << std::endl;
+        return false; // Not an error, just not a high score
+    }
+}
+
+bool PlayerInfo::isNewHighScore() {
+    if (!dbConnection || currentUsername.empty()) {
+        return false; // Can't check, assume it's not
+    }
+
+    // Get the user_id from the players table
+    std::string getUserQuery = "SELECT user_id FROM players WHERE username='" + currentUsername + "'";
+    if (mysql_query(dbConnection, getUserQuery.c_str()) != 0) {
+        return false;
+    }
+
+    MYSQL_RES* res = mysql_store_result(dbConnection);
+    if (!res) {
+        return false;
+    }
+
+    MYSQL_ROW row = mysql_fetch_row(res);
+    if (!row) {
+        mysql_free_result(res);
+        return false;
+    }
+
+    int user_id = std::stoi(row[0]);
+    mysql_free_result(res);
+
+    // Check the user's current highest score
+    std::string checkScoreQuery = "SELECT MAX(score) FROM scores WHERE user_id=" + std::to_string(user_id);
+    if (mysql_query(dbConnection, checkScoreQuery.c_str()) != 0) {
+        return false;
+    }
+
+    MYSQL_RES* scoreRes = mysql_store_result(dbConnection);
+    if (!scoreRes) {
+        return false;
+    }
+
+    MYSQL_ROW scoreRow = mysql_fetch_row(scoreRes);
+    int previousHighScore = 0;
+
+    if (scoreRow && scoreRow[0]) {
+        previousHighScore = std::stoi(scoreRow[0]);
+    }
+    mysql_free_result(scoreRes);
+
+    return score > previousHighScore;
+}
+
+
+
 PlayerInfo::PlayerInfo(int coin, int health)
     : coins(coin), health(health), cointext(font, std::to_string(coin), 80),score(0), scoretext(font, "Score:" + std::to_string(score),80),hearttext(font,std::to_string(health), 80), warningtext(font, "", 170) {
     font.openFromFile("font\\ARIAL.ttf");
@@ -49,6 +183,8 @@ PlayerInfo::PlayerInfo(int coin, int health)
     warningtext.setStyle(sf::Text::Bold);
 }
 
+
+
 void PlayerInfo::draw(sf::RenderWindow& window) {
     window.draw(cointext);
     window.draw(coinShape);
@@ -92,11 +228,21 @@ void PlayerInfo::notEnoughMoneywarning() {
     timer.restart();
 }
 
+void PlayerInfo::closeDatabase() {
+    // If you're using a database manager, call its cleanup here
+    std::cout << "Database closed (or simulated close).\n";
+    // Or leave empty if not needed
+}
+
 bool PlayerInfo::gameover() {
     if (health <= 0) {
-        return(true);
+        // Save score when game ends
+        if (!saveScoreToDatabase()) {
+            std::cerr << "Failed to save score to database!" << std::endl;
+        }
+        return true;
     }
     else {
-        return(false);
+        return false;
     }
 }
