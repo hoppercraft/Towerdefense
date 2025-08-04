@@ -11,7 +11,8 @@ public:
     bool enoughmoney(int cost);
     void notEnoughMoneywarning();
     void coinsearned(int m,int n=0);
-    bool gameover();
+    bool gameover=false;
+    void gameoverr();
     static void setCurrentUser(const std::string& username, MYSQL* conn);
     bool saveScoreToDatabase();
     int getCurrentScore() const { return score; }

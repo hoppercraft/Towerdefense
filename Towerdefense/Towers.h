@@ -96,10 +96,10 @@ public:
     void setfillcolorlight() override;
     void setfillcolorred() override;
     std::string gettowername() override;
-    void updateLightning();
     std::unique_ptr<Tower> clone() const override;
     void upgrade() override;
-
+    float getradius() override;
+    sf::Vector2f gettowerposition() override;
 private:
     // Tesla tower specific components - UPDATED TO MATCH NEW DESIGN
     sf::RectangleShape teslaBase;        // Changed from CircleShape to RectangleShape (platform)

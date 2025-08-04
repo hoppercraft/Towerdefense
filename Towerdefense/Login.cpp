@@ -216,8 +216,6 @@ bool login()
     sf::Color ContinueHoverColor = sf::Color(150, 230, 150);
     sf::Color ContinuePressedColor = sf::Color(100, 180, 100);
 
-    // Color for disabled continue button
-    sf::Color ContinueDisabledColor = sf::Color(150, 150, 150);
 
     bool loginPressed = false;
     bool signupPressed = false;
@@ -441,12 +439,11 @@ bool login()
                         NewButton.setFillColor(NewNormalColor);
                     }
 
-                    // Continue Button Hover (only if player has saved game)
-                    if (hasSavedGame && ContinueButton.getGlobalBounds().contains(mouseVec)) {
+                    if (ContinueButton.getGlobalBounds().contains(mouseVec)) {
                         if (!ContinuePressed)
                             ContinueButton.setFillColor(ContinueHoverColor);
                     }
-                    else if (!ContinuePressed && playerHasSavedGame) {
+                    else if (!ContinuePressed) {
                         ContinueButton.setFillColor(ContinueNormalColor);
                     }
                 }
@@ -581,20 +578,10 @@ bool login()
             window.draw(NewLabel);
 
             // Draw Continue button - disabled if no saved game
-            if (playerHasSavedGame) {
-                window.draw(ContinueButton);
-                window.draw(ContinueLabel);
-            }
-            else {
-                // Draw disabled continue button
-                sf::RectangleShape disabledContinueButton = ContinueButton;
-                disabledContinueButton.setFillColor(ContinueDisabledColor);
-                window.draw(disabledContinueButton);
+  
+            window.draw(ContinueButton);
+            window.draw(ContinueLabel);
 
-                sf::Text disabledContinueLabel = ContinueLabel;
-                disabledContinueLabel.setFillColor(sf::Color(100, 100, 100));
-                window.draw(disabledContinueLabel);
-            }
         }
 
         window.display();

@@ -268,6 +268,7 @@ Boat::Boat(float x, float y) {
     cannonR.setOrigin({ cannonL.getGeometricCenter().x,cannonL.getGeometricCenter().y + 5 });
     cannonR.setPosition({ x,y });
     Towerrange.setOrigin({ Towerrange.getGeometricCenter().x+75,Towerrange.getGeometricCenter().y + 75 });
+    Towerrange.setPosition({ x,y });
     Towerrange.setRadius(75.f);
     Towerrange.setFillColor(sf::Color(0x00000000));
     Towerrange.setOutlineColor(sf::Color(0x80808000));
@@ -513,6 +514,7 @@ TeslaTower::TeslaTower(float a, float b) : Tower(a, b) {
     Towerrange.setOrigin(Towerrange.getGeometricCenter());
     Towerrange.setPosition({ a, b });
 
+    position = { a,b };
 }
 
 
@@ -541,9 +543,7 @@ bool TeslaTower::contain(sf::Vector2f mousepos) {
         teslaCoil3.getGlobalBounds().contains(mousepos);
 }
 
-void TeslaTower::updateLightning() {
-    // No lightning effects - Tesla tower is now clean
-}
+
 
 void TeslaTower::draw(sf::RenderWindow& window) const {
     // Draw bullets first
@@ -588,7 +588,6 @@ void TeslaTower::tryShoot(std::vector<Enemy*>& enemies) {
 
         if (shotFired) {
             fireCooldown.restart();
-            updateLightning(); // Update lightning on shooting
         }
     }
 }
@@ -643,9 +642,16 @@ std::unique_ptr<Tower> TeslaTower::clone() const {
     return std::make_unique<TeslaTower>(*this);
 }
 
+float TeslaTower::getradius() {
+    return(5);
+}
 void TeslaTower::upgrade() {
     Towerrange.setRadius(100.f);
     Towerrange.setOrigin(Towerrange.getGeometricCenter());
     upgraded = true;
     towersellvalue = 450;
+}
+
+sf::Vector2f TeslaTower::gettowerposition() {
+    return(position);
 }

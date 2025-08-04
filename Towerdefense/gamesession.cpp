@@ -11,7 +11,6 @@ void PlayerInfo::setCurrentUser(const std::string& username, MYSQL* conn) {
     currentUsername = username;
     dbConnection = conn;
 }
-// Replace the saveScoreToDatabase() method in your gamesession.cpp with this:
 
 bool PlayerInfo::saveScoreToDatabase() {
     if (!dbConnection || currentUsername.empty()) {
@@ -229,20 +228,14 @@ void PlayerInfo::notEnoughMoneywarning() {
 }
 
 void PlayerInfo::closeDatabase() {
-    // If you're using a database manager, call its cleanup here
     std::cout << "Database closed (or simulated close).\n";
-    // Or leave empty if not needed
 }
 
-bool PlayerInfo::gameover() {
+void PlayerInfo::gameoverr() {
     if (health <= 0) {
-        // Save score when game ends
         if (!saveScoreToDatabase()) {
             std::cerr << "Failed to save score to database!" << std::endl;
         }
-        return true;
-    }
-    else {
-        return false;
+        gameover = true;
     }
 }

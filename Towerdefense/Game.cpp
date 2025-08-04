@@ -13,7 +13,6 @@
 #include <mysql.h>
 #include "GameSaveManager.h"
 
-// Declare external variables that are defined in Login.cpp
 extern MYSQL* globalConnection;
 extern std::string loggedInUsername;
 extern bool isNewGame;
@@ -97,16 +96,16 @@ void runGame() {
     if (!font.openFromFile("font\\Arial.ttf")) {
         std::cerr << "Failed to load font file!\n";
     }
-    sf::Text gameovertext(font, "GAME OVER", 170);
+    sf::Text gameovertext(font, "", 170);
     gameovertext.setScale({ 0.105f, 0.105f });
     gameovertext.setStyle(sf::Text::Bold);
     gameovertext.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE / 2 - 50, Game::MAP_HEIGHT * Game::TILE_SIZE / 2 - 50 });
     gameovertext.setFillColor(sf::Color(255, 0, 0));
-
+    static bool gameOverProcessed = false;
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
-                if (!playerinfo.gameover()) {
+                if (!playerinfo.gameover) {
                     saveManager.saveGame(playerinfo, waveManager, shop);
                     saveManager.updateHighScore(globalConnection, loggedInUsername, currentHighScore);
                 }
@@ -115,7 +114,7 @@ void runGame() {
 
             else if (const auto* keypressed = event->getIf<sf::Event::KeyPressed>()) {
                 if (keypressed->scancode == sf::Keyboard::Scancode::Escape) {
-                    if (!playerinfo.gameover()) {
+                    if (!playerinfo.gameover) {
                         saveManager.saveGame(playerinfo, waveManager, shop);
                         saveManager.updateHighScore(globalConnection, loggedInUsername, currentHighScore);
                     }
@@ -123,7 +122,7 @@ void runGame() {
                 }
                 else if (keypressed->scancode == sf::Keyboard::Scancode::F5) {
                     // Manual save
-                    if (!playerinfo.gameover()) {
+                    if (!playerinfo.gameover) {
                         saveManager.saveGame(playerinfo, waveManager, shop);
                         bool newHighScore = saveManager.updateHighScore(globalConnection, loggedInUsername, currentHighScore);
                         if (newHighScore) {
@@ -154,7 +153,8 @@ void runGame() {
 
         SoundManager::getInstance().update();
 
-        if (!playerinfo.gameover()) {
+        if (!playerinfo.gameover) {
+            playerinfo.gameoverr();
             float deltaTime = deltaClock.restart().asSeconds();
             waveManager.update(deltaTime, enemies);
             saveManager.autoSaveIfNeeded(playerinfo, waveManager, shop);
@@ -201,51 +201,46 @@ void runGame() {
         playerinfo.draw(window);
         waveManager.draw(window);
 
-        // Handle victory condition
         if (waveManager.allWavesComplete()) {
             static bool victoryShown = false;
             if (!victoryShown) {
                 std::cout << "Victory! All waves completed!\n";
                 victoryShown = true;
-                // Save the victory state
-                if (!playerinfo.gameover()) {
+                if (!playerinfo.gameover) {
                     saveManager.saveGame(playerinfo, waveManager, shop);
                     saveManager.updateHighScore(globalConnection, loggedInUsername, currentHighScore);
                 }
             }
         }
 
-        // Handle game over
-        if (playerinfo.gameover()) {
-            // Save final score when game over occurs (if not already saved)
-            static bool gameOverProcessed = false;
-            if (!gameOverProcessed) {
+        if (!gameOverProcessed) {
+            
+            if (playerinfo.gameover) {
                 saveManager.saveGame(playerinfo, waveManager, shop);
-                // Call the high score update function from GameSaveManager
                 bool newHighScore = saveManager.updateHighScore(globalConnection, loggedInUsername, currentHighScore);
                 gameOverProcessed = true;
-
+                gameovertext.setString("GAME OVER!");
                 if (newHighScore) {
                     std::cout << "Game Over - New High Score Achieved!" << std::endl;
                 }
+                if (playerinfo.isNewHighScore()) {
+                    sf::Text highScoreMessage(font, "NEW HIGH SCORE!", 150);
+                    highScoreMessage.setScale({ 0.105f, 0.105f });
+                    highScoreMessage.setStyle(sf::Text::Bold);
+                    highScoreMessage.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE / 2 - 80, Game::MAP_HEIGHT * Game::TILE_SIZE / 2 - 80 });
+                    highScoreMessage.setFillColor(sf::Color(255, 215, 0));
+                    
+                    window.draw(highScoreMessage);
+                }
             }
 
-            // Check if it's a new high score before showing game over
-            if (playerinfo.isNewHighScore()) {
-                sf::Text highScoreMessage(font, "NEW HIGH SCORE!", 150);
-                highScoreMessage.setScale({ 0.105f, 0.105f });
-                highScoreMessage.setStyle(sf::Text::Bold);
-                highScoreMessage.setPosition({ Game::MAP_WIDTH * Game::TILE_SIZE / 2 - 80, Game::MAP_HEIGHT * Game::TILE_SIZE / 2 - 80 });
-                highScoreMessage.setFillColor(sf::Color(255, 215, 0)); // Gold color
-                window.draw(highScoreMessage);
-            }
-            window.draw(gameovertext);
+            
+            
         }
-
+        window.draw(gameovertext);
         window.display();
     }
 
-    // Clean up
     for (auto* enemy : enemies) {
         delete enemy;
     }
