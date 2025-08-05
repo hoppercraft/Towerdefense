@@ -228,9 +228,11 @@ bool GameSaveManager::updateHighScore(MYSQL* conn, const std::string& username, 
     // Check if current score is higher than the highest score
     if (currentScore > highestScore) {
         // Insert new high score into scores table
-        std::string insertScoreQuery = "INSERT INTO scores (user_id, score) VALUES(" +
+        std::string insertScoreQuery = "INSERT INTO scores (user_id, score, level_reached, recorded_at) VALUES(" +
             std::to_string(user_id) + ", " +
-            std::to_string(currentScore) + ", NOW())";
+            std::to_string(currentScore) + ", " +
+            "1, " +  // Default level_reached value
+            "NOW())";
 
         if (mysql_query(conn, insertScoreQuery.c_str()) != 0) {
             std::cout << "Error inserting new high score: " << mysql_error(conn) << std::endl;
