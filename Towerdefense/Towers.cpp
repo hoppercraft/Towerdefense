@@ -45,10 +45,12 @@ Tower::Tower(float a, float b) {
     sight.setPosition({ a, b - 2.f });
     Towerrange.setRadius(50.f);
     Towerrange.setOrigin(Towerrange.getGeometricCenter());
-    Towerrange.setOutlineColor(sf::Color(0x80808000));
-    Towerrange.setOutlineThickness(1.f);
-    Towerrange.setFillColor(sf::Color(0x00000000));
-    Towerrange.setPosition(body.getPosition());
+    Towerrange.setOutlineColor(sf::Color(0x80808080));
+    Towerrange.setOutlineThickness(2.f);
+    Towerrange.setFillColor(sf::Color(0x80808020));
+    Towerrange.setPosition({ a, b });
+
+    std::cout << "Tower created at: " << a << ", " << b << " with range: " << range << std::endl;
 }
 void Tower::setangle(float x) {
     sf::Angle a = sf::radians(x);
@@ -71,9 +73,10 @@ void Tower::setfillcolordefault() {
     barrel.setOutlineColor(sf::Color(32, 32, 32, 255));
     sight.setFillColor(sf::Color(139, 69, 19,255));
 }
+
 void Tower::showrange() {
-    Towerrange.setFillColor(sf::Color(0x00000022));
-    Towerrange.setOutlineColor(sf::Color(0x80808088));
+    Towerrange.setFillColor(sf::Color(0x80808040));
+    Towerrange.setOutlineColor(sf::Color(0x808080FF));
 }
 
 void Tower::hiderange() {

@@ -23,7 +23,7 @@ private:
     BulletType bulletType;
     sf::CircleShape shape;
     sf::Vector2f position;
-    sf::Vector2f target;
+    sf::Vector2f targetPosition;
     sf::Vector2f velocity;
     int bulletdamage=10; 
     sf::Clock animationClock;

@@ -1,6 +1,6 @@
 ﻿#include "Enemy.h"
 
-Enemy::Enemy() {
+Enemy::Enemy() : maxHealth(100.0f), currentHealth(100.0f), currentStep(0) {
     int startX = 0, startY = 3;
     position = sf::Vector2f(static_cast<float>(startX * Game::TILE_SIZE + Game::TILE_SIZE / 2),
         static_cast<float>(startY * Game::TILE_SIZE + Game::TILE_SIZE / 2));
@@ -116,9 +116,11 @@ Enemy::Enemy() {
     isMoving = true;
 
 
-    for (int y = 0; y < Game::MAP_HEIGHT; ++y)
-        for (int x = 0; x < Game::MAP_WIDTH; ++x)
-            visited[y][x] = false;
+    // Initialize health bar
+    healthBarBackground.setSize(sf::Vector2f(20.0f, 4.0f));
+    healthBarBackground.setFillColor(sf::Color::Black);
+    healthBarBackground.setOutlineThickness(1.0f);
+    healthBarBackground.setOutlineColor(sf::Color::White);
 
     // Find path and update initial position
     findPath(startX, startY);
@@ -270,7 +272,7 @@ void Enemy::findPath(int x, int y) {
         return;
 
     visited[y][x] = true;
-    path.push_back({ x, y });
+    path.push_back(sf::Vector2i(x, y));
 
     // Try all four directions
     for (auto dir : directions)
@@ -281,7 +283,7 @@ void Enemy::findPath(int x, int y) {
         return;
 
     sf::Vector2i last = path.back();
-    path.push_back({ last.x + 1, last.y });
+    path.push_back(sf::Vector2i(last.x + 1, last.y));
 }
 
 sf::FloatRect Enemy::getGlobalBounds() {

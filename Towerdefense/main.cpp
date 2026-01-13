@@ -4,7 +4,7 @@
 
 int main() {
     if (login()) {
-        // User logged in and pressed Play Game — start your main game here
+        // User logged in and pressed Play Game â€” start your main game here
         runGame(); // call your game loop function
     }
     else {

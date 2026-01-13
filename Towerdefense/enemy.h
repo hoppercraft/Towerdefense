@@ -49,9 +49,9 @@ public:
     float movementTimer;
     bool isMoving;
 
-    const std::vector<sf::Vector2i> directions = {
-        {1, 0}, {0, 1}, {-1, 0}, {0, -1}
-    };
+    // Health system
+    float maxHealth;
+    float currentHealth;
 
 
     void findPath(int x, int y);

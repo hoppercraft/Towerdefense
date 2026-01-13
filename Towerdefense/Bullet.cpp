@@ -93,8 +93,8 @@ void Bullet::increasebulletdamage(int dmg) {
 }
 bool Bullet::reachedTarget() const {
     float distance = std::sqrt(
-        (target.x - position.x) * (target.x - position.x) +
-        (target.y - position.y) * (target.y - position.y)
+        (targetPosition.x - position.x) * (targetPosition.x - position.x) +
+        (targetPosition.y - position.y) * (targetPosition.y - position.y)
     );
     if (distance < 5.f) {
         targetEnemy->Health -= bulletdamage;
