@@ -1,39 +1,115 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <vector>
-#include "Bullet.h"  // Make sure this matches your actual filename
-#include "Enemy.h"
-
+#include "enemy.h"
+#include"Bullet.h"
+#include"GameConstants.h"
 class Tower {
 public:
     Tower(float a = 0, float b = 0);
-    void setfillcolordefault();
-    void setfillcolorlight();
-    void setfillcolorred();
-    sf::Vector2f towerpos();
-    void setposition(sf::Vector2f position);
-    void draw(sf::RenderWindow& window, bool showRange = false) const;  // Added showRange parameter
-    bool contain(sf::Vector2f mousepos);
-    void showrange();
-    sf::FloatRect getGlobalBounds();
-
-    // New methods for automatic firing
-    void update(float deltaTime, const std::vector<Enemy>& enemies);
-    void updateBullets(float deltaTime, std::vector<Enemy>& enemies);
-    void drawBullets(sf::RenderWindow& window) const;
-    Enemy* findNearestEnemy(const std::vector<Enemy>& enemies);
-    bool isEnemyInRange(const Enemy& enemy) const;
-    float getRange() const { return range; }
-
+    virtual void setfillcolordefault();
+    virtual void setfillcolorlight();
+    virtual void setfillcolorred();
+    virtual void setposition(sf::Vector2f position);
+    virtual void draw(sf::RenderWindow& window) const;
+    virtual bool contain(sf::Vector2f mousepos);
+    virtual void showrange();
+    virtual void hiderange();
+    virtual void setangle(float x);
+    virtual sf::Angle gettowerangle();
+    virtual void tryShoot(std::vector<Enemy*>& enemies);
+    void updateBullets(float dt);
+    virtual bool isInRange(sf::Vector2f other, float range);
+    virtual float getrange();
+    virtual float getradius();
+    virtual sf::Vector2f gettowerposition();
+    std::vector<Bullet> bullets;
+    sf::Clock fireCooldown;
+    float fireRate = 1.f;
+    virtual std::unique_ptr<Tower> clone() const;
+    virtual ~Tower() = default;
+    virtual Game::TileType towertilereq();
+    void clearBullets();
+    virtual std::string gettowername();
+    bool upgraded=false;
+    virtual void upgrade();
+    int towercost,upgradecost;
+    int towersellvalue = 75;
 protected:
+    sf::CircleShape Towerrange;
+    sf::CircleShape base;
     sf::RectangleShape body;
     sf::CircleShape head;
-    sf::CircleShape Towerrange;
+    sf::RectangleShape sight;
+    std::vector<sf::RectangleShape> barrels;
+    sf::RectangleShape barrel;
+};
 
-    // New members for automatic firing
-    std::vector<Bullet> bullets;
-    float range;
-    float fireRate;        // Bullets per second
-    float timeSinceLastShot;
-    float bulletDamage;
+class CannonTower : public Tower {
+public:
+    CannonTower(float x = 0, float y = 0);
+
+    std::unique_ptr<Tower> clone() const override;
+};
+
+
+class Boat : public Tower {
+public:
+    Boat(float x = 100, float y = 100);
+    void draw(sf::RenderWindow& window) const override;
+    void setfillcolordefault() override;
+    void setfillcolorlight() override;
+    void setfillcolorred() override;
+    void setposition(sf::Vector2f position) override;
+    bool contain(sf::Vector2f mousepos) override;
+    void showrange() override;
+    void setangle(float x) override;
+    sf::Angle gettowerangle() override;
+    bool isInRange(sf::Vector2f other, float range) override;
+    float getrange() override;
+    float getradius() override;
+    sf::Vector2f gettowerposition() override;
+    std::unique_ptr<Tower> clone() const override;
+    void tryShoot(std::vector<Enemy*>& enemies) override;
+    Game::TileType towertilereq() override;
+    std::string gettowername() override;
+    void upgrade() override;
+    void hiderange() override;
+private:
+    sf::CircleShape Towerrange;
+    sf::ConvexShape boat;
+    sf::RectangleShape flag;
+    sf::RectangleShape cannonL,cannonR;
+    sf::CircleShape skull,man;
+    sf::RectangleShape crossbone1, crossbone2;
+};
+
+class TeslaTower : public Tower {
+public:
+    TeslaTower(float a = 0, float b = 0);
+    void draw(sf::RenderWindow& window) const override;
+    void tryShoot(std::vector<Enemy*>& enemies) override;
+    void setposition(sf::Vector2f pos) override;
+    bool contain(sf::Vector2f mousepos) override;
+    bool isInRange(sf::Vector2f other, float range) override;
+    // Tesla-specific color functions
+    void setfillcolordefault() override;
+    void setfillcolorlight() override;
+    void setfillcolorred() override;
+    std::string gettowername() override;
+    std::unique_ptr<Tower> clone() const override;
+    void upgrade() override;
+    float getradius() override;
+    sf::Vector2f gettowerposition() override;
+private:
+    // Tesla tower specific components - UPDATED TO MATCH NEW DESIGN
+    sf::RectangleShape teslaBase;        // Changed from CircleShape to RectangleShape (platform)
+    sf::RectangleShape teslaRod;         // Central support rod
+    sf::RectangleShape teslaCoil1;       // Changed from CircleShape to RectangleShape (coil sections)
+    sf::RectangleShape teslaCoil2;       // Changed from CircleShape to RectangleShape
+    sf::RectangleShape teslaCoil3;       // Changed from CircleShape to RectangleShape
+    sf::RectangleShape teslaTop;         // Changed from CircleShape to RectangleShape (top conductor)
+    sf::RectangleShape teslaTopHighlight; // NEW: Highlight for cylindrical effect
+    std::vector<sf::RectangleShape> lightningArcs;
+    sf::Vector2f position;
+    sf::Clock lightningClock;
 };

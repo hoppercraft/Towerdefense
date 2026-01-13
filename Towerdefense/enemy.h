@@ -1,37 +1,71 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 #include <vector>
+#include <cmath>
 #include "GameConstants.h" 
 
 class Enemy {
 public:
     Enemy();
+    float speed = 0.8f;
+    void update(float deltaTime);
+    void draw(sf::RenderWindow& window);
+    sf::FloatRect getGlobalBounds();
+    sf::Vector2f getposition();
+    // for the body parts of the black troop
+    sf::CircleShape hood;
+    sf::CircleShape faceMask;
+    sf::CircleShape body;
+    sf::RectangleShape leftArm;
+    sf::RectangleShape rightArm;
+    sf::CircleShape leftHand;
+    sf::CircleShape rightHand;
+    sf::RectangleShape leftLeg;
+    sf::RectangleShape rightLeg;
+    sf::RectangleShape leftFoot;
+    sf::RectangleShape rightFoot;
+    sf::RectangleShape belt;
 
-    void update(float speed);
-    void draw(sf::RenderWindow& window) const;
-    sf::Vector2f getPosition() const;
-    void takeDamage(float damage);
-    bool isAlive() const;
-    float getHealth() const;
-    float getMaxHealth() const;
 
-private:
-    sf::CircleShape shape;
+    sf::CircleShape leftEye;
+    sf::CircleShape rightEye;
+    sf::CircleShape leftEyeGlow;
+    sf::CircleShape rightEyeGlow;
+
+
+    sf::RectangleShape swordBlade;
+    sf::RectangleShape swordGuard;
+    sf::RectangleShape swordHandle;
+    sf::CircleShape swordPommel;
+    sf::RectangleShape healthbar;
+
     std::vector<sf::Vector2i> path;
-    std::vector<std::vector<bool>> visited;
-    size_t currentStep;
+    bool visited[Game::MAP_HEIGHT][Game::MAP_WIDTH];
+    size_t currentStep = 0;
+    sf::Vector2f position;
+
+
+    float movementTimer;
+    bool isMoving;
 
     // Health system
     float maxHealth;
     float currentHealth;
 
-    // Health bar components
-    sf::RectangleShape healthBarBackground;
-    sf::RectangleShape healthBarForeground;
 
-    void updateHealthBar();
     void findPath(int x, int y);
-
-    // Static directions - this is the key fix
-    static const std::vector<sf::Vector2i> directions;
+    void updateNinjaPosition(sf::Vector2f newPos);
+    bool isAlive=true;
+    float Health = 100.0f;
+    float maxHealth = 100.f;
+    void updateHealthbarnev();
+    int coindropped;
 };
+
+
+class FastEnemy : public Enemy {
+public:
+    FastEnemy();
+    void update(float deltaTime);
+};  
